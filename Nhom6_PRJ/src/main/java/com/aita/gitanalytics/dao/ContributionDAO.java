@@ -62,10 +62,10 @@ public class ContributionDAO {
         
         // Nếu database chưa có dữ liệu (rs.next() = false), mock một số data cho prototype chạy
         if (list.isEmpty()) {
-            list.add(new StudentContribution("Nguyễn Văn A (DB Mock)", 45, 2600, 88, 38.0));
-            list.add(new StudentContribution("Trần Thị B (DB Mock)", 32, 1900, 92, 30.5));
-            list.add(new StudentContribution("Lê Văn C (DB Mock)", 2, 100, 10, 5.0)); // Free rider
-            list.add(new StudentContribution("Phạm Văn D (DB Mock)", 28, 2100, 78, 26.5));
+            list.add(new StudentContribution("Nguyen Van A (DB Mock)", 45, 2600, 88, 38.0));
+            list.add(new StudentContribution("Tran Thi B (DB Mock)", 32, 1900, 92, 30.5));
+            list.add(new StudentContribution("Le Van C (DB Mock)", 2, 100, 10, 5.0)); // Free rider
+            list.add(new StudentContribution("Pham Van D (DB Mock)", 28, 2100, 78, 26.5));
         }
 
         return list;
