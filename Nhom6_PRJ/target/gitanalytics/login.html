@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AITA - Giảng Viên Đăng Nhập</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="login-body">
+    
+    <div class="glass-container login-box">
+        <div class="logo-area">
+            <i class="fa-solid fa-code-branch logo-icon"></i>
+            <h2>AITA</h2>
+            <p>Git Analytics Teamwork Assessor</p>
+        </div>
+
+        <form id="loginForm" class="login-form">
+            <div class="input-group">
+                <label for="email">Tài khoản (Email)</label>
+                <div class="input-wrapper">
+                    <i class="fa-regular fa-envelope"></i>
+                    <input type="email" id="email" placeholder="lecturer@university.edu.vn" required>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="password">Mật khẩu</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" id="password" placeholder="••••••••" required>
+                </div>
+            </div>
+
+            <div class="form-options">
+                <label class="checkbox-container">
+                    <input type="checkbox">
+                    <span class="checkmark"></span>
+                    Nhớ đăng nhập
+                </label>
+                <a href="#" class="forgot-pwd">Quên mật khẩu?</a>
+            </div>
+
+            <button type="submit" class="btn-primary">
+                Đăng Nhập
+                <i class="fa-solid fa-arrow-right"></i>
+            </button>
+            <p id="error-msg" class="error-msg hidden">Sai thông tin đăng nhập!</p>
+        </form>
+    </div>
+
+    <!-- Custom JS -->
+    <script src="js/login.js"></script>
+</body>
+</html>
