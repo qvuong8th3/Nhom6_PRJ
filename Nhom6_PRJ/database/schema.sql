@@ -88,8 +88,7 @@ GO
 -- Bảng Contribution_Scores: Lưu điểm đánh giá định kỳ
 IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Contribution_Scores')
 BEGIN
-    CREATE TABLE Contribution_Scores (
-        score_id INT IDENTITY(1,1) PRIMARY KEY,
+    CREATE TABLE Contribution_Scores (score_id INT IDENTITY(1,1) PRIMARY KEY,
         group_id INT NOT NULL,
         user_id INT NOT NULL,
         evaluated_period VARCHAR(50), -- Ví dụ: "Week 1", "Sprint 1"
