@@ -1,9 +1,17 @@
--- ========================================================
--- DATABASE SCHEMA: AITA - GIT ANALYTICS MODULE (NHÓM 5)
--- Hệ quản trị: Microsoft SQL Server (SSMS)
--- ========================================================
+-- =========================================================
+-- DATABASE: AITA_DB - GIT ANALYTICS MODULE - GROUP 6
+-- Hệ quản trị: Microsoft SQL Server
+-- =========================================================
 
-IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = 'AITA_DB')
+-- =========================================================
+-- 1. TẠO DATABASE
+-- =========================================================
+
+IF NOT EXISTS (
+    SELECT name
+    FROM sys.databases
+    WHERE name = 'AITA_DB'
+)
 BEGIN
     CREATE DATABASE AITA_DB;
 END
@@ -12,121 +20,387 @@ GO
 USE AITA_DB;
 GO
 
--- 1. Bảng Users: Chứa thông tin Sinh viên, Giảng viên
-IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Users')
+
+-- =========================================================
+-- 2. USERS
+-- Lưu thông tin người dùng:
+-- Sinh viên và Giảng viên
+-- =========================================================
+
+IF OBJECT_ID('Users', 'U') IS NULL
 BEGIN
     CREATE TABLE Users (
+
+        -- Khóa chính của người dùng
         user_id INT IDENTITY(1,1) PRIMARY KEY,
+
+        -- Tên đăng nhập
         username VARCHAR(50) NOT NULL UNIQUE,
+
+        -- Mật khẩu đã mã hóa
         password_hash VARCHAR(255) NOT NULL,
+
+        -- Họ và tên
         full_name NVARCHAR(100) NOT NULL,
+
+        -- Email người dùng
         email VARCHAR(100) NOT NULL UNIQUE,
-        github_username VARCHAR(50) NULL, -- THÊM: Map tài khoản Git với hệ thống
-        role VARCHAR(20) NOT NULL DEFAULT 'STUDENT'
-            CHECK (role IN ('STUDENT', 'LECTURER')),
-        created_at DATETIME DEFAULT GETDATE()
+
+        -- Tên tài khoản GitHub
+        -- Dùng để liên kết sinh viên với Git
+        github_username VARCHAR(50) NULL,
+
+        -- Vai trò:
+        -- STUDENT = Sinh viên
+        -- LECTURER = Giảng viên
+        role VARCHAR(20) NOT NULL
+            DEFAULT 'STUDENT',
+
+        -- Thời gian tạo tài khoản
+        created_at DATETIME
+            DEFAULT GETDATE(),
+
+        -- Chỉ cho phép 2 loại tài khoản
+        CONSTRAINT CK_Users_Role
+            CHECK (
+                role IN ('STUDENT', 'LECTURER')
+            )
     );
 END
 GO
 
--- 2. Bảng Project_Groups: Các nhóm sinh viên
-IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Project_Groups')
+
+-- =========================================================
+-- 3. PROJECT_GROUPS
+-- Lưu thông tin các nhóm sinh viên
+-- Ví dụ: Nhóm 1, Nhóm 2, Nhóm 6...
+-- =========================================================
+
+IF OBJECT_ID('Project_Groups', 'U') IS NULL
 BEGIN
     CREATE TABLE Project_Groups (
-        group_id INT IDENTITY(1,1) PRIMARY KEY,
-        group_name NVARCHAR(100) NOT NULL,
-        project_topic NVARCHAR(255),
-        created_at DATETIME DEFAULT GETDATE()
+
+        -- Khóa chính của nhóm
+        group_id INT IDENTITY(1,1)
+            PRIMARY KEY,
+
+        -- Tên nhóm
+        group_name NVARCHAR(100)
+            NOT NULL,
+
+        -- Tên/chủ đề project
+        project_topic NVARCHAR(255)
+            NULL,
+
+        -- Ngày tạo nhóm
+        created_at DATETIME
+            DEFAULT GETDATE()
     );
 END
 GO
 
--- 3. Bảng Group_Members: Danh sách thành viên từng nhóm
-IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Group_Members')
+
+-- =========================================================
+-- 4. GROUP_MEMBERS
+-- Bảng trung gian lưu sinh viên thuộc nhóm nào
+--
+-- Quan hệ:
+-- Users <--> Project_Groups
+-- thông qua Group_Members
+-- =========================================================
+
+IF OBJECT_ID('Group_Members', 'U') IS NULL
 BEGIN
     CREATE TABLE Group_Members (
-        group_id INT,
-        user_id INT,
-        role_in_group VARCHAR(50) DEFAULT 'Member', -- Leader, Member
-        PRIMARY KEY (group_id, user_id),
-        FOREIGN KEY (group_id) REFERENCES Project_Groups(group_id) ON DELETE CASCADE,
-        FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
+
+        -- ID nhóm
+        -- Đồng thời là Foreign Key
+        group_id INT NOT NULL,
+
+        -- ID sinh viên
+        -- Đồng thời là Foreign Key
+        user_id INT NOT NULL,
+
+        -- Vai trò trong nhóm
+        -- Leader = Trưởng nhóm
+        -- Member = Thành viên
+        role_in_group VARCHAR(50)
+            DEFAULT 'Member',
+
+        -- Khóa chính gồm 2 cột
+        -- Một sinh viên chỉ xuất hiện 1 lần trong 1 nhóm
+        CONSTRAINT PK_Group_Members
+            PRIMARY KEY (
+                group_id,
+                user_id
+            ),
+
+        -- Liên kết với Project_Groups
+        CONSTRAINT FK_GroupMembers_Group
+            FOREIGN KEY (group_id)
+            REFERENCES Project_Groups(group_id)
+            ON DELETE CASCADE,
+
+        -- Liên kết với Users
+        CONSTRAINT FK_GroupMembers_User
+            FOREIGN KEY (user_id)
+            REFERENCES Users(user_id)
+            ON DELETE CASCADE
     );
 END
 GO
 
--- 4. Bảng Git_Repositories: Liên kết Nhóm với Repo Git
-IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Git_Repositories')
+
+-- =========================================================
+-- 5. GIT_REPOSITORIES
+-- Lưu thông tin Repository Git của từng nhóm
+--
+-- Ví dụ:
+-- Nhóm 6 -> GitHub Repository của project
+-- =========================================================
+
+IF OBJECT_ID('Git_Repositories', 'U') IS NULL
 BEGIN
     CREATE TABLE Git_Repositories (
-        repo_id INT IDENTITY(1,1) PRIMARY KEY,
+
+        -- ID Repository
+        repo_id INT IDENTITY(1,1)
+            PRIMARY KEY,
+
+        -- Repository thuộc nhóm nào
         group_id INT NOT NULL,
-        repo_url VARCHAR(255) NOT NULL,
-        provider VARCHAR(20) NOT NULL DEFAULT 'GITHUB'
-            CHECK (provider IN ('GITHUB', 'GITLAB')),
-        access_token VARCHAR(255) NULL,
-        last_synced DATETIME NULL,
-        FOREIGN KEY (group_id) REFERENCES Project_Groups(group_id) ON DELETE CASCADE
+
+        -- URL GitHub/GitLab
+        repo_url VARCHAR(255)
+            NOT NULL,
+
+        -- Nhà cung cấp Git
+        -- GITHUB hoặc GITLAB
+        provider VARCHAR(20)
+            NOT NULL
+            DEFAULT 'GITHUB',
+
+        -- Token truy cập Repository private
+        -- Lưu ý: dữ liệu thật phải được bảo mật
+        access_token VARCHAR(255)
+            NULL,
+
+        -- Thời điểm cuối cùng hệ thống đồng bộ Git
+        last_synced DATETIME
+            NULL,
+
+        -- Chỉ cho phép GitHub hoặc GitLab
+        CONSTRAINT CK_GitRepositories_Provider
+            CHECK (
+                provider IN ('GITHUB', 'GITLAB')
+            ),
+
+        -- Liên kết Repository với nhóm
+        CONSTRAINT FK_GitRepositories_Group
+            FOREIGN KEY (group_id)
+            REFERENCES Project_Groups(group_id)
+            ON DELETE CASCADE
     );
 END
 GO
 
--- 5. Bảng Commits: Lịch sử commit cào về từ Git
-IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Commits')
+
+-- =========================================================
+-- 6. COMMITS
+-- Lưu lịch sử Commit được lấy từ GitHub/GitLab
+--
+-- Đây là bảng QUAN TRỌNG cho Git Analytics
+-- =========================================================
+
+IF OBJECT_ID('Commits', 'U') IS NULL
 BEGIN
     CREATE TABLE Commits (
-        commit_id VARCHAR(64) PRIMARY KEY, -- Hash commit (SHA-1 hoặc SHA-256)
+
+        -- Hash duy nhất của Commit
+        -- Có thể là SHA-1 hoặc SHA-256
+        commit_id VARCHAR(64)
+            PRIMARY KEY,
+
+        -- Commit thuộc Repository nào
         repo_id INT NOT NULL,
-        user_id INT NULL,                  -- THÊM: Liên kết trực tiếp tới User sau khi map email
-        author_email VARCHAR(100) NOT NULL,
-        author_name NVARCHAR(100),
-        message NVARCHAR(MAX),
-        lines_added INT DEFAULT 0,
-        lines_deleted INT DEFAULT 0,
-        commit_date DATETIME NOT NULL,
-        FOREIGN KEY (repo_id) REFERENCES Git_Repositories(repo_id) ON DELETE CASCADE,
-        FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE SET NULL
+
+        -- Commit do User nào thực hiện
+        -- Có thể NULL nếu hệ thống chưa map được
+        user_id INT NULL,
+
+        -- Email của người tạo Commit
+        author_email VARCHAR(100)
+            NOT NULL,
+
+        -- Tên tác giả Commit
+        author_name NVARCHAR(100)
+            NULL,
+
+        -- Nội dung Commit Message
+        message NVARCHAR(MAX)
+            NULL,
+
+        -- Số dòng code được thêm
+        lines_added INT
+            DEFAULT 0,
+
+        -- Số dòng code bị xóa
+        lines_deleted INT
+            DEFAULT 0,
+
+        -- Thời gian Commit
+        commit_date DATETIME
+            NOT NULL,
+
+        -- Liên kết Commit với Repository
+        CONSTRAINT FK_Commits_Repository
+            FOREIGN KEY (repo_id)
+            REFERENCES Git_Repositories(repo_id)
+            ON DELETE CASCADE,
+
+        -- Liên kết Commit với User
+        CONSTRAINT FK_Commits_User
+            FOREIGN KEY (user_id)
+            REFERENCES Users(user_id)
+            ON DELETE SET NULL
     );
 
-    -- Tối ưu Index cho truy vấn phân tích
-    CREATE INDEX IX_Commits_Repo_Date ON Commits(repo_id, commit_date);
-    CREATE INDEX IX_Commits_User ON Commits(user_id);
+
+    -- Index giúp tìm Commit theo Repository
+    -- và theo thời gian nhanh hơn
+    CREATE INDEX IX_Commits_Repo_Date
+        ON Commits(
+            repo_id,
+            commit_date
+        );
+
+
+    -- Index giúp tìm Commit theo sinh viên
+    CREATE INDEX IX_Commits_User
+        ON Commits(user_id);
+
 END
 GO
 
--- 6. Bảng Contribution_Settings (THÊM): Cấu hình trọng số tính điểm
-IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Contribution_Settings')
+
+-- =========================================================
+-- 7. CONTRIBUTION_SETTINGS
+-- Lưu cấu hình trọng số tính điểm đóng góp
+--
+-- Ví dụ:
+-- Commit       = 40%
+-- LOC          = 40%
+-- Regularity   = 20%
+-- =========================================================
+
+IF OBJECT_ID('Contribution_Settings', 'U') IS NULL
 BEGIN
     CREATE TABLE Contribution_Settings (
-        setting_id INT IDENTITY(1,1) PRIMARY KEY,
-        group_id INT UNIQUE NOT NULL,
-        commit_weight FLOAT DEFAULT 0.4,       -- Trọng số số lượng commit
-        loc_weight FLOAT DEFAULT 0.4,          -- Trọng số khối lượng code
-        regularity_weight FLOAT DEFAULT 0.2,   -- Trọng số độ đều đặn
-        FOREIGN KEY (group_id) REFERENCES Project_Groups(group_id) ON DELETE CASCADE
+
+        -- ID cấu hình
+        setting_id INT IDENTITY(1,1)
+            PRIMARY KEY,
+
+        -- Mỗi nhóm có một bộ cấu hình
+        group_id INT NOT NULL UNIQUE,
+
+        -- Trọng số số lượng Commit
+        commit_weight FLOAT
+            DEFAULT 0.4,
+
+        -- Trọng số số dòng code
+        loc_weight FLOAT
+            DEFAULT 0.4,
+
+        -- Trọng số độ đều đặn
+        regularity_weight FLOAT
+            DEFAULT 0.2,
+
+        -- Liên kết cấu hình với nhóm
+        CONSTRAINT FK_ContributionSettings_Group
+            FOREIGN KEY (group_id)
+            REFERENCES Project_Groups(group_id)
+            ON DELETE CASCADE
     );
 END
 GO
 
--- 7. Bảng Contribution_Scores: Lưu điểm đánh giá định kỳ
-IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Contribution_Scores')
+
+-- =========================================================
+-- 8. CONTRIBUTION_SCORES
+-- Lưu kết quả đánh giá mức độ đóng góp của sinh viên
+--
+-- Đây là bảng dùng để tạo Dashboard cho Giảng viên
+-- =========================================================
+
+IF OBJECT_ID('Contribution_Scores', 'U') IS NULL
 BEGIN
     CREATE TABLE Contribution_Scores (
-        score_id INT IDENTITY(1,1) PRIMARY KEY,
+
+        -- ID kết quả đánh giá
+        score_id INT IDENTITY(1,1)
+            PRIMARY KEY,
+
+        -- Nhóm được đánh giá
         group_id INT NOT NULL,
+
+        -- Sinh viên được đánh giá
         user_id INT NOT NULL,
-        evaluated_period VARCHAR(50) NOT NULL, -- VD: "Week 1", "Sprint 1"
-        total_commits INT DEFAULT 0,
-        total_loc INT DEFAULT 0,               -- Lines of Code (added - deleted)
-        regularity_score FLOAT DEFAULT 0.0,    -- Điểm đều đặn
-        final_contribution_percentage FLOAT DEFAULT 0.0, -- Tỷ lệ % đóng góp
-        system_proposed_score FLOAT DEFAULT 0.0,        -- Hệ số điểm đề xuất (0.0 - 10.0)
-        lecturer_adjusted_score FLOAT NULL,             -- Giảng viên điều chỉnh
-        created_at DATETIME DEFAULT GETDATE(),
-        FOREIGN KEY (group_id) REFERENCES Project_Groups(group_id),
-        FOREIGN KEY (user_id) REFERENCES Users(user_id),
-        -- Ràng buộc chống ghi trùng lặp một kỳ đánh giá
-        CONSTRAINT UQ_Group_User_Period UNIQUE (group_id, user_id, evaluated_period)
+
+        -- Khoảng thời gian đánh giá
+        -- Ví dụ: Week 1, Week 2, Sprint 1...
+        evaluated_period VARCHAR(50)
+            NOT NULL,
+
+        -- Tổng số Commit
+        total_commits INT
+            DEFAULT 0,
+
+        -- Tổng số dòng code
+        total_loc INT
+            DEFAULT 0,
+
+        -- Điểm độ đều đặn
+        regularity_score FLOAT
+            DEFAULT 0.0,
+
+        -- Phần trăm đóng góp cuối cùng
+        -- Ví dụ: 35.5%
+        final_contribution_percentage FLOAT
+            DEFAULT 0.0,
+
+        -- Điểm hệ thống đề xuất
+        -- Ví dụ: 8.5 / 10
+        system_proposed_score FLOAT
+            DEFAULT 0.0,
+
+        -- Điểm do Giảng viên điều chỉnh
+        -- Có thể NULL nếu giảng viên chưa chỉnh
+        lecturer_adjusted_score FLOAT
+            NULL,
+
+        -- Thời gian tạo kết quả đánh giá
+        created_at DATETIME
+            DEFAULT GETDATE(),
+
+        -- Liên kết với nhóm
+        CONSTRAINT FK_ContributionScores_Group
+            FOREIGN KEY (group_id)
+            REFERENCES Project_Groups(group_id),
+
+        -- Liên kết với sinh viên
+        CONSTRAINT FK_ContributionScores_User
+            FOREIGN KEY (user_id)
+            REFERENCES Users(user_id),
+
+        -- Không cho phép trùng:
+        -- Một sinh viên + một nhóm + một kỳ đánh giá
+        CONSTRAINT UQ_Group_User_Period
+            UNIQUE (
+                group_id,
+                user_id,
+                evaluated_period
+            )
     );
 END
 GO
