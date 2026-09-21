@@ -4,7 +4,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-public class DatabaseConnection {
+public class DBContext {
     // Cấu hình kết nối Microsoft SQL Server (SSMS)
     private static final String SERVER_NAME = "localhost";
     private static final String PORT = "1433";

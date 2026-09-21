@@ -33,11 +33,11 @@
             <version>2.10.1</version>
         </dependency>
 
-        <!-- Thư viện MySQL JDBC Driver để kết nối Database -->
+        <!-- THƯ VIỆN MICROSOFT SQL SERVER JDBC DRIVER (ĐÃ THAY THẾ CHO MYSQL) -->
         <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>8.0.33</version>
+            <groupId>com.microsoft.sqlserver</groupId>
+            <artifactId>mssql-jdbc</artifactId>
+            <version>12.6.1.jre11</version>
         </dependency>
     </dependencies>
 

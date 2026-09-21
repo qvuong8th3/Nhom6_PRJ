@@ -38,7 +38,7 @@ public class ContributionDAO {
                      "JOIN Users u ON cs.user_id = u.user_id " +
                      "WHERE cs.group_id = ?";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DBContext.getConnection();
              PreparedStatement ps = conn != null ? conn.prepareStatement(sql) : null) {
             
             if (ps != null) {
