@@ -1,4 +1,7 @@
-C:\Users\asus\Downloads\Nhom6-PRJ\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\dao\ContributionDAO.java
-C:\Users\asus\Downloads\Nhom6-PRJ\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\dao\DatabaseConnection.java
-C:\Users\asus\Downloads\Nhom6-PRJ\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\service\ContributionCalculator.java
-C:\Users\asus\Downloads\Nhom6-PRJ\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\servlet\GitAnalyticsServlet.java
+C:\GitHub\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\dao\ContributionDAO.java
+C:\GitHub\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\dao\ContributionScoreDAO.java
+C:\GitHub\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\dao\DBContext.java
+C:\GitHub\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\dao\GitCommitDAO.java
+C:\GitHub\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\service\ContributionCalculator.java
+C:\GitHub\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\service\GitScoreCalculatorService.java
+C:\GitHub\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\servlet\GitAnalyticsServlet.java

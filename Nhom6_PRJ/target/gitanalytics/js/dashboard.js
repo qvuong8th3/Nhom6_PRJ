@@ -39,18 +39,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     const dataToUse = dashboardData || {
         groupName: "Nhóm 6 - SE1234",
         contributions: [
-            { studentName: "Nguyễn Văn A", percentage: 35.5, commits: 42, loc: 2500, regularity: 85 },
-            { studentName: "Trần Thị B", percentage: 28.0, commits: 30, loc: 1800, regularity: 90 },
-            { studentName: "Phạm Văn D", percentage: 26.0, commits: 25, loc: 2000, regularity: 75 },
-            { studentName: "Lê Văn C", percentage: 10.5, commits: 5, loc: 800, regularity: 30 } // Free rider
+            { studentName: "Nguyễn Đặng Trường Hải", percentage: 35.63, commits: 45, loc: 2500, regularity: 95.0 },
+            { studentName: "Võ Xuân Long", percentage: 22.49, commits: 25, loc: 1200, regularity: 80.0 },
+            { studentName: "Nguyễn Tuấn Kiệt", percentage: 20.18, commits: 40, loc: 300, regularity: 85.0 },
+            { studentName: "Nguyễn Quốc Vương", percentage: 19.67, commits: 20, loc: 1800, regularity: 40.0 },
+            { studentName: "Võ Thảo Nguyên", percentage: 2.03, commits: 2, loc: 50, regularity: 10.0 } // Free rider
         ],
         timeline: {
             labels: ["Week 1", "Week 2", "Week 3", "Week 4", "Week 5"],
             datasets: [
-                { label: "Nguyễn Văn A", data: [5, 10, 8, 12, 7], borderColor: "#3b82f6", backgroundColor: "rgba(59, 130, 246, 0.2)", tension: 0.4 },
-                { label: "Trần Thị B", data: [4, 8, 5, 10, 3], borderColor: "#10b981", backgroundColor: "rgba(16, 185, 129, 0.2)", tension: 0.4 },
-                { label: "Phạm Văn D", data: [3, 5, 10, 4, 3], borderColor: "#f59e0b", backgroundColor: "rgba(245, 158, 11, 0.2)", tension: 0.4 },
-                { label: "Lê Văn C", data: [0, 0, 0, 0, 5], borderColor: "#ef4444", backgroundColor: "rgba(239, 68, 68, 0.2)", tension: 0.4 }
+                { label: "Nguyễn Đặng Trường Hải", data: [5, 10, 8, 12, 10], borderColor: "#3b82f6", backgroundColor: "rgba(59, 130, 246, 0.2)", tension: 0.4 },
+                { label: "Võ Xuân Long", data: [2, 6, 7, 5, 5], borderColor: "#10b981", backgroundColor: "rgba(16, 185, 129, 0.2)", tension: 0.4 },
+                { label: "Nguyễn Tuấn Kiệt", data: [10, 8, 12, 5, 5], borderColor: "#f59e0b", backgroundColor: "rgba(245, 158, 11, 0.2)", tension: 0.4 },
+                { label: "Nguyễn Quốc Vương", data: [0, 0, 0, 10, 10], borderColor: "#8b5cf6", backgroundColor: "rgba(139, 92, 246, 0.2)", tension: 0.4 },
+                { label: "Võ Thảo Nguyên", data: [0, 0, 0, 0, 2], borderColor: "#ef4444", backgroundColor: "rgba(239, 68, 68, 0.2)", tension: 0.4 }
             ]
         }
     };
@@ -63,7 +65,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             labels: dataToUse.contributions.map(c => c.studentName),
             datasets: [{
                 data: dataToUse.contributions.map(c => c.percentage),
-                backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444'],
+                backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444'],
                 borderWidth: 0,
                 hoverOffset: 10
             }]

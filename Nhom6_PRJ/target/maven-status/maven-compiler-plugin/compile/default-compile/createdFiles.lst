@@ -1,1 +1,10 @@
+com\aita\gitanalytics\dao\ContributionDAO.class
+com\aita\gitanalytics\service\GitScoreCalculatorService$StudentGitData.class
+com\aita\gitanalytics\service\ContributionCalculator$StudentGitStats.class
+com\aita\gitanalytics\service\ContributionCalculator.class
 com\aita\gitanalytics\servlet\GitAnalyticsServlet.class
+com\aita\gitanalytics\service\GitScoreCalculatorService.class
+com\aita\gitanalytics\dao\ContributionDAO$StudentContribution.class
+com\aita\gitanalytics\dao\GitCommitDAO.class
+com\aita\gitanalytics\dao\DBContext.class
+com\aita\gitanalytics\dao\ContributionScoreDAO.class
