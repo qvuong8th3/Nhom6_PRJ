@@ -1,42 +1,46 @@
 document.addEventListener('DOMContentLoaded', () => {
     const loginForm = document.getElementById('loginForm');
     const errorMsg = document.getElementById('error-msg');
-    
-    // JWT Authentication Mock
-    loginForm.addEventListener('submit', (e) => {
+
+    loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        
-        const email = document.getElementById('email').value;
+
+        const identifier = document.getElementById('identifier').value.trim();
         const password = document.getElementById('password').value;
         const submitBtn = loginForm.querySelector('button');
-        
-        // Disable button & show loading state
+        const originalText = submitBtn.innerHTML;
+        errorMsg.classList.add('hidden');
+        submitBtn.disabled = true;
         submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang xác thực...';
-        submitBtn.style.opacity = '0.7';
 
-        // Giả lập API delay
-        setTimeout(() => {
-            if (email === 'lecturer@university.edu.vn' && password === '123456') {
-                // Đăng nhập thành công -> Lưu mock JWT token
-                localStorage.setItem('aita_token', 'mock_jwt_token_header.payload.signature');
+        try {
+            const response = await fetch(new URL('api/v1/auth/login', window.location.href), {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({ identifier, password })
+            });
+            const result = await response.json();
+            if (response.ok) {
+                localStorage.setItem('aita_user', JSON.stringify(result.user));
                 window.location.href = 'index.html';
             } else {
-                // Đăng nhập thất bại
+                errorMsg.textContent = result.error || 'Không thể đăng nhập.';
                 errorMsg.classList.remove('hidden');
-                submitBtn.innerHTML = 'Đăng Nhập <i class="fa-solid fa-arrow-right"></i>';
-                submitBtn.style.opacity = '1';
-                
-                // Add shake animation
-                loginForm.classList.add('shake');
-                setTimeout(() => loginForm.classList.remove('shake'), 500);
             }
-        }, 1000);
+        } catch (error) {
+            errorMsg.textContent = 'Không kết nối được máy chủ. Hãy chạy ứng dụng trên Tomcat và kiểm tra database.';
+            errorMsg.classList.remove('hidden');
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalText;
+        }
     });
 });
 
 // Thêm keyframe cho animation shake vào style
 const style = document.createElement('style');
-style.innerHTML = `
+style.textContent = `
     .shake {
         animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
     }

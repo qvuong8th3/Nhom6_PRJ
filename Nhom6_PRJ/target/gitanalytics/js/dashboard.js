@@ -1,99 +1,60 @@
-// Fetch data from real backend Servlet (with Gson support)
-async function fetchDashboardData(groupId) {
-    try {
-        const token = localStorage.getItem('aita_token');
-        if (!token) {
-            window.location.href = 'login.html';
-            return null;
-        }
+const apiUrl = path => new URL(path, document.baseURI);
+const escapeHtml = value => String(value == null ? '' : value).replace(/[&<>"']/g, character => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+})[character]);
 
-        const response = await fetch(`/api/v1/git-analytics/dashboard?groupId=${groupId}`, {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        });
+async function requestJson(path, options) {
+    const response = await fetch(apiUrl(path), { credentials: 'same-origin', ...options });
+    if (response.status === 401) {
+        window.location.href = 'login.html';
+        throw new Error('Phiên đăng nhập đã hết hạn.');
+    }
+    const result = await response.json();
+    if (!response.ok) {
+        throw new Error(result.error || 'Yêu cầu không thành công.');
+    }
+    return result;
+}
 
-        if (response.status === 401) {
-            window.location.href = 'login.html';
-            return null;
-        }
-
-        const json = await response.json();
-        return json.data; // JSON returned by Gson mapped from Java object
-    } catch (error) {
-        console.error("Error fetching data:", error);
-        return null;
+function setActiveView(viewId) {
+    document.querySelectorAll('.page-view').forEach(view => view.classList.toggle('hidden', view.id !== viewId));
+    document.querySelectorAll('[data-view-target]').forEach(link => {
+        link.parentElement.classList.toggle('active', link.dataset.viewTarget === viewId);
+    });
+    if (viewId === 'studentsView') {
+        loadStudents();
     }
 }
 
-// Cấu hình chung cho Chart.js
-Chart.defaults.color = "#94a3b8";
-Chart.defaults.font.family = "'Inter', sans-serif";
-
-document.addEventListener('DOMContentLoaded', async () => {
-    
-    // Call the Java Servlet (mocking groupId=1 for now)
-    const dashboardData = await fetchDashboardData(1);
-    
-    // If API is not running, fallback to Mock Data for the prototype to still work visually
-    const dataToUse = dashboardData || {
-        groupName: "Nhóm 6 - SE1234",
-        contributions: [
-            { studentName: "Nguyễn Đặng Trường Hải", percentage: 35.63, commits: 45, loc: 2500, regularity: 95.0 },
-            { studentName: "Võ Xuân Long", percentage: 22.49, commits: 25, loc: 1200, regularity: 80.0 },
-            { studentName: "Nguyễn Tuấn Kiệt", percentage: 20.18, commits: 40, loc: 300, regularity: 85.0 },
-            { studentName: "Nguyễn Quốc Vương", percentage: 19.67, commits: 20, loc: 1800, regularity: 40.0 },
-            { studentName: "Võ Thảo Nguyên", percentage: 2.03, commits: 2, loc: 50, regularity: 10.0 } // Free rider
-        ],
-        timeline: {
-            labels: ["Week 1", "Week 2", "Week 3", "Week 4", "Week 5"],
-            datasets: [
-                { label: "Nguyễn Đặng Trường Hải", data: [5, 10, 8, 12, 10], borderColor: "#3b82f6", backgroundColor: "rgba(59, 130, 246, 0.2)", tension: 0.4 },
-                { label: "Võ Xuân Long", data: [2, 6, 7, 5, 5], borderColor: "#10b981", backgroundColor: "rgba(16, 185, 129, 0.2)", tension: 0.4 },
-                { label: "Nguyễn Tuấn Kiệt", data: [10, 8, 12, 5, 5], borderColor: "#f59e0b", backgroundColor: "rgba(245, 158, 11, 0.2)", tension: 0.4 },
-                { label: "Nguyễn Quốc Vương", data: [0, 0, 0, 10, 10], borderColor: "#8b5cf6", backgroundColor: "rgba(139, 92, 246, 0.2)", tension: 0.4 },
-                { label: "Võ Thảo Nguyên", data: [0, 0, 0, 0, 2], borderColor: "#ef4444", backgroundColor: "rgba(239, 68, 68, 0.2)", tension: 0.4 }
-            ]
-        }
-    };
-    
-    // 1. Render Pie Chart (Contribution %)
-    const pieCtx = document.getElementById('contributionPieChart').getContext('2d');
-    new Chart(pieCtx, {
+function renderDashboard(data, isLecturer) {
+    const contributions = data.contributions || [];
+    const colors = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444', '#06b6d4'];
+    new Chart(document.getElementById('contributionPieChart'), {
         type: 'doughnut',
         data: {
-            labels: dataToUse.contributions.map(c => c.studentName),
+            labels: contributions.map(item => item.studentName),
             datasets: [{
-                data: dataToUse.contributions.map(c => c.percentage),
-                backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444'],
+                data: contributions.map(item => item.percentage),
+                backgroundColor: colors,
                 borderWidth: 0,
-                hoverOffset: 10
+                hoverOffset: 8
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: {
-                legend: { position: 'bottom', labels: { padding: 20, color: '#f8fafc' } }
-            },
+            plugins: { legend: { position: 'bottom', labels: { padding: 20, color: '#f8fafc' } } },
             cutout: '70%'
         }
     });
 
-    // 2. Render Bar Chart / Line Chart (Timeline)
-    const barCtx = document.getElementById('timelineBarChart').getContext('2d');
-    new Chart(barCtx, {
+    new Chart(document.getElementById('timelineBarChart'), {
         type: 'line',
-        data: {
-            labels: dataToUse.timeline.labels,
-            datasets: dataToUse.timeline.datasets
-        },
+        data: data.timeline || { labels: [], datasets: [] },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: {
-                legend: { position: 'top', labels: { color: '#f8fafc' } }
-            },
+            plugins: { legend: { position: 'top', labels: { color: '#f8fafc' } } },
             scales: {
                 y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } },
                 x: { grid: { display: false } }
@@ -101,59 +62,164 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    // 3. Render Table Data & Detect Free-Riders
     const tableBody = document.getElementById('studentTableBody');
-    const alertContainer = document.getElementById('alertContainer');
-    let html = '';
-    let alertsHtml = '';
-    
-    dataToUse.contributions.forEach(item => {
-        // Xác định class màu sắc cho điểm số
-        let scoreClass = 'score-high';
-        if (item.percentage < 25 && item.percentage >= 15) scoreClass = 'score-medium';
-        else if (item.percentage < 15) {
-            scoreClass = 'score-low';
-            // Sinh ra cảnh báo free-rider
-            alertsHtml += `
-            <p class="alert alert-warning">
-                <i class="fa-solid fa-triangle-exclamation"></i> 
-                Cảnh báo: <strong>${item.studentName}</strong> có tỷ lệ đóng góp quá thấp (${item.percentage}%). Có dấu hiệu "Free-riding".
-            </p>`;
+    const alerts = [];
+    tableBody.innerHTML = contributions.map(item => {
+        const percentage = Number(item.percentage) || 0;
+        const scoreClass = percentage < 15 ? 'score-low' : percentage < 25 ? 'score-medium' : 'score-high';
+        if (percentage < 15) {
+            alerts.push(`<p class="alert alert-warning"><i class="fa-solid fa-triangle-exclamation"></i> Cảnh báo: <strong>${escapeHtml(item.studentName)}</strong> có tỷ lệ đóng góp thấp (${percentage}%).</p>`);
         }
+        return `<tr>
+            <td><strong>${escapeHtml(item.studentName)}</strong></td>
+            <td>${item.commits} commits</td>
+            <td>${item.loc} dòng</td>
+            <td>${item.regularity}/100</td>
+            <td><span class="score-pill ${scoreClass}">${percentage}%</span></td>
+            ${isLecturer ? '<td><button class="btn-outline" data-open-students>Quản lý <i class="fa-solid fa-chevron-right"></i></button></td>' : ''}
+        </tr>`;
+    }).join('');
+    document.getElementById('alertContainer').innerHTML = alerts.join('');
+    if (!contributions.length) {
+        tableBody.innerHTML = `<tr><td colspan="${isLecturer ? 6 : 5}" class="empty-state">Chưa có dữ liệu đóng góp trong database.</td></tr>`;
+    }
+    document.getElementById('groupName').textContent = data.groupName || 'Chưa cấu hình nhóm';
+    document.getElementById('repoUrl').textContent = data.repoUrl || 'Chưa cấu hình repository';
+}
 
-        html += `
-            <tr>
-                <td><strong>${item.studentName}</strong></td>
-                <td>${item.commits} commits</td>
-                <td>${item.loc} dòng</td>
-                <td>${item.regularity}/100</td>
-                <td><span class="score-pill ${scoreClass}">${item.percentage}%</span></td>
-                <td>
-                    <button class="btn-outline" style="padding: 5px 10px; font-size: 0.8rem;">
-                        Chi tiết <i class="fa-solid fa-chevron-right"></i>
-                    </button>
-                </td>
-            </tr>
-        `;
-    });
-    tableBody.innerHTML = html;
-    if (alertsHtml) {
-        alertContainer.innerHTML = alertsHtml;
+async function loadStudents() {
+    const tbody = document.getElementById('studentsTableBody');
+    const message = document.getElementById('studentsMessage');
+    message.textContent = 'Đang tải dữ liệu...';
+    try {
+        const students = await requestJson('api/v1/students');
+        tbody.innerHTML = students.length ? students.map(student => `<tr>
+            <td><strong>${escapeHtml(student.fullName)}</strong></td>
+            <td>${escapeHtml(student.username)}</td>
+            <td>${escapeHtml(student.email)}</td>
+            <td>${escapeHtml(student.githubUsername || '-')}</td>
+            <td class="student-actions">
+                <button class="btn-outline" data-edit-student="${student.userId}" title="Sửa"><i class="fa-solid fa-pen"></i></button>
+                <button class="btn-outline btn-danger" data-delete-student="${student.userId}" title="Xóa"><i class="fa-solid fa-trash"></i></button>
+            </td>
+        </tr>`).join('') : '<tr><td colspan="5" class="empty-state">Chưa có sinh viên nào.</td></tr>';
+        message.textContent = `${students.length} sinh viên`;
+        tbody.dataset.students = JSON.stringify(students);
+    } catch (error) {
+        message.textContent = error.message;
+        tbody.innerHTML = '';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+    Chart.defaults.color = '#94a3b8';
+    Chart.defaults.font.family = "'Inter', sans-serif";
+    const savedUser = JSON.parse(localStorage.getItem('aita_user') || 'null');
+    const isLecturer = savedUser && savedUser.role === 'LECTURER';
+    document.getElementById('studentsNavItem').classList.toggle('hidden', !isLecturer);
+    document.getElementById('addStudentBtn').classList.toggle('hidden', !isLecturer);
+    document.getElementById('dashboardActionHeader').classList.toggle('hidden', !isLecturer);
+    if (savedUser && savedUser.fullName) {
+        document.getElementById('currentUserName').textContent = savedUser.fullName;
     }
 
-    // Logout
-    document.getElementById('logoutBtn').addEventListener('click', () => {
-        localStorage.removeItem('aita_token');
-        window.location.href = 'login.html';
+    document.querySelectorAll('[data-view-target]').forEach(link => link.addEventListener('click', event => {
+        event.preventDefault();
+        setActiveView(link.dataset.viewTarget);
+    }));
+    document.addEventListener('click', event => {
+        if (event.target.closest('[data-open-students]')) setActiveView('studentsView');
     });
-    
-    // Sync Animation Mock
-    document.getElementById('syncBtn').addEventListener('click', function() {
-        const icon = this.querySelector('i');
-        icon.classList.add('fa-spin');
-        setTimeout(() => {
-            icon.classList.remove('fa-spin');
-            alert('Đã đồng bộ dữ liệu Git thành công!');
-        }, 1500);
+
+    try {
+        const result = await requestJson('api/v1/git-analytics/dashboard?groupId=1');
+        renderDashboard(result.data, isLecturer);
+    } catch (error) {
+        if (error.message !== 'Phiên đăng nhập đã hết hạn.') {
+            document.getElementById('studentTableBody').innerHTML = `<tr><td colspan="${isLecturer ? 6 : 5}" class="empty-state">${escapeHtml(error.message)}</td></tr>`;
+        }
+    }
+
+    const dialog = document.getElementById('studentDialog');
+    const form = document.getElementById('studentForm');
+    const formError = document.getElementById('studentFormError');
+    const closeDialog = () => dialog.close();
+    document.getElementById('addStudentBtn').addEventListener('click', () => {
+        form.reset();
+        document.getElementById('studentId').value = '';
+        document.getElementById('studentDialogTitle').textContent = 'Thêm sinh viên';
+        document.getElementById('passwordHint').textContent = '(bắt buộc)';
+        document.getElementById('studentPassword').required = true;
+        formError.classList.add('hidden');
+        dialog.showModal();
+    });
+    document.getElementById('closeStudentDialog').addEventListener('click', closeDialog);
+
+    document.getElementById('studentsTableBody').addEventListener('click', async event => {
+        const editButton = event.target.closest('[data-edit-student]');
+        const deleteButton = event.target.closest('[data-delete-student]');
+        const students = JSON.parse(event.currentTarget.dataset.students || '[]');
+        if (editButton) {
+            const student = students.find(item => item.userId === Number(editButton.dataset.editStudent));
+            if (!student) return;
+            document.getElementById('studentId').value = student.userId;
+            document.getElementById('studentUsername').value = student.username;
+            document.getElementById('studentFullName').value = student.fullName;
+            document.getElementById('studentEmail').value = student.email;
+            document.getElementById('studentGithub').value = student.githubUsername || '';
+            document.getElementById('studentPassword').value = '';
+            document.getElementById('studentPassword').required = false;
+            document.getElementById('passwordHint').textContent = '(để trống nếu không đổi)';
+            document.getElementById('studentDialogTitle').textContent = 'Cập nhật sinh viên';
+            formError.classList.add('hidden');
+            dialog.showModal();
+        }
+        if (deleteButton && window.confirm('Xóa sinh viên này khỏi database?')) {
+            try {
+                await requestJson(`api/v1/students?id=${deleteButton.dataset.deleteStudent}`, { method: 'DELETE' });
+                await loadStudents();
+            } catch (error) {
+                document.getElementById('studentsMessage').textContent = error.message;
+            }
+        }
+    });
+
+    form.addEventListener('submit', async event => {
+        event.preventDefault();
+        formError.classList.add('hidden');
+        const values = new URLSearchParams({
+            id: document.getElementById('studentId').value,
+            username: document.getElementById('studentUsername').value,
+            fullName: document.getElementById('studentFullName').value,
+            email: document.getElementById('studentEmail').value,
+            githubUsername: document.getElementById('studentGithub').value,
+            password: document.getElementById('studentPassword').value
+        });
+        try {
+            await requestJson('api/v1/students', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: values
+            });
+            closeDialog();
+            await loadStudents();
+        } catch (error) {
+            formError.textContent = error.message;
+            formError.classList.remove('hidden');
+        }
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+        try {
+            await requestJson('api/v1/auth/logout', { method: 'POST' });
+        } finally {
+            localStorage.removeItem('aita_user');
+            window.location.href = 'login.html';
+        }
+    });
+
+    document.getElementById('syncBtn').addEventListener('click', () => {
+        setActiveView('dashboardView');
+        window.location.reload();
     });
 });

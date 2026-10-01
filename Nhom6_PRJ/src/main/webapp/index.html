@@ -23,16 +23,15 @@
         </div>
         <nav class="sidebar-nav">
             <ul>
-                <li class="active"><a href="#"><i class="fa-solid fa-chart-pie"></i> Tổng quan nhóm</a></li>
-                <li><a href="#"><i class="fa-solid fa-users"></i> Quản lý sinh viên</a></li>
-                <li><a href="#"><i class="fa-solid fa-gear"></i> Cấu hình trọng số</a></li>
+                <li class="active"><a href="#dashboardView" data-view-target="dashboardView"><i class="fa-solid fa-chart-pie"></i> Tổng quan nhóm</a></li>
+                <li id="studentsNavItem"><a href="#studentsView" data-view-target="studentsView"><i class="fa-solid fa-users"></i> Quản lý sinh viên</a></li>
             </ul>
         </nav>
         <div class="sidebar-footer">
             <div class="user-info">
                 <img src="https://ui-avatars.com/api/?name=Giang+Vien&background=random" alt="Avatar" class="avatar">
                 <div class="details">
-                    <strong>GV. Hướng dẫn</strong>
+                    <strong id="currentUserName">Giảng viên</strong>
                     <span>Khoa CNTT</span>
                 </div>
             </div>
@@ -45,20 +44,21 @@
         <header class="top-header glass-panel">
             <div class="header-left">
                 <h1>Báo cáo phân tích đóng góp</h1>
-                <p class="subtitle">Đồ án: Xây dựng hệ thống AITA - Nhóm 6 (FE-L-03)</p>
+                <p class="subtitle" id="groupName">Báo cáo đóng góp nhóm</p>
             </div>
             <div class="header-right">
                 <div class="repo-info">
                     <i class="fa-brands fa-github"></i>
-                    <span>github.com/SE-Group6/AITA-Project</span>
-                    <span class="status badge-success">Đã đồng bộ 5p trước</span>
+                    <span id="repoUrl">Chưa cấu hình repository</span>
+                    <span class="status badge-success">Dữ liệu từ database</span>
                 </div>
                 <button class="btn-secondary" id="syncBtn">
-                    <i class="fa-solid fa-rotate"></i> Đồng bộ ngay
+                    <i class="fa-solid fa-rotate"></i> Tải lại dữ liệu
                 </button>
             </div>
         </header>
 
+        <section id="dashboardView" class="page-view">
         <div class="dashboard-grid">
             <!-- Pie Chart Card: Contribution % -->
             <div class="card glass-panel col-span-1">
@@ -102,7 +102,7 @@
                                     <th>Khối lượng code (LOC - 50%)</th>
                                     <th>Độ đều đặn (20%)</th>
                                     <th>Điểm Đề Xuất</th>
-                                    <th>Hành động</th>
+                                    <th id="dashboardActionHeader">Hành động</th>
                                 </tr>
                             </thead>
                             <tbody id="studentTableBody">
@@ -113,7 +113,43 @@
                 </div>
             </div>
         </div>
+        </section>
+
+        <section id="studentsView" class="page-view hidden">
+            <div class="card glass-panel students-panel">
+                <div class="card-header flex-between">
+                    <h3><i class="fa-solid fa-users"></i> Danh sách sinh viên</h3>
+                    <button class="btn-secondary" id="addStudentBtn"><i class="fa-solid fa-plus"></i> Thêm sinh viên</button>
+                </div>
+                <p id="studentsMessage" class="students-message" role="status"></p>
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr><th>Họ tên</th><th>Tên đăng nhập</th><th>Email</th><th>GitHub</th><th>Thao tác</th></tr>
+                        </thead>
+                        <tbody id="studentsTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
     </main>
+
+    <dialog id="studentDialog" class="student-dialog">
+        <form id="studentForm" class="student-form">
+            <div class="card-header flex-between">
+                <h3 id="studentDialogTitle">Thêm sinh viên</h3>
+                <button type="button" class="dialog-close" id="closeStudentDialog" aria-label="Đóng"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <input type="hidden" id="studentId">
+            <label>Tên đăng nhập<input id="studentUsername" required maxlength="50"></label>
+            <label>Họ và tên<input id="studentFullName" required maxlength="100"></label>
+            <label>Email<input id="studentEmail" type="email" required maxlength="100"></label>
+            <label>Tài khoản GitHub<input id="studentGithub" maxlength="50"></label>
+            <label>Mật khẩu <span id="passwordHint">(bắt buộc)</span><input id="studentPassword" type="password" autocomplete="new-password"></label>
+            <p id="studentFormError" class="error-msg hidden" role="alert"></p>
+            <button type="submit" class="btn-primary">Lưu sinh viên</button>
+        </form>
+    </dialog>
 
     <!-- Custom JS -->
     <script src="js/dashboard.js"></script>
