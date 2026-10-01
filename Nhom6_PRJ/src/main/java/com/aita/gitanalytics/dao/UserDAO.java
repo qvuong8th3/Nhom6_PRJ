@@ -4,8 +4,170 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class UserDAO {
+
+    public static class UserAccount {
+        public int userId;
+        public String username;
+        public String fullName;
+        public String email;
+        public String role;
+
+        public UserAccount(int userId, String username, String fullName, String email, String role) {
+            this.userId = userId;
+            this.username = username;
+            this.fullName = fullName;
+            this.email = email;
+            this.role = role;
+        }
+    }
+
+    public static class Student {
+        public int userId;
+        public String username;
+        public String fullName;
+        public String email;
+        public String githubUsername;
+
+        public Student(int userId, String username, String fullName, String email, String githubUsername) {
+            this.userId = userId;
+            this.username = username;
+            this.fullName = fullName;
+            this.email = email;
+            this.githubUsername = githubUsername;
+        }
+    }
+
+    public UserAccount authenticate(String identifier, String password) {
+        if (isBlank(identifier) || isBlank(password)) {
+            return null;
+        }
+
+        String sql = "SELECT user_id, username, full_name, email, role "
+                + "FROM users WHERE (email = ? OR username = ?) AND password_hash = ?";
+
+        try (Connection conn = DBContext.getConnection()) {
+            if (conn == null) {
+                return null;
+            }
+            try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                ps.setString(1, identifier.trim());
+                ps.setString(2, identifier.trim());
+                ps.setString(3, password.trim());
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        return new UserAccount(
+                                rs.getInt("user_id"),
+                                rs.getString("username"),
+                                rs.getString("full_name"),
+                                rs.getString("email"),
+                                rs.getString("role"));
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public List<Student> getAllStudents() {
+        List<Student> students = new ArrayList<>();
+        String sql = "SELECT user_id, username, full_name, email, github_username "
+                + "FROM users WHERE role = 'STUDENT' ORDER BY full_name";
+
+        try (Connection conn = DBContext.getConnection()) {
+            if (conn == null) {
+                return students;
+            }
+            try (PreparedStatement ps = conn.prepareStatement(sql);
+                 ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    students.add(new Student(
+                            rs.getInt("user_id"),
+                            rs.getString("username"),
+                            rs.getString("full_name"),
+                            rs.getString("email"),
+                            rs.getString("github_username")));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return students;
+    }
+
+    public Integer getStudentGroupId(int userId) {
+        String sql = "SELECT TOP (1) group_id FROM Group_Members "
+                + "WHERE user_id = ? ORDER BY group_id";
+        try (Connection conn = DBContext.getConnection()) {
+            if (conn == null) {
+                return null;
+            }
+            try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                ps.setInt(1, userId);
+                try (ResultSet rs = ps.executeQuery()) {
+                    return rs.next() ? rs.getInt("group_id") : null;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public boolean updateStudent(int userId, String username, String fullName, String email,
+                                 String githubUsername, String password) {
+        if (isBlank(username) || isBlank(fullName) || isBlank(email)) {
+            return false;
+        }
+
+        boolean updatePassword = !isBlank(password);
+        String sql = "UPDATE users SET username = ?, "
+                + (updatePassword ? "password_hash = ?, " : "")
+                + "full_name = ?, email = ?, github_username = ? "
+                + "WHERE user_id = ? AND role = 'STUDENT'";
+
+        try (Connection conn = DBContext.getConnection()) {
+            if (conn == null) {
+                return false;
+            }
+            try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                int index = 1;
+                ps.setString(index++, username.trim());
+                if (updatePassword) {
+                    ps.setString(index++, password.trim());
+                }
+                ps.setString(index++, fullName.trim());
+                ps.setString(index++, email.trim());
+                ps.setString(index++, isBlank(githubUsername) ? null : githubUsername.trim());
+                ps.setInt(index, userId);
+                return ps.executeUpdate() > 0;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean deleteStudent(int userId) {
+        String sql = "DELETE FROM users WHERE user_id = ? AND role = 'STUDENT'";
+        try (Connection conn = DBContext.getConnection()) {
+            if (conn == null) {
+                return false;
+            }
+            try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                ps.setInt(1, userId);
+                return ps.executeUpdate() > 0;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 
     // =====================================
     // THÊM USER

@@ -2,6 +2,8 @@ package com.aita.gitanalytics.servlet;
 
 import com.aita.gitanalytics.dao.ContributionDAO;
 import com.aita.gitanalytics.dao.ContributionDAO.StudentContribution;
+import com.aita.gitanalytics.dao.UserDAO;
+import com.aita.gitanalytics.dao.UserDAO.UserAccount;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
@@ -26,6 +28,7 @@ public class GitAnalyticsServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private final Gson gson = new Gson();
     private final ContributionDAO contributionDAO = new ContributionDAO();
+    private final UserDAO userDAO = new UserDAO();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) 
@@ -35,31 +38,40 @@ public class GitAnalyticsServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
         PrintWriter out = response.getWriter();
 
-        // 1. Kiểm tra JWT Token (Giả lập)
-        String authHeader = request.getHeader("Authorization");
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        Object authenticatedUser = request.getSession(false) == null
+            ? null : request.getSession(false).getAttribute("authenticatedUser");
+        if (!(authenticatedUser instanceof UserAccount)) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             JsonObject error = new JsonObject();
-            error.addProperty("error", "Unauthorized. Missing JWT Token.");
+            error.addProperty("error", "Vui lòng đăng nhập lại.");
             out.print(gson.toJson(error));
             return;
         }
 
-        // Lấy groupId từ params
-        String groupIdStr = request.getParameter("groupId");
-        if (groupIdStr == null) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            JsonObject error = new JsonObject();
-            error.addProperty("error", "Missing groupId parameter.");
-            out.print(gson.toJson(error));
+        UserAccount account = (UserAccount) authenticatedUser;
+        int groupId;
+        boolean studentWithoutGroup = false;
+        if ("STUDENT".equals(account.role)) {
+            Integer assignedGroupId = userDAO.getStudentGroupId(account.userId);
+            if (assignedGroupId == null) {
+                groupId = 0;
+                studentWithoutGroup = true;
+            } else {
+                groupId = assignedGroupId;
+            }
+        } else if ("LECTURER".equals(account.role)) {
+            String groupIdStr = request.getParameter("groupId");
+            try {
+                groupId = Integer.parseInt(groupIdStr);
+            } catch (NumberFormatException e) {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                out.print("{\"error\":\"groupId không hợp lệ.\"}");
+                return;
+            }
+        } else {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            out.print("{\"error\":\"Tài khoản không có quyền xem dashboard.\"}");
             return;
-        }
-
-        int groupId = 1; // Default
-        try {
-            groupId = Integer.parseInt(groupIdStr);
-        } catch (NumberFormatException e) {
-            // ignore
         }
 
         // 2. Gọi tầng DAO để lấy dữ liệu thực tế từ Database
@@ -67,22 +79,13 @@ public class GitAnalyticsServlet extends HttpServlet {
 
         // 3. Chuẩn bị Map dữ liệu trả về và dùng Gson để chuyển thành JSON
         Map<String, Object> data = new HashMap<>();
-        data.put("groupName", "Nhóm 6 - SE1234 (Từ DB)");
-        data.put("repoUrl", "https://github.com/SE-Group6/AITA-Project");
+        data.putAll(contributionDAO.getGroupMetadata(groupId));
+        if (studentWithoutGroup) {
+            data.put("groupName", "Tài khoản chưa được thêm vào nhóm");
+        }
         data.put("contributions", contributions);
 
-        // Timeline mock data 
-        Map<String, Object> timeline = new HashMap<>();
-        timeline.put("labels", new String[]{"Week 1", "Week 2", "Week 3", "Week 4", "Week 5"});
-        
-        // Mocking datasets for the chart
-        Map<String, Object> ds1 = new HashMap<>(); ds1.put("label", "Nguyễn Văn A (DB Mock)"); ds1.put("data", new int[]{5,10,8,12,7}); ds1.put("borderColor", "#3b82f6");
-        Map<String, Object> ds2 = new HashMap<>(); ds2.put("label", "Trần Thị B (DB Mock)"); ds2.put("data", new int[]{4,8,5,10,3}); ds2.put("borderColor", "#10b981");
-        Map<String, Object> ds3 = new HashMap<>(); ds3.put("label", "Lê Văn C (DB Mock)"); ds3.put("data", new int[]{0,0,0,0,2}); ds3.put("borderColor", "#ef4444");
-        Map<String, Object> ds4 = new HashMap<>(); ds4.put("label", "Phạm Văn D (DB Mock)"); ds4.put("data", new int[]{3,5,10,4,6}); ds4.put("borderColor", "#f59e0b");
-        
-        timeline.put("datasets", new Object[]{ds1, ds2, ds3, ds4});
-        data.put("timeline", timeline);
+        data.put("timeline", contributionDAO.getGroupTimeline(groupId));
 
         Map<String, Object> responseBody = new HashMap<>();
         responseBody.put("status", "success");

@@ -360,3 +360,58 @@ a { text-decoration: none; color: inherit; }
 .score-high { background: rgba(16, 185, 129, 0.2); color: var(--success); }
 .score-medium { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
 .score-low { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
+
+.page-view { width: 100%; }
+.students-panel { min-height: 360px; }
+.students-message { min-height: 24px; margin: 0 0 10px; color: var(--text-muted); font-size: 0.9rem; }
+.empty-state { padding: 28px !important; color: var(--text-muted); text-align: center; }
+.student-actions { white-space: nowrap; }
+.student-actions .btn-outline { padding: 7px 10px; margin-right: 6px; }
+.btn-danger { border-color: var(--danger); color: var(--danger); }
+.btn-danger:hover { background: var(--danger); color: white; }
+.student-dialog {
+    width: min(480px, calc(100% - 32px));
+    max-height: calc(100vh - 32px);
+    margin: auto;
+    padding: 26px;
+    overflow-y: auto;
+    color: var(--text-main);
+    background: #172235;
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--glass-shadow);
+}
+.student-dialog::backdrop { background: rgba(3, 8, 18, 0.72); backdrop-filter: blur(4px); }
+.student-form .card-header { margin-bottom: 18px; }
+.student-form .card-header h3 { font-size: 1.15rem; }
+.student-form label { display: block; margin: 14px 0; color: var(--text-muted); font-size: 0.9rem; }
+.student-form input:not([type="hidden"]) {
+    display: block;
+    width: 100%;
+    margin-top: 7px;
+    padding: 11px 12px;
+    color: var(--text-main);
+    background: rgba(0, 0, 0, 0.22);
+    border: 1px solid var(--glass-border);
+    border-radius: 6px;
+}
+.student-form input:focus { outline: 2px solid var(--accent-primary); outline-offset: 1px; }
+.dialog-close { border: 0; color: var(--text-muted); background: transparent; font-size: 1.1rem; cursor: pointer; }
+.student-form .error-msg { text-align: left; }
+.student-form .btn-primary { margin-top: 12px; }
+
+@media (max-width: 760px) {
+    .sidebar { width: 72px; padding: 18px 10px; }
+    .sidebar-logo { justify-content: center; font-size: 1.2rem; }
+    .sidebar-logo span, .sidebar-nav a:not(:has(i)) { display: none; }
+    .sidebar-nav a { justify-content: center; padding: 12px 8px; font-size: 0; }
+    .sidebar-nav a i { font-size: 1rem; }
+    .sidebar-footer { justify-content: center; }
+    .user-info .details, .avatar { display: none; }
+    .main-content { width: calc(100% - 72px); margin-left: 72px; padding: 16px; }
+    .top-header { align-items: flex-start; flex-direction: column; gap: 16px; padding: 18px; }
+    .header-right, .repo-info { flex-wrap: wrap; }
+    .dashboard-grid { grid-template-columns: 1fr; gap: 16px; }
+    .col-span-1, .col-span-2, .col-span-full { grid-column: span 1; }
+    .card { padding: 18px; }
+}
