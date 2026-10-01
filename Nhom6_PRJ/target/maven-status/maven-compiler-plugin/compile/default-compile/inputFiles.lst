@@ -2,6 +2,8 @@ C:\GitHub\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\dao\Contributi
 C:\GitHub\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\dao\ContributionScoreDAO.java
 C:\GitHub\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\dao\DBContext.java
 C:\GitHub\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\dao\GitCommitDAO.java
+C:\GitHub\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\dao\UserDAO.java
+C:\GitHub\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\demo\InsertUserDemo.java
 C:\GitHub\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\service\ContributionCalculator.java
 C:\GitHub\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\service\GitScoreCalculatorService.java
 C:\GitHub\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\servlet\GitAnalyticsServlet.java
