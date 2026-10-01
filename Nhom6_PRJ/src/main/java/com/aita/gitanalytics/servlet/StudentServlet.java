@@ -1,7 +1,6 @@
 package com.aita.gitanalytics.servlet;
 
 import com.aita.gitanalytics.dao.UserDAO;
-import com.aita.gitanalytics.dao.UserDAO.Student;
 import com.aita.gitanalytics.dao.UserDAO.UserAccount;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;

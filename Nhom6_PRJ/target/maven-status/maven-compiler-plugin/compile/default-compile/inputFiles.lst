@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 C:\GitHub\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\dao\ContributionDAO.java
 C:\GitHub\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\dao\ContributionScoreDAO.java
 C:\GitHub\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\dao\DBContext.java
@@ -7,17 +6,6 @@ C:\GitHub\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\dao\UserDAO.ja
 C:\GitHub\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\demo\InsertUserDemo.java
 C:\GitHub\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\service\ContributionCalculator.java
 C:\GitHub\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\service\GitScoreCalculatorService.java
+C:\GitHub\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\servlet\AuthServlet.java
 C:\GitHub\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\servlet\GitAnalyticsServlet.java
-=======
-C:\Users\HP\Documents\PRJ\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\servlet\AuthServlet.java
-C:\Users\HP\Documents\PRJ\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\dao\ContributionDAO.java
-C:\Users\HP\Documents\PRJ\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\servlet\GitAnalyticsServlet.java
-C:\Users\HP\Documents\PRJ\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\service\ContributionCalculator.java
-C:\Users\HP\Documents\PRJ\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\dao\ContributionScoreDAO.java
-C:\Users\HP\Documents\PRJ\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\servlet\StudentServlet.java
-C:\Users\HP\Documents\PRJ\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\dao\DBContext.java
-C:\Users\HP\Documents\PRJ\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\demo\InsertUserDemo.java
-C:\Users\HP\Documents\PRJ\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\service\GitScoreCalculatorService.java
-C:\Users\HP\Documents\PRJ\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\dao\GitCommitDAO.java
-C:\Users\HP\Documents\PRJ\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\dao\UserDAO.java
->>>>>>> d9059c4a0501670fb3bdc1b22f553ce8d2bd5abf
+C:\GitHub\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\servlet\StudentServlet.java

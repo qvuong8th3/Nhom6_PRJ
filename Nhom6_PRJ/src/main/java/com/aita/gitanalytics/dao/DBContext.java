@@ -5,18 +5,6 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class DBContext {
-    private static final String SERVER_NAME = "localhost";
-    private static final String INSTANCE_NAME = "MSSQLSERVER01";
-    private static final String DATABASE_NAME = "AITA_DB";
-    private static final String USER = "sa";
-    private static final String PASSWORD = "Aita@12345";
-
-    private static final String URL =
-            "jdbc:sqlserver://" + SERVER_NAME
-            + ";instanceName=" + INSTANCE_NAME
-            + ";databaseName=" + DATABASE_NAME
-            + ";encrypt=false"
-            + ";trustServerCertificate=true";
     private static final String SERVER_NAME = getSetting("AITA_DB_SERVER", "localhost");
     private static final String PORT = getSetting("AITA_DB_PORT", "1433");
     private static final String DATABASE_NAME = getSetting("AITA_DB_NAME", "AITA_DB");
@@ -32,7 +20,6 @@ public class DBContext {
         String value = System.getenv(name);
         return value == null || value.trim().isEmpty() ? defaultValue : value.trim();
     }
->>>>>>> d9059c4a0501670fb3bdc1b22f553ce8d2bd5abf
 
     public static Connection getConnection() {
         try {
