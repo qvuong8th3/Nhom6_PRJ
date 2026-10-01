@@ -5,8 +5,6 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class DBContext {
-<<<<<<< HEAD
-
     private static final String SERVER_NAME = "localhost";
     private static final String INSTANCE_NAME = "MSSQLSERVER01";
     private static final String DATABASE_NAME = "AITA_DB";
@@ -19,7 +17,6 @@ public class DBContext {
             + ";databaseName=" + DATABASE_NAME
             + ";encrypt=false"
             + ";trustServerCertificate=true";
-=======
     private static final String SERVER_NAME = getSetting("AITA_DB_SERVER", "localhost");
     private static final String PORT = getSetting("AITA_DB_PORT", "1433");
     private static final String DATABASE_NAME = getSetting("AITA_DB_NAME", "AITA_DB");
