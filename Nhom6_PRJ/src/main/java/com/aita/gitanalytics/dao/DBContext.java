@@ -5,21 +5,18 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class DBContext {
-    private static final String SERVER_NAME = getSetting("AITA_DB_SERVER", "localhost");
-    private static final String PORT = getSetting("AITA_DB_PORT", "1433");
-    private static final String DATABASE_NAME = getSetting("AITA_DB_NAME", "AITA_DB");
-    private static final String USER = getSetting("AITA_DB_USER", "sa");
-    private static final String PASSWORD = getSetting("AITA_DB_PASSWORD", "Aita@12345");
 
-    // Chuỗi kết nối chuẩn cho SQL Server Driver
-    private static final String URL = "jdbc:sqlserver://" + SERVER_NAME + ":" + PORT + ";"
-            + "databaseName=" + DATABASE_NAME + ";"
-            + "encrypt=false;trustServerCertificate=true;loginTimeout=5;";
+    private static final String SERVER_NAME = "localhost";
+    private static final String INSTANCE_NAME = "MSSQLSERVER01";
+    private static final String DATABASE_NAME = "AITA_DB";
+    private static final String USER = "sa";
+    private static final String PASSWORD = "Aita@12345";
 
-    private static String getSetting(String name, String defaultValue) {
-        String value = System.getenv(name);
-        return value == null || value.trim().isEmpty() ? defaultValue : value.trim();
-    }
+    private static final String URL =
+            "jdbc:sqlserver://" + SERVER_NAME +
+            ";instanceName=" + INSTANCE_NAME +
+            ";databaseName=" + DATABASE_NAME +
+            ";encrypt=false;trustServerCertificate=true;loginTimeout=5;";
 
     public static Connection getConnection() {
         try {
@@ -59,7 +56,6 @@ public class DBContext {
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-
         } else {
             System.out.println("KET NOI THAT BAI!");
         }
