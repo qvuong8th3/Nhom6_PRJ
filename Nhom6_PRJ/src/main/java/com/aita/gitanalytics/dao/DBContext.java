@@ -9,7 +9,7 @@ public class DBContext {
     private static final String PORT = getSetting("AITA_DB_PORT", "1433");
     private static final String DATABASE_NAME = getSetting("AITA_DB_NAME", "AITA_DB");
     private static final String USER = getSetting("AITA_DB_USER", "sa");
-    private static final String PASSWORD = getSetting("AITA_DB_PASSWORD", "123");
+    private static final String PASSWORD = getSetting("AITA_DB_PASSWORD", "Aita@12345");
 
     // Chuỗi kết nối chuẩn cho SQL Server Driver
     private static final String URL = "jdbc:sqlserver://" + SERVER_NAME + ":" + PORT + ";"
