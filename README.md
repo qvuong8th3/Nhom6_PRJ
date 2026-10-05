@@ -7,7 +7,7 @@
 - JDK 11, Maven và Apache Tomcat 9.
 - SQL Server đang chạy TCP/IP trên cổng `1433`.
 
-Với database mới, trong SQL Server Management Studio chạy lần lượt `Nhom6_PRJ/database/schema.sql` và `Nhom6_PRJ/database/SQLQuery1.sql`. `SQLQuery1.sql` tạo dữ liệu mẫu và chỉ nên chạy một lần. Với database đã có dữ liệu người dùng, không chạy lại seed này; chạy `Nhom6_PRJ/database/setup_demo_lecturer.sql` để thêm tài khoản giảng viên demo mà không sửa các tài khoản hiện có.
+Với database mới, trong SQL Server Management Studio chạy lần lượt `Nhom6_PRJ/database/schema.sql` và `Nhom6_PRJ/database/SQLQuery1.sql`. `SQLQuery1.sql` tạo dữ liệu mẫu và chỉ nên chạy một lần. Với database đã có dữ liệu người dùng, chạy `Nhom6_PRJ/database/remember_me.sql` để tạo bảng token ghi nhớ đăng nhập, sau đó chạy `Nhom6_PRJ/database/setup_demo_lecturer.sql` nếu cần thêm tài khoản demo.
 
 ## Cấu hình database
 
@@ -23,7 +23,7 @@ $env:AITA_DB_PASSWORD = "your-sql-server-password"
 
 ## Chạy ứng dụng
 
-Từ thư mục `Nhom6_PRJ`, chạy `mvn clean package`, sau đó chép `target/gitanalytics.war` vào thư mục `webapps` của Tomcat 9. Mở `http://localhost:8080/gitanalytics/login.html`.
+Từ thư mục `Nhom6_PRJ`, chạy `mvn clean package`, sau đó chép `target/gitanalytics.war` vào thư mục `webapps` của Tomcat 9. Mở `http://localhost:8080/gitanalytics/login.jsp`.
 
 Tài khoản giảng viên demo:
 

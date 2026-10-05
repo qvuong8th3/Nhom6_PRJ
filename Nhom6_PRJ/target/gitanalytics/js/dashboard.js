@@ -6,7 +6,7 @@ const escapeHtml = value => String(value == null ? '' : value).replace(/[&<>"']/
 async function requestJson(path, options) {
     const response = await fetch(apiUrl(path), { credentials: 'same-origin', ...options });
     if (response.status === 401) {
-        window.location.href = 'login.html';
+        window.location.href = 'login.jsp';
         throw new Error('Phiên đăng nhập đã hết hạn.');
     }
     const result = await response.json();
@@ -214,7 +214,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             await requestJson('api/v1/auth/logout', { method: 'POST' });
         } finally {
             localStorage.removeItem('aita_user');
-            window.location.href = 'login.html';
+            window.location.href = 'login.jsp';
         }
     });
 

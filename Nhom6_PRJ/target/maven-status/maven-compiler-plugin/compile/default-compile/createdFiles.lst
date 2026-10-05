@@ -11,6 +11,8 @@ com\aita\gitanalytics\dao\ContributionScoreDAO.class
 com\aita\gitanalytics\dao\UserDAO$Student.class
 com\aita\gitanalytics\service\GitScoreCalculatorService.class
 com\aita\gitanalytics\dao\ContributionDAO$StudentContribution.class
+com\aita\gitanalytics\servlet\RememberMeService.class
+com\aita\gitanalytics\servlet\RememberMeFilter.class
 com\aita\gitanalytics\dao\DBContext.class
 com\aita\gitanalytics\dao\UserDAO$UserAccount.class
 com\aita\gitanalytics\servlet\StudentServlet.class

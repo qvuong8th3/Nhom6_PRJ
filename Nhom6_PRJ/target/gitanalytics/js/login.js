@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const identifier = document.getElementById('identifier').value.trim();
         const password = document.getElementById('password').value;
+        const rememberMe = document.getElementById('rememberMe').checked;
         const submitBtn = loginForm.querySelector('button');
         const originalText = submitBtn.innerHTML;
         errorMsg.classList.add('hidden');
@@ -18,12 +19,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 method: 'POST',
                 credentials: 'same-origin',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: new URLSearchParams({ identifier, password })
+                body: new URLSearchParams({ identifier, password, rememberMe })
             });
             const result = await response.json();
             if (response.ok) {
                 localStorage.setItem('aita_user', JSON.stringify(result.user));
-                window.location.href = 'index.html';
+                window.location.href = 'index.jsp';
             } else {
                 errorMsg.textContent = result.error || 'Không thể đăng nhập.';
                 errorMsg.classList.remove('hidden');

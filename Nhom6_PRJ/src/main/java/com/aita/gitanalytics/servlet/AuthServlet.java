@@ -20,10 +20,12 @@ public class AuthServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        request.setCharacterEncoding("UTF-8");
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 
         if (request.getServletPath().endsWith("/logout")) {
+            RememberMeService.revoke(request, response, userDAO);
             HttpSession session = request.getSession(false);
             if (session != null) {
                 session.invalidate();
@@ -42,9 +44,19 @@ public class AuthServlet extends HttpServlet {
             response.getWriter().print("{\"error\":\"Email hoặc mật khẩu không đúng.\"}");
             return;
         }
+
+        HttpSession existingSession = request.getSession(false);
+        if (existingSession != null) {
+            existingSession.invalidate();
+        }
         request.getSession(true).setAttribute("authenticatedUser", account);
+        boolean rememberRequested = "true".equalsIgnoreCase(request.getParameter("rememberMe"));
+        boolean remembered = rememberRequested
+                ? RememberMeService.issue(account, request, response, userDAO)
+                : RememberMeService.revoke(request, response, userDAO);
         JsonObject result = new JsonObject();
         result.addProperty("status", "success");
+        result.addProperty("remembered", rememberRequested && remembered);
         result.add("user", gson.toJsonTree(account));
         response.getWriter().print(gson.toJson(result));
     }

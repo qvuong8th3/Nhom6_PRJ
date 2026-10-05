@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -72,6 +73,62 @@ public class UserDAO {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public boolean saveRememberToken(String tokenHash, int userId, Timestamp expiresAt) {
+        String sql = "INSERT INTO remember_tokens (token_hash, user_id, expires_at) VALUES (?, ?, ?)";
+        try (Connection conn = DBContext.getConnection()) {
+            if (conn == null) {
+                return false;
+            }
+            try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                ps.setString(1, tokenHash);
+                ps.setInt(2, userId);
+                ps.setTimestamp(3, expiresAt);
+                return ps.executeUpdate() > 0;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public UserAccount findRememberedUser(String tokenHash) {
+        String sql = "SELECT u.user_id, u.username, u.full_name, u.email, u.role "
+                + "FROM remember_tokens t JOIN users u ON u.user_id = t.user_id "
+                + "WHERE t.token_hash = ? AND t.expires_at > GETDATE()";
+        try (Connection conn = DBContext.getConnection()) {
+            if (conn == null) {
+                return null;
+            }
+            try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                ps.setString(1, tokenHash);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        return new UserAccount(rs.getInt("user_id"), rs.getString("username"),
+                                rs.getString("full_name"), rs.getString("email"), rs.getString("role"));
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public void deleteRememberToken(String tokenHash) {
+        String sql = "DELETE FROM remember_tokens WHERE token_hash = ?";
+        try (Connection conn = DBContext.getConnection()) {
+            if (conn == null) {
+                return;
+            }
+            try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                ps.setString(1, tokenHash);
+                ps.executeUpdate();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     public List<Student> getAllStudents() {
