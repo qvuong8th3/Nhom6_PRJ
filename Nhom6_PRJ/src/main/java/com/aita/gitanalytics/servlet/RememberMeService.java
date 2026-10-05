@@ -1,7 +1,7 @@
 package com.aita.gitanalytics.servlet;
 
 import com.aita.gitanalytics.dao.UserDAO;
-import com.aita.gitanalytics.dao.UserDAO.UserAccount;
+import com.aita.gitanalytics.model.UserAccount;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -28,7 +28,7 @@ final class RememberMeService {
         RANDOM.nextBytes(bytes);
         String token = toHex(bytes);
         Timestamp expiresAt = new Timestamp(System.currentTimeMillis() + MAX_AGE_SECONDS * 1000L);
-        if (!userDAO.saveRememberToken(hash(token), account.userId, expiresAt)) {
+        if (!userDAO.saveRememberToken(hash(token), account.getUserId(), expiresAt)) {
             clearCookie(request, response);
             return false;
         }

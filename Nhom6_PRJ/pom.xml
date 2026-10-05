@@ -26,6 +26,12 @@
             <scope>provided</scope>
         </dependency>
 
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>jstl</artifactId>
+            <version>1.2</version>
+        </dependency>
+
         <!-- Thư viện Gson để xử lý JSON dễ dàng -->
         <dependency>
             <groupId>com.google.code.gson</groupId>

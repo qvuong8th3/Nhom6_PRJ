@@ -3,7 +3,7 @@ package com.aita.gitanalytics.servlet;
 import com.aita.gitanalytics.dao.ContributionDAO;
 import com.aita.gitanalytics.dao.ContributionDAO.StudentContribution;
 import com.aita.gitanalytics.dao.UserDAO;
-import com.aita.gitanalytics.dao.UserDAO.UserAccount;
+import com.aita.gitanalytics.model.UserAccount;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
@@ -51,7 +51,7 @@ public class GitAnalyticsServlet extends HttpServlet {
         UserAccount account = (UserAccount) authenticatedUser;
         int groupId;
         boolean studentWithoutGroup = false;
-        if ("STUDENT".equals(account.role)) {
+        if ("STUDENT".equals(account.getRole())) {
             Integer assignedGroupId = userDAO.getStudentGroupId(account.userId);
             if (assignedGroupId == null) {
                 groupId = 0;

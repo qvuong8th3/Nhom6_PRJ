@@ -1,8 +1,8 @@
 package com.aita.gitanalytics.servlet;
 
-import com.aita.gitanalytics.dao.UserDAO;
-import com.aita.gitanalytics.dao.UserDAO.Student;
-import com.aita.gitanalytics.dao.UserDAO.UserAccount;
+import com.aita.gitanalytics.dao.DataAccessException;
+import com.aita.gitanalytics.model.UserAccount;
+import com.aita.gitanalytics.service.StudentService;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import java.io.IOException;
@@ -16,14 +16,18 @@ public class StudentServlet extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
     private final Gson gson = new Gson();
-    private final UserDAO userDAO = new UserDAO();
+    private final StudentService studentService = new StudentService();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         if (!requireLecturer(request, response)) {
             return;
         }
-        writeJson(response, HttpServletResponse.SC_OK, gson.toJson(userDAO.getAllStudents()));
+        try {
+            writeJson(response, HttpServletResponse.SC_OK, gson.toJson(studentService.getAllStudents()));
+        } catch (DataAccessException e) {
+            writeDataAccessError(response, e);
+        }
     }
 
     @Override
@@ -32,38 +36,25 @@ public class StudentServlet extends HttpServlet {
             return;
         }
 
-        String idValue = request.getParameter("id");
-        String username = request.getParameter("username");
-        String fullName = request.getParameter("fullName");
-        String email = request.getParameter("email");
-        String githubUsername = request.getParameter("githubUsername");
-        String password = request.getParameter("password");
-
-        if (isBlank(username) || isBlank(fullName) || isBlank(email)
-                || (isBlank(idValue) && isBlank(password))) {
-            writeError(response, HttpServletResponse.SC_BAD_REQUEST, "Vui lòng nhập đủ thông tin bắt buộc.");
-            return;
-        }
-
-        boolean saved;
-        if (isBlank(idValue)) {
-            saved = userDAO.createUser(username, fullName, email, githubUsername, password, "STUDENT");
-        } else {
-            try {
-                saved = userDAO.updateStudent(Integer.parseInt(idValue), username, fullName,
-                    email, githubUsername, password);
-            } catch (NumberFormatException e) {
-                writeError(response, HttpServletResponse.SC_BAD_REQUEST, "Mã sinh viên không hợp lệ.");
+        try {
+            boolean saved = studentService.saveStudent(
+                    request.getParameter("id"),
+                    request.getParameter("username"),
+                    request.getParameter("fullName"),
+                    request.getParameter("email"),
+                    request.getParameter("githubUsername"),
+                    request.getParameter("password"));
+            if (!saved) {
+                writeError(response, HttpServletResponse.SC_CONFLICT,
+                        "Không thể lưu sinh viên; username/email có thể đã tồn tại hoặc ID không còn hợp lệ.");
                 return;
             }
+            writeJson(response, HttpServletResponse.SC_OK, "{\"status\":\"success\"}");
+        } catch (IllegalArgumentException e) {
+            writeError(response, HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
+        } catch (DataAccessException e) {
+            writeDataAccessError(response, e);
         }
-
-        if (!saved) {
-            writeError(response, HttpServletResponse.SC_CONFLICT,
-                    "Không thể lưu sinh viên. Kiểm tra email/username đã tồn tại và kết nối database.");
-            return;
-        }
-        writeJson(response, HttpServletResponse.SC_OK, "{\"status\":\"success\"}");
     }
 
     @Override
@@ -73,15 +64,16 @@ public class StudentServlet extends HttpServlet {
         }
 
         try {
-            int userId = Integer.parseInt(request.getParameter("id"));
-            if (userDAO.deleteStudent(userId)) {
+            if (studentService.deleteStudent(request.getParameter("id"))) {
                 writeJson(response, HttpServletResponse.SC_OK, "{\"status\":\"success\"}");
             } else {
                 writeError(response, HttpServletResponse.SC_CONFLICT,
                         "Không thể xóa sinh viên; có thể dữ liệu đang được tham chiếu hoặc ID không tồn tại.");
             }
-        } catch (NumberFormatException e) {
-            writeError(response, HttpServletResponse.SC_BAD_REQUEST, "Mã sinh viên không hợp lệ.");
+        } catch (IllegalArgumentException e) {
+            writeError(response, HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
+        } catch (DataAccessException e) {
+            writeDataAccessError(response, e);
         }
     }
 
@@ -92,7 +84,7 @@ public class StudentServlet extends HttpServlet {
             writeError(response, HttpServletResponse.SC_UNAUTHORIZED, "Vui lòng đăng nhập lại.");
             return false;
         }
-        if (!"LECTURER".equals(((UserAccount) value).role)) {
+        if (!"LECTURER".equals(((UserAccount) value).getRole())) {
             writeError(response, HttpServletResponse.SC_FORBIDDEN, "Chỉ giảng viên được quản lý sinh viên.");
             return false;
         }
@@ -112,7 +104,14 @@ public class StudentServlet extends HttpServlet {
         response.getWriter().print(json);
     }
 
-    private boolean isBlank(String value) {
-        return value == null || value.trim().isEmpty();
+    private void writeDataAccessError(HttpServletResponse response, DataAccessException error)
+            throws IOException {
+        if (error.isConstraintViolation()) {
+            writeError(response, HttpServletResponse.SC_CONFLICT,
+                    "Dữ liệu bị trùng hoặc vi phạm ràng buộc trong database.");
+        } else {
+            writeError(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+                    "Không thể truy cập database lúc này.");
+        }
     }
 }

@@ -1,7 +1,7 @@
 package com.aita.gitanalytics.servlet;
 
 import com.aita.gitanalytics.dao.UserDAO;
-import com.aita.gitanalytics.dao.UserDAO.UserAccount;
+import com.aita.gitanalytics.model.UserAccount;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import java.io.IOException;

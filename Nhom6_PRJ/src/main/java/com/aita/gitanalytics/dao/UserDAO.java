@@ -1,5 +1,7 @@
 package com.aita.gitanalytics.dao;
 
+import com.aita.gitanalytics.model.Student;
+import com.aita.gitanalytics.model.UserAccount;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -9,38 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserDAO {
-
-    public static class UserAccount {
-        public int userId;
-        public String username;
-        public String fullName;
-        public String email;
-        public String role;
-
-        public UserAccount(int userId, String username, String fullName, String email, String role) {
-            this.userId = userId;
-            this.username = username;
-            this.fullName = fullName;
-            this.email = email;
-            this.role = role;
-        }
-    }
-
-    public static class Student {
-        public int userId;
-        public String username;
-        public String fullName;
-        public String email;
-        public String githubUsername;
-
-        public Student(int userId, String username, String fullName, String email, String githubUsername) {
-            this.userId = userId;
-            this.username = username;
-            this.fullName = fullName;
-            this.email = email;
-            this.githubUsername = githubUsername;
-        }
-    }
 
     public UserAccount authenticate(String identifier, String password) {
         if (isBlank(identifier) || isBlank(password)) {
@@ -138,7 +108,7 @@ public class UserDAO {
 
         try (Connection conn = DBContext.getConnection()) {
             if (conn == null) {
-                return students;
+                throw new DataAccessException("Database connection is unavailable.", null);
             }
             try (PreparedStatement ps = conn.prepareStatement(sql);
                  ResultSet rs = ps.executeQuery()) {
@@ -152,7 +122,7 @@ public class UserDAO {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new DataAccessException("Could not load students.", e);
         }
         return students;
     }
@@ -190,7 +160,7 @@ public class UserDAO {
 
         try (Connection conn = DBContext.getConnection()) {
             if (conn == null) {
-                return false;
+                throw new DataAccessException("Database connection is unavailable.", null);
             }
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
                 int index = 1;
@@ -205,8 +175,7 @@ public class UserDAO {
                 return ps.executeUpdate() > 0;
             }
         } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
+            throw new DataAccessException("Could not update student.", e);
         }
     }
 
@@ -214,15 +183,14 @@ public class UserDAO {
         String sql = "DELETE FROM users WHERE user_id = ? AND role = 'STUDENT'";
         try (Connection conn = DBContext.getConnection()) {
             if (conn == null) {
-                return false;
+                throw new DataAccessException("Database connection is unavailable.", null);
             }
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
                 ps.setInt(1, userId);
                 return ps.executeUpdate() > 0;
             }
         } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
+            throw new DataAccessException("Could not delete student.", e);
         }
     }
 
@@ -257,8 +225,7 @@ public class UserDAO {
         try (Connection conn = DBContext.getConnection()) {
 
             if (conn == null) {
-                System.err.println("❌ Kết nối CSDL thất bại!");
-                return false;
+                throw new DataAccessException("Database connection is unavailable.", null);
             }
 
             // Kiểm tra Username hoặc Email đã tồn tại
@@ -307,11 +274,7 @@ public class UserDAO {
             }
 
         } catch (SQLException e) {
-
-            System.err.println("❌ Lỗi khi thêm user!");
-            e.printStackTrace();
-
-            return false;
+            throw new DataAccessException("Could not create user.", e);
         }
     }
 

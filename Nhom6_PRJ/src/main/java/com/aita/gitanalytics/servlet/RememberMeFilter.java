@@ -1,7 +1,7 @@
 package com.aita.gitanalytics.servlet;
 
 import com.aita.gitanalytics.dao.UserDAO;
-import com.aita.gitanalytics.dao.UserDAO.UserAccount;
+import com.aita.gitanalytics.model.UserAccount;
 import java.io.IOException;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
