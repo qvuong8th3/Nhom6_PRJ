@@ -290,7 +290,7 @@ public class UserDAO {
         }
 
         String sql =
-                "SELECT 1 FROM users "
+                "SELECT 1 FROM Users "
                 + "WHERE email = ? "
                 + "AND password_hash = ?";
 
