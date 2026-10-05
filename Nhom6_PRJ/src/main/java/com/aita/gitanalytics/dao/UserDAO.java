@@ -104,7 +104,7 @@ public class UserDAO {
     public List<Student> getAllStudents() {
         List<Student> students = new ArrayList<>();
         String sql = "SELECT user_id, username, full_name, email, github_username "
-                + "FROM users WHERE role = 'STUDENT' ORDER BY full_name";
+                + "FROM Users WHERE role = 'STUDENT' ORDER BY full_name";
 
         try (Connection conn = DBContext.getConnection()) {
             if (conn == null) {
@@ -153,7 +153,7 @@ public class UserDAO {
         }
 
         boolean updatePassword = !isBlank(password);
-        String sql = "UPDATE users SET username = ?, "
+        String sql = "UPDATE Users SET username = ?, "
                 + (updatePassword ? "password_hash = ?, " : "")
                 + "full_name = ?, email = ?, github_username = ? "
                 + "WHERE user_id = ? AND role = 'STUDENT'";
@@ -213,11 +213,11 @@ public class UserDAO {
         }
 
         String checkSql =
-                "SELECT 1 FROM users "
+                "SELECT 1 FROM Users "
                 + "WHERE username = ? OR email = ?";
 
         String insertSql =
-                "INSERT INTO users "
+                "INSERT INTO Users "
                 + "(username, password_hash, full_name, email, "
                 + "github_username, role, created_at) "
                 + "VALUES (?, ?, ?, ?, ?, ?, GETDATE())";
@@ -335,7 +335,7 @@ public class UserDAO {
         }
 
         String sql =
-                "UPDATE users "
+                "UPDATE Users "
                 + "SET username = ?, "
                 + "password_hash = ?, "
                 + "full_name = ?, "
@@ -416,7 +416,7 @@ public class UserDAO {
 
         String sql =
                 "SELECT password_hash "
-                + "FROM users "
+                + "FROM Users "
                 + "WHERE user_id = ?";
 
         try (Connection conn = DBContext.getConnection();
@@ -451,7 +451,7 @@ public class UserDAO {
     public boolean deleteUser(int userId) {
 
         String sql =
-                "DELETE FROM users "
+                "DELETE FROM Users "
                 + "WHERE user_id = ?";
 
         try (Connection conn = DBContext.getConnection();
@@ -481,7 +481,7 @@ public class UserDAO {
         String sql =
                 "SELECT user_id, username, full_name, email, "
                 + "github_username, role, created_at "
-                + "FROM users "
+                + "FROM Users "
                 + "ORDER BY user_id";
 
         try (Connection conn = DBContext.getConnection();
@@ -580,7 +580,7 @@ public class UserDAO {
         }
 
         String sql =
-                "SELECT 1 FROM users "
+                "SELECT 1 FROM Users "
                 + "WHERE email = ?";
 
         try (Connection conn = DBContext.getConnection();
@@ -614,7 +614,7 @@ public class UserDAO {
         }
 
         String sql =
-                "SELECT 1 FROM users "
+                "SELECT 1 FROM Users "
                 + "WHERE username = ?";
 
         try (Connection conn = DBContext.getConnection();
