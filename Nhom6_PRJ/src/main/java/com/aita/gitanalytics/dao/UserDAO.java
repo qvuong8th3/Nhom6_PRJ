@@ -178,7 +178,7 @@ public class UserDAO {
                 int index = 1;
                 ps.setString(index++, username.trim());
                 if (updatePassword) {
-                    ps.setString(index++, password.trim());
+                    ps.setString(index++, PasswordHasher.hash(password));
                 }
                 ps.setString(index++, fullName.trim());
                 ps.setString(index++, email.trim());
@@ -263,7 +263,7 @@ public class UserDAO {
                          conn.prepareStatement(insertSql)) {
 
                 insertPs.setString(1, username.trim());
-                insertPs.setString(2, password.trim());
+                insertPs.setString(2, PasswordHasher.hash(password));
                 insertPs.setString(3, fullName.trim());
                 insertPs.setString(4, email.trim());
 
