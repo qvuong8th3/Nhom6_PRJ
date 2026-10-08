@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS Users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+
 -- Bảng Groups: Các nhóm sinh viên
 CREATE TABLE IF NOT EXISTS Project_Groups (
     group_id INT AUTO_INCREMENT PRIMARY KEY,
