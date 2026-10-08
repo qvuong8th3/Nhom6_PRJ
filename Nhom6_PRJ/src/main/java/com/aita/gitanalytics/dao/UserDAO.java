@@ -17,28 +17,40 @@ public class UserDAO {
             return null;
         }
 
-        String sql = "SELECT user_id, username, full_name, email, role "
-                + "FROM users WHERE (email = ? OR username = ?) AND password_hash = ?";
-
         try (Connection conn = DBContext.getConnection()) {
             if (conn == null) {
                 return null;
             }
-            try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            int userId;
+            String username;
+            String fullName;
+            String email;
+            String role;
+            String storedPassword;
+            try (PreparedStatement ps = conn.prepareStatement(
+                    "SELECT user_id, username, full_name, email, role, password_hash "
+                            + "FROM users WHERE email = ? OR username = ?")) {
                 ps.setString(1, identifier.trim());
                 ps.setString(2, identifier.trim());
-                ps.setString(3, password.trim());
                 try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        return new UserAccount(
-                                rs.getInt("user_id"),
-                                rs.getString("username"),
-                                rs.getString("full_name"),
-                                rs.getString("email"),
-                                rs.getString("role"));
+                    if (!rs.next()) {
+                        return null;
                     }
+                    userId = rs.getInt("user_id");
+                    username = rs.getString("username");
+                    fullName = rs.getString("full_name");
+                    email = rs.getString("email");
+                    role = rs.getString("role");
+                    storedPassword = rs.getString("password_hash");
                 }
             }
+            if (!PasswordHasher.verify(password, storedPassword)) {
+                return null;
+            }
+            if (PasswordHasher.needsUpgrade(storedPassword)) {
+                upgradeLegacyPassword(conn, userId, password, storedPassword);
+            }
+            return new UserAccount(userId, username, fullName, email, role);
         } catch (SQLException e) {
             e.printStackTrace();
         }
