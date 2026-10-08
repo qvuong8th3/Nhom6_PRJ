@@ -26,6 +26,12 @@
             <scope>provided</scope>
         </dependency>
 
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>jstl</artifactId>
+            <version>1.2</version>
+        </dependency>
+
         <!-- Thư viện Gson để xử lý JSON dễ dàng -->
         <dependency>
             <groupId>com.google.code.gson</groupId>
@@ -33,11 +39,30 @@
             <version>2.10.1</version>
         </dependency>
 
-        <!-- Thư viện MySQL JDBC Driver để kết nối Database -->
+        <!-- THƯ VIỆN MICROSOFT SQL SERVER JDBC DRIVER (ĐÃ THAY THẾ CHO MYSQL) -->
         <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>8.0.33</version>
+            <groupId>com.microsoft.sqlserver</groupId>
+            <artifactId>mssql-jdbc</artifactId>
+            <version>12.6.1.jre11</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-csv</artifactId>
+            <version>1.10.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>5.2.5</version>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13.2</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

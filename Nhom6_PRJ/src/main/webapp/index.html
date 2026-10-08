@@ -23,16 +23,16 @@
         </div>
         <nav class="sidebar-nav">
             <ul>
-                <li class="active"><a href="#"><i class="fa-solid fa-chart-pie"></i> Tổng quan nhóm</a></li>
-                <li><a href="#"><i class="fa-solid fa-users"></i> Quản lý sinh viên</a></li>
-                <li><a href="#"><i class="fa-solid fa-gear"></i> Cấu hình trọng số</a></li>
+                <li class="active"><a href="#dashboardView" data-view-target="dashboardView"><i class="fa-solid fa-chart-pie"></i> Tổng quan nhóm</a></li>
+                <li id="studentsNavItem"><a href="#studentsView" data-view-target="studentsView"><i class="fa-solid fa-users"></i> Quản lý sinh viên</a></li>
+                <li id="examsNavItem"><a href="#examsView" data-view-target="examsView"><i class="fa-solid fa-file-circle-question"></i> Đề thi</a></li>
             </ul>
         </nav>
         <div class="sidebar-footer">
             <div class="user-info">
                 <img src="https://ui-avatars.com/api/?name=Giang+Vien&background=random" alt="Avatar" class="avatar">
                 <div class="details">
-                    <strong>GV. Hướng dẫn</strong>
+                    <strong id="currentUserName">Giảng viên</strong>
                     <span>Khoa CNTT</span>
                 </div>
             </div>
@@ -45,20 +45,21 @@
         <header class="top-header glass-panel">
             <div class="header-left">
                 <h1>Báo cáo phân tích đóng góp</h1>
-                <p class="subtitle">Đồ án: Xây dựng hệ thống AITA - Nhóm 6 (FE-L-03)</p>
+                <p class="subtitle" id="groupName">Báo cáo đóng góp nhóm</p>
             </div>
             <div class="header-right">
                 <div class="repo-info">
                     <i class="fa-brands fa-github"></i>
-                    <span>github.com/SE-Group6/AITA-Project</span>
-                    <span class="status badge-success">Đã đồng bộ 5p trước</span>
+                    <span id="repoUrl">Chưa cấu hình repository</span>
+                    <span class="status badge-success">Dữ liệu từ database</span>
                 </div>
                 <button class="btn-secondary" id="syncBtn">
-                    <i class="fa-solid fa-rotate"></i> Đồng bộ ngay
+                    <i class="fa-solid fa-rotate"></i> Tải lại dữ liệu
                 </button>
             </div>
         </header>
 
+        <section id="dashboardView" class="page-view">
         <div class="dashboard-grid">
             <!-- Pie Chart Card: Contribution % -->
             <div class="card glass-panel col-span-1">
@@ -102,7 +103,7 @@
                                     <th>Khối lượng code (LOC - 50%)</th>
                                     <th>Độ đều đặn (20%)</th>
                                     <th>Điểm Đề Xuất</th>
-                                    <th>Hành động</th>
+                                    <th id="dashboardActionHeader">Hành động</th>
                                 </tr>
                             </thead>
                             <tbody id="studentTableBody">
@@ -113,9 +114,101 @@
                 </div>
             </div>
         </div>
+        </section>
+
+        <section id="studentsView" class="page-view hidden">
+            <div class="card glass-panel students-panel">
+                <div class="card-header flex-between">
+                    <h3><i class="fa-solid fa-users"></i> Danh sách sinh viên</h3>
+                    <button class="btn-secondary" id="addStudentBtn"><i class="fa-solid fa-plus"></i> Thêm sinh viên</button>
+                </div>
+                <p id="studentsMessage" class="students-message" role="status"></p>
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr><th>Họ tên</th><th>Tên đăng nhập</th><th>Email</th><th>GitHub</th><th>Thao tác</th></tr>
+                        </thead>
+                        <tbody id="studentsTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section id="examsView" class="page-view hidden">
+            <div class="card glass-panel exams-panel">
+                <div class="card-header flex-between exam-header">
+                    <div>
+                        <h3><i class="fa-solid fa-file-circle-question"></i> Đề thi</h3>
+                        <p id="examMessage" class="students-message" role="status"></p>
+                    </div>
+                    <button class="btn-primary exam-upload-toggle" id="examUploadToggle" type="button">
+                        <i class="fa-solid fa-upload"></i> Tải đề lên
+                    </button>
+                </div>
+
+                <form id="examUploadForm" class="exam-upload-form hidden" enctype="multipart/form-data">
+                    <div class="exam-form-grid">
+                        <label>Tên đề<input name="title" required maxlength="160"></label>
+                        <label class="exam-description">Mô tả<input name="description" maxlength="2000"></label>
+                        <label class="exam-file">File đề (.csv, .xlsx)<input name="file" type="file" accept=".csv,.xlsx" required></label>
+                    </div>
+                    <div class="exam-form-actions">
+                        <a href="files/exam-template.csv" download><i class="fa-solid fa-download"></i> Tải file mẫu CSV</a>
+                        <button class="btn-primary" type="submit"><i class="fa-solid fa-cloud-arrow-up"></i> Lưu đề vào database</button>
+                    </div>
+                    <p id="examUploadError" class="error-msg hidden" role="alert"></p>
+                </form>
+
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead><tr><th>Tên đề</th><th>Số câu</th><th>Kết quả</th><th>Ngày tạo</th><th>Thao tác</th></tr></thead>
+                        <tbody id="examsTableBody"></tbody>
+                    </table>
+                </div>
+
+                <section id="examResultsPanel" class="exam-results hidden" aria-live="polite">
+                    <div class="card-header flex-between"><h3 id="examResultsTitle">Kết quả bài làm</h3><button class="btn-outline" id="closeExamResults" type="button" aria-label="Đóng kết quả"><i class="fa-solid fa-xmark"></i></button></div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead><tr><th>Sinh viên</th><th>Tên đăng nhập</th><th>Điểm</th><th>Thời gian nộp</th></tr></thead>
+                            <tbody id="examResultsBody"></tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+        </section>
+
+        <section id="examDetailView" class="page-view hidden">
+            <div class="card glass-panel exam-detail-panel">
+                <div class="card-header flex-between exam-header">
+                    <div><h3 id="examDetailTitle">Đề thi</h3><p id="examDetailDescription" class="subtitle"></p></div>
+                    <button class="btn-outline" id="backToExams" type="button"><i class="fa-solid fa-arrow-left"></i> Danh sách đề</button>
+                </div>
+                <p id="examAttemptResult" class="exam-attempt-result hidden" role="status"></p>
+                <form id="examAttemptForm"></form>
+            </div>
+        </section>
     </main>
+
+    <dialog id="studentDialog" class="student-dialog">
+        <form id="studentForm" class="student-form">
+            <div class="card-header flex-between">
+                <h3 id="studentDialogTitle">Thêm sinh viên</h3>
+                <button type="button" class="dialog-close" id="closeStudentDialog" aria-label="Đóng"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <input type="hidden" id="studentId">
+            <label>Tên đăng nhập<input id="studentUsername" required maxlength="50"></label>
+            <label>Họ và tên<input id="studentFullName" required maxlength="100"></label>
+            <label>Email<input id="studentEmail" type="email" required maxlength="100"></label>
+            <label>Tài khoản GitHub<input id="studentGithub" maxlength="50"></label>
+            <label>Mật khẩu <span id="passwordHint">(bắt buộc)</span><input id="studentPassword" type="password" autocomplete="new-password"></label>
+            <p id="studentFormError" class="error-msg hidden" role="alert"></p>
+            <button type="submit" class="btn-primary">Lưu sinh viên</button>
+        </form>
+    </dialog>
 
     <!-- Custom JS -->
     <script src="js/dashboard.js"></script>
+    <script src="js/exams.js"></script>
 </body>
 </html>
