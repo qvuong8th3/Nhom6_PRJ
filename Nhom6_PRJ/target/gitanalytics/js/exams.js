@@ -145,4 +145,6 @@ document.addEventListener('DOMContentLoaded', () => {
             button.disabled = false;
         }
     });
+
+    setActiveView('examsView');
 });
