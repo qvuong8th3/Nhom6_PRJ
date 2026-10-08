@@ -36,7 +36,6 @@ CREATE TABLE IF NOT EXISTS Project_Groups (
 -- Lưu thông tin người dùng:
 -- Sinh viên và Giảng viên
 -- =========================================================
->>>>>>> 1c82b74eb8602d53810c56649e8387174db03ae0
 
 IF OBJECT_ID('Users', 'U') IS NULL
 BEGIN
