@@ -7,7 +7,17 @@
 - JDK 11, Maven và Apache Tomcat 9.
 - SQL Server đang chạy TCP/IP trên cổng `1433`.
 
-Với database mới, trong SQL Server Management Studio chạy lần lượt `Nhom6_PRJ/database/schema.sql` và `Nhom6_PRJ/database/SQLQuery1.sql`. `SQLQuery1.sql` tạo dữ liệu mẫu và chỉ nên chạy một lần. Với database đã có dữ liệu người dùng, chạy `Nhom6_PRJ/database/remember_me.sql` để tạo bảng token ghi nhớ đăng nhập, sau đó chạy `Nhom6_PRJ/database/setup_demo_lecturer.sql` nếu cần thêm tài khoản demo.
+Với database mới, trong SQL Server Management Studio chạy lần lượt `Nhom6_PRJ/database/schema.sql`, `Nhom6_PRJ/database/SQLQuery1.sql` và `Nhom6_PRJ/database/exams.sql`. `SQLQuery1.sql` tạo dữ liệu mẫu và chỉ nên chạy một lần. Với database đã có dữ liệu người dùng, chạy `Nhom6_PRJ/database/remember_me.sql` để tạo bảng token ghi nhớ đăng nhập, sau đó chạy `Nhom6_PRJ/database/exams.sql` để thêm các bảng đề thi; chạy `Nhom6_PRJ/database/setup_demo_lecturer.sql` nếu cần thêm tài khoản demo.
+
+## Đề thi và chấm tự động
+
+Giảng viên tải CSV hoặc XLSX lên từ màn “Đề thi”. File XLSX dùng trang tính đầu tiên; hàng đầu tiên phải có đủ các cột sau:
+
+```text
+type,question,points,option_a,option_b,option_c,option_d,correct_answer
+```
+
+`type` nhận `MCQ` hoặc `SHORT_TEXT`. Câu `MCQ` cần ít nhất hai lựa chọn và `correct_answer` là chữ cái A-D. Câu `SHORT_TEXT` để trống các cột lựa chọn và ghi đáp án trong `correct_answer`. Câu trả lời ngắn được so khớp sau khi bỏ khoảng trắng đầu/cuối và không phân biệt chữ hoa/thường. Sinh viên làm bài trực tiếp trên web, chỉ được nộp một lần cho mỗi đề; hệ thống lưu điểm vào database và hiển thị ngay sau khi nộp. Có file mẫu tại `Nhom6_PRJ/src/main/webapp/files/exam-template.csv`.
 
 ## Cấu hình database
 

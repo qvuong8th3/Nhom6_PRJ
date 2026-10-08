@@ -52,14 +52,14 @@ public class GitAnalyticsServlet extends HttpServlet {
         int groupId;
         boolean studentWithoutGroup = false;
         if ("STUDENT".equals(account.getRole())) {
-            Integer assignedGroupId = userDAO.getStudentGroupId(account.userId);
+            Integer assignedGroupId = userDAO.getStudentGroupId(account.getUserId());
             if (assignedGroupId == null) {
                 groupId = 0;
                 studentWithoutGroup = true;
             } else {
                 groupId = assignedGroupId;
             }
-        } else if ("LECTURER".equals(account.role)) {
+        } else if ("LECTURER".equals(account.getRole())) {
             String groupIdStr = request.getParameter("groupId");
             try {
                 groupId = Integer.parseInt(groupIdStr);

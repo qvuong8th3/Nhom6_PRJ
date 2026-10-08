@@ -24,6 +24,9 @@ function setActiveView(viewId) {
     if (viewId === 'studentsView') {
         loadStudents();
     }
+    if (viewId === 'examsView') {
+        document.dispatchEvent(new Event('exams-view-open'));
+    }
 }
 
 function renderDashboard(data, isLecturer) {

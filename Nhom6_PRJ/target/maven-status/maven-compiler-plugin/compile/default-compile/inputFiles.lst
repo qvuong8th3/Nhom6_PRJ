@@ -5,7 +5,9 @@ C:\Users\HP\Documents\PRJ\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytic
 C:\Users\HP\Documents\PRJ\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\dao\DBContext.java
 C:\Users\HP\Documents\PRJ\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\dao\DataAccessException.java
 C:\Users\HP\Documents\PRJ\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\model\Lecturer.java
+C:\Users\HP\Documents\PRJ\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\dao\ExamDAO.java
 C:\Users\HP\Documents\PRJ\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\demo\InsertUserDemo.java
+C:\Users\HP\Documents\PRJ\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\service\ExamService.java
 C:\Users\HP\Documents\PRJ\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\servlet\AuthServlet.java
 C:\Users\HP\Documents\PRJ\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\dao\ContributionDAO.java
 C:\Users\HP\Documents\PRJ\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\model\Student.java
@@ -16,3 +18,4 @@ C:\Users\HP\Documents\PRJ\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytic
 C:\Users\HP\Documents\PRJ\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\dao\GitCommitDAO.java
 C:\Users\HP\Documents\PRJ\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\servlet\RememberMeService.java
 C:\Users\HP\Documents\PRJ\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\dao\UserDAO.java
+C:\Users\HP\Documents\PRJ\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\servlet\ExamServlet.java
