@@ -32,6 +32,7 @@ public class StudentServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        request.setCharacterEncoding("UTF-8");
         if (!requireLecturer(request, response)) {
             return;
         }
