@@ -151,12 +151,15 @@
                         <div class="exam-form-grid">
                             <label>Tên bài tập<input name="title" required maxlength="160"></label>
                             <label class="exam-description">Mô tả / yêu cầu<input name="description" maxlength="2000"></label>
+                            <label>Hạn nộp (không bắt buộc)
+                                <input name="dueAt" type="datetime-local">
+                            </label>
                             <label class="exam-file">File đề bài (PDF, DOC, DOCX, ODT, RTF, TXT; tối đa 15 MB)
                                 <input name="file" type="file" accept=".pdf,.doc,.docx,.odt,.rtf,.txt">
                             </label>
                         </div>
                         <div class="exam-form-actions">
-                            <span class="text-muted">File đề bài không bắt buộc; nội dung có thể ghi trong mô tả.</span>
+                            <span class="text-muted">Hạn nộp và file đề bài không bắt buộc; nội dung có thể ghi trong mô tả.</span>
                             <button class="btn-primary" type="submit"><i class="fa-solid fa-cloud-arrow-up"></i> Tạo bài tập</button>
                         </div>
                         <p id="assignmentCreateError" class="error-msg hidden" role="alert"></p>
@@ -165,7 +168,7 @@
                     <p id="assignmentError" class="error-msg hidden" role="alert"></p>
                     <div class="table-responsive">
                         <table class="data-table">
-                            <thead><tr><th>Bài tập</th><th>File đề</th><th>Bài đã nộp</th><th>Ngày giao</th><th>Thao tác</th></tr></thead>
+                            <thead><tr><th>Bài tập</th><th>File đề</th><th>Bài đã nộp</th><th>Hạn nộp</th><th>Ngày giao</th><th>Thao tác</th></tr></thead>
                             <tbody id="assignmentsTableBody"></tbody>
                         </table>
                     </div>

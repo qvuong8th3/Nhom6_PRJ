@@ -3,6 +3,12 @@ const assignmentEscapeHtml = value => String(value == null ? '' : value).replace
 })[character]);
 
 const assignmentDate = value => value ? new Date(value).toLocaleString('vi-VN') : '-';
+const assignmentDateTimeInput = value => {
+    if (!value) return '';
+    const date = new Date(value);
+    return new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+};
+const assignmentDueAtPayload = value => value ? new Date(value).toISOString() : '';
 
 async function loadAssignments() {
     const body = document.getElementById('assignmentsTableBody');
@@ -23,16 +29,28 @@ async function loadAssignments() {
             <td>${lecturer ? `${assignment.submissionCount} bài` : (assignment.submittedAt
                 ? `Đã nộp<br><span class="text-muted">${assignmentDate(assignment.submittedAt)}</span>`
                 : 'Chưa nộp')}</td>
+            <td>${lecturer
+                ? `<form class="assignment-deadline-form" data-deadline-assignment="${assignment.assignmentId}">
+                       <input type="datetime-local" name="dueAt" aria-label="Hạn nộp: ${assignmentEscapeHtml(assignment.title)}"
+                           value="${assignmentDateTimeInput(assignment.dueAt)}">
+                       <button class="btn-outline" type="submit">Lưu hạn</button>
+                   </form>`
+                : assignment.dueAt
+                    ? `${assignmentDate(assignment.dueAt)}${new Date(assignment.dueAt).getTime() < Date.now()
+                        ? '<br><span class="text-muted">Đã hết hạn</span>' : ''}`
+                    : 'Không giới hạn'}</td>
             <td>${assignmentDate(assignment.createdAt)}</td>
             <td class="assignment-actions">${lecturer
                 ? `<button class="btn-outline" type="button" data-assignment-submissions="${assignment.assignmentId}">
                        <i class="fa-solid fa-users"></i> Xem bài nộp
                    </button>`
-                : `<form class="assignment-submit-form" data-submit-assignment="${assignment.assignmentId}">
+                : (assignment.dueAt && new Date(assignment.dueAt).getTime() < Date.now()
+                    ? '<span class="text-muted">Đã khóa nộp bài</span>'
+                    : `<form class="assignment-submit-form" data-submit-assignment="${assignment.assignmentId}">
                        <label class="assignment-file-label">File bài làm<input type="file" name="file" accept=".pdf,.doc,.docx,.odt,.rtf,.txt" required></label>
                        <button class="btn-outline" type="submit"><i class="fa-solid fa-cloud-arrow-up"></i> ${assignment.submittedAt ? 'Nộp lại' : 'Nộp bài'}</button>
-                   </form>`}</td>
-        </tr>`).join('') : '<tr><td colspan="5" class="empty-state">Chưa có bài tập tự luận.</td></tr>';
+                   </form>`)}</td>
+        </tr>`).join('') : '<tr><td colspan="6" class="empty-state">Chưa có bài tập tự luận.</td></tr>';
         message.textContent = `${assignments.length} bài tập · chấp nhận PDF, DOC, DOCX, ODT, RTF, TXT tối đa 15 MB`;
     } catch (requestError) {
         message.textContent = '';
@@ -83,7 +101,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const button = createForm.querySelector('button[type="submit"]');
         button.disabled = true;
         try {
-            await requestJson('api/v1/assignments', { method: 'POST', body: new FormData(createForm) });
+            const formData = new FormData(createForm);
+            formData.set('dueAt', assignmentDueAtPayload(formData.get('dueAt')));
+            await requestJson('api/v1/assignments', { method: 'POST', body: formData });
             createForm.reset();
             createForm.classList.add('hidden');
             await loadAssignments();
@@ -103,6 +123,29 @@ document.addEventListener('DOMContentLoaded', () => {
         const row = button.closest('tr');
         const title = row.querySelector('td strong').textContent;
         loadAssignmentSubmissions(button.dataset.assignmentSubmissions, title);
+    });
+
+    document.getElementById('assignmentsTableBody').addEventListener('submit', async event => {
+        const form = event.target.closest('[data-deadline-assignment]');
+        if (!form) return;
+        event.preventDefault();
+        const button = form.querySelector('button[type="submit"]');
+        const message = document.getElementById('assignmentError');
+        message.classList.add('hidden');
+        button.disabled = true;
+        try {
+            const dueAt = assignmentDueAtPayload(form.elements.dueAt.value);
+            await requestJson(`api/v1/assignments/${form.dataset.deadlineAssignment}/deadline`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({ dueAt })
+            });
+            await loadAssignments();
+        } catch (error) {
+            message.textContent = error.message;
+            message.classList.remove('hidden');
+            button.disabled = false;
+        }
     });
 
     document.getElementById('assignmentsTableBody').addEventListener('submit', async event => {

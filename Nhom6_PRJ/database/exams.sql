@@ -101,6 +101,12 @@ BEGIN
 END
 GO
 
+IF COL_LENGTH('dbo.Essay_Assignments', 'due_at') IS NULL
+BEGIN
+    ALTER TABLE dbo.Essay_Assignments ADD due_at DATETIME2 NULL;
+END
+GO
+
 IF OBJECT_ID('Essay_Submissions', 'U') IS NULL
 BEGIN
     CREATE TABLE Essay_Submissions (

@@ -9,6 +9,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.format.DateTimeParseException;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -119,11 +122,27 @@ public class AssignmentServlet extends HttpServlet {
                 }
 
                 int assignmentId = assignmentDAO.createAssignment(user.getUserId(), title.trim(),
-                        isBlank(description) ? null : description.trim(), fileName, fileData);
+                        isBlank(description) ? null : description.trim(), fileName, fileData,
+                        parseDueAt(request.getParameter("dueAt")));
                 Map<String, Object> result = new LinkedHashMap<>();
                 result.put("status", "success");
                 result.put("assignmentId", assignmentId);
                 writeJson(response, HttpServletResponse.SC_CREATED, result);
+                return;
+            }
+
+            if (path.length == 2 && "deadline".equals(path[1])) {
+                if (!requireRole(user, "LECTURER", response)) {
+                    return;
+                }
+                boolean updated = assignmentDAO.updateDeadline(parseId(path[0]),
+                        user.getUserId(), parseDueAt(request.getParameter("dueAt")));
+                if (!updated) {
+                    writeError(response, HttpServletResponse.SC_NOT_FOUND,
+                            "Không tìm thấy bài tập hoặc bạn không có quyền chỉnh sửa.");
+                    return;
+                }
+                writeJson(response, HttpServletResponse.SC_OK, Map.of("status", "success"));
                 return;
             }
 
@@ -137,7 +156,13 @@ public class AssignmentServlet extends HttpServlet {
                 }
                 String fileName = validateFileName(submission.getSubmittedFileName());
                 byte[] fileData = readPart(submission);
-                assignmentDAO.saveSubmission(parseId(path[0]), user.getUserId(), fileName, fileData);
+                boolean saved = assignmentDAO.saveSubmission(
+                        parseId(path[0]), user.getUserId(), fileName, fileData);
+                if (!saved) {
+                    writeError(response, HttpServletResponse.SC_CONFLICT,
+                            "Bài tập đã hết hạn nộp hoặc không còn tồn tại.");
+                    return;
+                }
                 writeJson(response, HttpServletResponse.SC_OK, Map.of("status", "success"));
                 return;
             }
@@ -230,6 +255,21 @@ public class AssignmentServlet extends HttpServlet {
 
     private boolean isBlank(String value) {
         return value == null || value.trim().isEmpty();
+    }
+
+    private Timestamp parseDueAt(String value) {
+        if (isBlank(value)) {
+            return null;
+        }
+        try {
+            Instant dueAt = Instant.parse(value.trim());
+            if (!dueAt.isAfter(Instant.now())) {
+                throw new IllegalArgumentException("Hạn nộp phải ở thời điểm tương lai.");
+            }
+            return Timestamp.from(dueAt);
+        } catch (DateTimeParseException e) {
+            throw new IllegalArgumentException("Thời hạn nộp không hợp lệ.", e);
+        }
     }
 
     private void writeDataAccessError(HttpServletResponse response, DataAccessException error)

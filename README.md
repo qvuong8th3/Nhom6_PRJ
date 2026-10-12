@@ -21,7 +21,7 @@ type,question,points,option_a,option_b,option_c,option_d,correct_answer
 
 ## Bài tập tự luận nộp file
 
-Trong mục “Đề thi & bài tập”, giảng viên chọn “Giao bài tập”, nhập tên/yêu cầu và có thể đính kèm file đề bài. Sinh viên có thể tải file đề, nộp bài hoặc thay thế bài đã nộp; giảng viên xem danh sách và tải bài từng sinh viên. Tệp đề và bài nộp được lưu trong SQL Server. Hỗ trợ PDF, DOC, DOCX, ODT, RTF và TXT, tối đa 15 MB cho mỗi tệp.
+Trong mục “Đề thi & bài tập”, giảng viên chọn “Giao bài tập”, nhập tên/yêu cầu, có thể đặt hạn nộp và đính kèm file đề bài. Hạn nộp có thể được thay đổi sau khi giao; sinh viên chỉ nộp hoặc nộp lại trước hạn. Để bỏ hạn, xóa giá trị ngày giờ rồi chọn “Lưu hạn”. Sinh viên có thể tải file đề; giảng viên xem danh sách và tải bài từng sinh viên. Tệp đề và bài nộp được lưu trong SQL Server. Hỗ trợ PDF, DOC, DOCX, ODT, RTF và TXT, tối đa 15 MB cho mỗi tệp. Khi cập nhật hệ thống hiện có, chạy lại `Nhom6_PRJ/database/exams.sql` để thêm cột hạn nộp nếu chưa có.
 
 ## Cấu hình database
 
