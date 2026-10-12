@@ -25,7 +25,7 @@
             <ul>
                 <li class="active"><a href="#dashboardView" data-view-target="dashboardView"><i class="fa-solid fa-chart-pie"></i> Tổng quan nhóm</a></li>
                 <li id="studentsNavItem"><a href="#studentsView" data-view-target="studentsView"><i class="fa-solid fa-users"></i> Quản lý sinh viên</a></li>
-                <li id="examsNavItem"><a href="#examsView" data-view-target="examsView"><i class="fa-solid fa-file-circle-question"></i> Đề thi</a></li>
+                <li id="examsNavItem"><a href="#examsView" data-view-target="examsView"><i class="fa-solid fa-file-circle-question"></i> Đề thi & bài tập</a></li>
             </ul>
         </nav>
         <div class="sidebar-footer">
@@ -136,6 +136,57 @@
 
         <section id="examsView" class="page-view hidden">
             <div class="card glass-panel exams-panel">
+                <section class="assignments-section">
+                    <div class="card-header flex-between exam-header">
+                        <div>
+                            <h3><i class="fa-solid fa-file-arrow-up"></i> Bài tập tự luận</h3>
+                            <p id="assignmentMessage" class="students-message" role="status"></p>
+                        </div>
+                        <button class="btn-primary assignment-create-toggle" id="assignmentCreateToggle" type="button">
+                            <i class="fa-solid fa-plus"></i> Giao bài tập
+                        </button>
+                    </div>
+
+                    <form id="assignmentCreateForm" class="exam-upload-form hidden" enctype="multipart/form-data">
+                        <div class="exam-form-grid">
+                            <label>Tên bài tập<input name="title" required maxlength="160"></label>
+                            <label class="exam-description">Mô tả / yêu cầu<input name="description" maxlength="2000"></label>
+                            <label class="exam-file">File đề bài (PDF, DOC, DOCX, ODT, RTF, TXT; tối đa 15 MB)
+                                <input name="file" type="file" accept=".pdf,.doc,.docx,.odt,.rtf,.txt">
+                            </label>
+                        </div>
+                        <div class="exam-form-actions">
+                            <span class="text-muted">File đề bài không bắt buộc; nội dung có thể ghi trong mô tả.</span>
+                            <button class="btn-primary" type="submit"><i class="fa-solid fa-cloud-arrow-up"></i> Tạo bài tập</button>
+                        </div>
+                        <p id="assignmentCreateError" class="error-msg hidden" role="alert"></p>
+                    </form>
+
+                    <p id="assignmentError" class="error-msg hidden" role="alert"></p>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead><tr><th>Bài tập</th><th>File đề</th><th>Bài đã nộp</th><th>Ngày giao</th><th>Thao tác</th></tr></thead>
+                            <tbody id="assignmentsTableBody"></tbody>
+                        </table>
+                    </div>
+
+                    <section id="assignmentSubmissionsPanel" class="exam-results hidden" aria-live="polite">
+                        <div class="card-header flex-between">
+                            <h3 id="assignmentSubmissionsTitle">Bài sinh viên đã nộp</h3>
+                            <button class="btn-outline" id="closeAssignmentSubmissions" type="button" aria-label="Đóng danh sách bài nộp">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead><tr><th>Sinh viên</th><th>Email</th><th>Tên file</th><th>Thời gian nộp</th><th>Tải bài</th></tr></thead>
+                                <tbody id="assignmentSubmissionsBody"></tbody>
+                            </table>
+                        </div>
+                    </section>
+                </section>
+
+                <div class="assignment-exams-divider"><span>Đề thi trắc nghiệm / tự luận ngắn</span></div>
                 <div class="card-header flex-between exam-header">
                     <div>
                         <h3><i class="fa-solid fa-file-circle-question"></i> Đề thi</h3>
@@ -210,5 +261,6 @@
     <!-- Custom JS -->
     <script src="js/dashboard.js"></script>
     <script src="js/exams.js"></script>
+    <script src="js/assignments.js"></script>
 </body>
 </html>

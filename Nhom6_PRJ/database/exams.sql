@@ -84,3 +84,37 @@ BEGIN
     );
 END
 GO
+
+IF OBJECT_ID('Essay_Assignments', 'U') IS NULL
+BEGIN
+    CREATE TABLE Essay_Assignments (
+        assignment_id INT IDENTITY(1,1) PRIMARY KEY,
+        title NVARCHAR(160) NOT NULL,
+        description NVARCHAR(2000) NULL,
+        created_by INT NOT NULL,
+        prompt_file_name NVARCHAR(255) NULL,
+        prompt_file_data VARBINARY(MAX) NULL,
+        created_at DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+        CONSTRAINT FK_EssayAssignments_CreatedBy FOREIGN KEY (created_by)
+            REFERENCES Users(user_id)
+    );
+END
+GO
+
+IF OBJECT_ID('Essay_Submissions', 'U') IS NULL
+BEGIN
+    CREATE TABLE Essay_Submissions (
+        submission_id INT IDENTITY(1,1) PRIMARY KEY,
+        assignment_id INT NOT NULL,
+        student_id INT NOT NULL,
+        file_name NVARCHAR(255) NOT NULL,
+        file_data VARBINARY(MAX) NOT NULL,
+        submitted_at DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+        CONSTRAINT UQ_EssaySubmissions_AssignmentStudent UNIQUE (assignment_id, student_id),
+        CONSTRAINT FK_EssaySubmissions_Assignment FOREIGN KEY (assignment_id)
+            REFERENCES Essay_Assignments(assignment_id) ON DELETE CASCADE,
+        CONSTRAINT FK_EssaySubmissions_Student FOREIGN KEY (student_id)
+            REFERENCES Users(user_id)
+    );
+END
+GO

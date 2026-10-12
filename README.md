@@ -7,7 +7,7 @@
 - JDK 11, Maven và Apache Tomcat 9.
 - SQL Server đang chạy TCP/IP trên cổng `1433`.
 
-Với database mới, trong SQL Server Management Studio chạy lần lượt `Nhom6_PRJ/database/schema.sql`, `Nhom6_PRJ/database/SQLQuery1.sql` và `Nhom6_PRJ/database/exams.sql`. `SQLQuery1.sql` tạo dữ liệu mẫu và chỉ nên chạy một lần. Với database đã có dữ liệu người dùng, chạy `Nhom6_PRJ/database/remember_me.sql` để tạo bảng token ghi nhớ đăng nhập, sau đó chạy `Nhom6_PRJ/database/exams.sql` để thêm các bảng đề thi; chạy `Nhom6_PRJ/database/setup_demo_lecturer.sql` nếu cần thêm tài khoản demo.
+Với database mới, trong SQL Server Management Studio chạy lần lượt `Nhom6_PRJ/database/schema.sql`, `Nhom6_PRJ/database/SQLQuery1.sql` và `Nhom6_PRJ/database/exams.sql`. `SQLQuery1.sql` tạo dữ liệu mẫu và chỉ nên chạy một lần. Với database đã có dữ liệu người dùng, chạy `Nhom6_PRJ/database/remember_me.sql` để tạo bảng token ghi nhớ đăng nhập, sau đó chạy `Nhom6_PRJ/database/exams.sql` để thêm các bảng đề thi và bài tập tự luận; có thể chạy lại file này để tạo các bảng còn thiếu. Chạy `Nhom6_PRJ/database/migrate_optional_github_username.sql` một lần nếu database cũ đang có ràng buộc duy nhất trực tiếp trên `github_username`, vì trường GitHub trên biểu mẫu đăng ký là không bắt buộc. Chạy `Nhom6_PRJ/database/setup_demo_lecturer.sql` nếu cần thêm tài khoản demo.
 
 ## Đề thi và chấm tự động
 
@@ -18,6 +18,10 @@ type,question,points,option_a,option_b,option_c,option_d,correct_answer
 ```
 
 `type` nhận `MCQ` hoặc `SHORT_TEXT`. Câu `MCQ` cần ít nhất hai lựa chọn và `correct_answer` là chữ cái A-D. Câu `SHORT_TEXT` để trống các cột lựa chọn và ghi đáp án trong `correct_answer`. Câu trả lời ngắn được so khớp sau khi bỏ khoảng trắng đầu/cuối và không phân biệt chữ hoa/thường. Sinh viên làm bài trực tiếp trên web, chỉ được nộp một lần cho mỗi đề; hệ thống lưu điểm vào database và hiển thị ngay sau khi nộp. Có file mẫu tại `Nhom6_PRJ/src/main/webapp/files/exam-template.csv`.
+
+## Bài tập tự luận nộp file
+
+Trong mục “Đề thi & bài tập”, giảng viên chọn “Giao bài tập”, nhập tên/yêu cầu và có thể đính kèm file đề bài. Sinh viên có thể tải file đề, nộp bài hoặc thay thế bài đã nộp; giảng viên xem danh sách và tải bài từng sinh viên. Tệp đề và bài nộp được lưu trong SQL Server. Hỗ trợ PDF, DOC, DOCX, ODT, RTF và TXT, tối đa 15 MB cho mỗi tệp.
 
 ## Cấu hình database
 
