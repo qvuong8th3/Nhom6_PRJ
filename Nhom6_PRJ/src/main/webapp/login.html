@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AITA - Đăng nhập / Đăng ký</title>
+    <title>AITA | Đăng nhập</title>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- FontAwesome for icons -->
@@ -17,8 +17,9 @@
         <div class="logo-area">
             <i class="fa-solid fa-code-branch logo-icon"></i>
             <h2>AITA</h2>
-            <p>Git Analytics Teamwork Assessor</p>
+            <p>Nền tảng học tập và đánh giá nhóm</p>
         </div>
+        <p class="auth-intro">Đăng nhập để tiếp tục đến không gian lớp học của bạn.</p>
 
         <form id="loginForm" class="login-form">
             <div class="input-group">
@@ -43,7 +44,7 @@
                     <span class="checkmark"></span>
                     Nhớ đăng nhập
                 </label>
-                <a href="#" class="forgot-pwd">Quên mật khẩu?</a>
+                <span class="login-help">Đăng ký chỉ dành cho sinh viên</span>
             </div>
 
             <button type="submit" class="btn-primary">
@@ -107,6 +108,7 @@
                 Tạo tài khoản sinh viên
                 <i class="fa-solid fa-user-plus"></i>
             </button>
+            <p class="registration-note">Tài khoản giảng viên được cấp bởi quản trị viên.</p>
             <p id="register-error-msg" class="error-msg hidden" role="alert"></p>
         </form>
 

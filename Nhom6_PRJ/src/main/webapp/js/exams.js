@@ -12,6 +12,10 @@ async function loadExams() {
         const exams = await requestJson('api/v1/exams');
         const user = JSON.parse(localStorage.getItem('aita_user') || 'null');
         const lecturer = user && user.role === 'LECTURER';
+        if (!lecturer) {
+            document.getElementById('studentExamCount').textContent =
+                exams.filter(exam => !exam.submitted).length;
+        }
         body.innerHTML = exams.length ? exams.map(exam => `<tr>
             <td><strong>${examEscapeHtml(exam.title)}</strong>${exam.description ? `<br><span class="text-muted">${examEscapeHtml(exam.description)}</span>` : ''}</td>
             <td>${exam.questionCount}</td>
@@ -145,6 +149,4 @@ document.addEventListener('DOMContentLoaded', () => {
             button.disabled = false;
         }
     });
-
-    setActiveView('examsView');
 });

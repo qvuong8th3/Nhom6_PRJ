@@ -2,6 +2,15 @@
 
 Ứng dụng Java Servlet dùng SQL Server để đăng nhập, xem thống kê đóng góp Git và quản lý tài khoản sinh viên.
 
+## Không gian giảng viên và sinh viên
+
+Sau khi đăng nhập, giao diện tự hiển thị theo vai trò tài khoản:
+
+- **Giảng viên**: xem tổng quan đóng góp Git, quản lý danh sách sinh viên, giao bài tập có hạn nộp, tải đề kiểm tra và xem bài nộp/kết quả.
+- **Sinh viên**: xem trang học tập cá nhân, theo dõi số bài chưa nộp và đề chưa làm, tải tài liệu, nộp hoặc nộp lại bài trước hạn, làm đề trực tuyến và xem điểm.
+
+Đăng ký công khai tạo tài khoản sinh viên. Tài khoản giảng viên được quản trị viên cấp; vai trò không được người đăng ký tự chọn.
+
 ## Chuẩn bị
 
 - JDK 11, Maven và Apache Tomcat 9.
