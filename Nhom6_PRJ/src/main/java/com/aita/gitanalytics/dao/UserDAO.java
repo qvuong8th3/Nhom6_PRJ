@@ -9,6 +9,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class UserDAO {
 
@@ -55,6 +56,17 @@ public class UserDAO {
             e.printStackTrace();
         }
         return null;
+    }
+
+    private void upgradeLegacyPassword(Connection conn, int userId, String password, String storedPassword)
+            throws SQLException {
+        try (PreparedStatement ps = conn.prepareStatement(
+                "UPDATE users SET password_hash = ? WHERE user_id = ? AND password_hash = ?")) {
+            ps.setString(1, PasswordHasher.hash(password));
+            ps.setInt(2, userId);
+            ps.setString(3, storedPassword);
+            ps.executeUpdate();
+        }
     }
 
     public boolean saveRememberToken(String tokenHash, int userId, Timestamp expiresAt) {
@@ -209,6 +221,39 @@ public class UserDAO {
     // =====================================
     // THÊM USER
     // =====================================
+
+    public boolean registerStudent(String username,
+                                   String fullName,
+                                   String email,
+                                   String githubUsername,
+                                   String password) {
+        String normalizedUsername = username == null ? null : username.trim();
+        String normalizedFullName = fullName == null ? null : fullName.trim();
+        String normalizedEmail = email == null ? null : email.trim().toLowerCase(Locale.ROOT);
+        String normalizedGithubUsername = githubUsername == null ? null : githubUsername.trim();
+
+        if (isBlank(normalizedUsername)
+                || !normalizedUsername.matches("[A-Za-z0-9._-]{3,50}")) {
+            throw new IllegalArgumentException("Tên đăng nhập phải có 3-50 ký tự chữ, số, dấu chấm, gạch dưới hoặc gạch ngang.");
+        }
+        if (isBlank(normalizedFullName) || normalizedFullName.length() > 100) {
+            throw new IllegalArgumentException("Họ và tên không được để trống và tối đa 100 ký tự.");
+        }
+        if (isBlank(normalizedEmail)
+                || normalizedEmail.length() > 100
+                || !normalizedEmail.matches("[^\\s@]+@[^\\s@]+\\.[^\\s@]+")) {
+            throw new IllegalArgumentException("Email không hợp lệ.");
+        }
+        if (!isBlank(normalizedGithubUsername) && normalizedGithubUsername.length() > 50) {
+            throw new IllegalArgumentException("GitHub username tối đa 50 ký tự.");
+        }
+        if (password == null || password.length() < 8 || password.length() > 128) {
+            throw new IllegalArgumentException("Mật khẩu phải có từ 8 đến 128 ký tự.");
+        }
+
+        return createUser(normalizedUsername, normalizedFullName, normalizedEmail,
+                normalizedGithubUsername, password, "STUDENT");
+    }
 
     public boolean createUser(String username,
                               String fullName,
@@ -706,4 +751,3 @@ public class UserDAO {
                 || value.trim().isEmpty();
     }
 }
-

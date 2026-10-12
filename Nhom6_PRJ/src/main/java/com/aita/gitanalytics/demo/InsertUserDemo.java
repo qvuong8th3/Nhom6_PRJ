@@ -1,6 +1,7 @@
 package com.aita.gitanalytics.demo;
 
 import com.aita.gitanalytics.dao.UserDAO;
+import com.aita.gitanalytics.dao.DataAccessException;
 import java.util.Scanner;
 
 public class InsertUserDemo {
@@ -23,6 +24,7 @@ public class InsertUserDemo {
             System.out.println("3. Sửa user");
             System.out.println("4. Xóa user");
             System.out.println("5. Đăng nhập");
+            System.out.println("6. Đăng ký sinh viên");
             System.out.println("0. Thoát");
             System.out.println("====================================");
 
@@ -64,6 +66,10 @@ public class InsertUserDemo {
 
                 case 5:
                     login(scanner, userDAO);
+                    break;
+
+                case 6:
+                    registerStudent(scanner, userDAO);
                     break;
 
                 case 0:
@@ -380,6 +386,46 @@ public class InsertUserDemo {
             System.out.println(
                     "❌ Email hoặc mật khẩu không đúng!"
             );
+        }
+    }
+
+    private static void registerStudent(Scanner scanner, UserDAO userDAO) {
+        System.out.println();
+        System.out.println("========== ĐĂNG KÝ SINH VIÊN ==========");
+
+        System.out.print("Tên đăng nhập: ");
+        String username = scanner.nextLine();
+
+        System.out.print("Họ và tên: ");
+        String fullName = scanner.nextLine();
+
+        System.out.print("Email: ");
+        String email = scanner.nextLine();
+
+        System.out.print("GitHub username (không bắt buộc): ");
+        String githubUsername = scanner.nextLine();
+
+        System.out.print("Mật khẩu (ít nhất 8 ký tự): ");
+        String password = scanner.nextLine();
+
+        System.out.print("Xác nhận mật khẩu: ");
+        String confirmPassword = scanner.nextLine();
+        if (!password.equals(confirmPassword)) {
+            System.out.println("❌ Mật khẩu xác nhận không khớp.");
+            return;
+        }
+
+        try {
+            if (userDAO.registerStudent(username, fullName, email, githubUsername, password)) {
+                System.out.println("✅ Đăng ký sinh viên thành công!");
+            } else {
+                System.out.println("❌ Tên đăng nhập hoặc email đã được sử dụng.");
+            }
+        } catch (IllegalArgumentException e) {
+            System.out.println("❌ " + e.getMessage());
+        } catch (DataAccessException e) {
+            System.err.println("❌ Không thể lưu tài khoản vào database lúc này.");
+            e.printStackTrace();
         }
     }
 }
