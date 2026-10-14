@@ -27,9 +27,10 @@ public class UserDAO {
             String fullName;
             String email;
             String role;
+            boolean mustChangePassword;
             String storedPassword;
             try (PreparedStatement ps = conn.prepareStatement(
-                    "SELECT user_id, username, full_name, email, role, password_hash "
+                    "SELECT user_id, username, full_name, email, role, password_hash, must_change_password "
                             + "FROM users WHERE email = ? OR username = ?")) {
                 ps.setString(1, identifier.trim());
                 ps.setString(2, identifier.trim());
@@ -42,6 +43,7 @@ public class UserDAO {
                     fullName = rs.getString("full_name");
                     email = rs.getString("email");
                     role = rs.getString("role");
+                    mustChangePassword = rs.getBoolean("must_change_password");
                     storedPassword = rs.getString("password_hash");
                 }
             }
@@ -51,7 +53,7 @@ public class UserDAO {
             if (PasswordHasher.needsUpgrade(storedPassword)) {
                 upgradeLegacyPassword(conn, userId, password, storedPassword);
             }
-            return new UserAccount(userId, username, fullName, email, role);
+            return new UserAccount(userId, username, fullName, email, role, mustChangePassword);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -66,6 +68,129 @@ public class UserDAO {
             ps.setInt(2, userId);
             ps.setString(3, storedPassword);
             ps.executeUpdate();
+        }
+    }
+
+    public boolean createBootstrapAdministrator(String username, String fullName, String email,
+                                                String initialPassword) {
+        validateNewAccount(username, fullName, email, initialPassword);
+        String sql = "INSERT INTO Users (username, password_hash, full_name, email, role, "
+                + "must_change_password, created_at) VALUES (?, ?, ?, ?, 'ADMIN', 1, GETDATE())";
+        try (Connection conn = DBContext.getConnection()) {
+            if (conn == null) {
+                throw new DataAccessException("Database connection is unavailable.", null);
+            }
+            conn.setAutoCommit(false);
+            try (PreparedStatement check = conn.prepareStatement(
+                    "SELECT TOP (1) user_id FROM Users WITH (UPDLOCK, HOLDLOCK) WHERE role = 'ADMIN'");
+                 ResultSet rs = check.executeQuery()) {
+                if (rs.next()) {
+                    conn.rollback();
+                    return false;
+                }
+                try (PreparedStatement insert = conn.prepareStatement(sql)) {
+                    bindNewAccount(insert, username, fullName, email, initialPassword);
+                    insert.executeUpdate();
+                }
+                conn.commit();
+                return true;
+            } catch (SQLException | RuntimeException e) {
+                conn.rollback();
+                throw e;
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Could not create bootstrap administrator.", e);
+        }
+    }
+
+    public boolean createLecturer(String username, String fullName, String email, String initialPassword) {
+        validateNewAccount(username, fullName, email, initialPassword);
+        String sql = "INSERT INTO Users (username, password_hash, full_name, email, role, "
+                + "must_change_password, created_at) VALUES (?, ?, ?, ?, 'LECTURER', 1, GETDATE())";
+        try (Connection conn = DBContext.getConnection()) {
+            if (conn == null) {
+                throw new DataAccessException("Database connection is unavailable.", null);
+            }
+            try (PreparedStatement insert = conn.prepareStatement(sql)) {
+                bindNewAccount(insert, username, fullName, email, initialPassword);
+                return insert.executeUpdate() == 1;
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Could not create lecturer account.", e);
+        }
+    }
+
+    private void validateNewAccount(String username, String fullName, String email, String password) {
+        if (isBlank(username) || !username.trim().matches("[A-Za-z0-9._-]{3,50}")) {
+            throw new IllegalArgumentException(
+                    "Tên đăng nhập phải có 3-50 ký tự chữ, số, dấu chấm, gạch dưới hoặc gạch ngang.");
+        }
+        if (isBlank(fullName) || fullName.trim().length() > 100) {
+            throw new IllegalArgumentException("Họ và tên bắt buộc và tối đa 100 ký tự.");
+        }
+        if (isBlank(email) || email.trim().length() > 100
+                || !email.trim().matches("[^\\s@]+@[^\\s@]+\\.[^\\s@]+")) {
+            throw new IllegalArgumentException("Email không hợp lệ.");
+        }
+        if (password == null || password.length() < 12 || password.length() > 128) {
+            throw new IllegalArgumentException("Mật khẩu khởi tạo phải có từ 12 đến 128 ký tự.");
+        }
+    }
+
+    private void bindNewAccount(PreparedStatement statement, String username, String fullName,
+                                String email, String password) throws SQLException {
+        statement.setString(1, username.trim());
+        statement.setString(2, PasswordHasher.hash(password));
+        statement.setString(3, fullName.trim());
+        statement.setString(4, email.trim().toLowerCase(Locale.ROOT));
+    }
+
+    public boolean changePassword(int userId, String currentPassword, String newPassword) {
+        try (Connection conn = DBContext.getConnection()) {
+            if (conn == null) {
+                throw new DataAccessException("Database connection is unavailable.", null);
+            }
+            conn.setAutoCommit(false);
+            try {
+                String storedPassword;
+                try (PreparedStatement ps = conn.prepareStatement(
+                        "SELECT password_hash FROM users WITH (UPDLOCK, ROWLOCK) WHERE user_id = ?")) {
+                    ps.setInt(1, userId);
+                    try (ResultSet rs = ps.executeQuery()) {
+                        if (!rs.next()) {
+                            conn.rollback();
+                            return false;
+                        }
+                        storedPassword = rs.getString("password_hash");
+                    }
+                }
+                if (!PasswordHasher.verify(currentPassword, storedPassword)) {
+                    conn.rollback();
+                    return false;
+                }
+
+                try (PreparedStatement ps = conn.prepareStatement(
+                        "UPDATE users SET password_hash = ?, must_change_password = 0 WHERE user_id = ?")) {
+                    ps.setString(1, PasswordHasher.hash(newPassword));
+                    ps.setInt(2, userId);
+                    if (ps.executeUpdate() != 1) {
+                        conn.rollback();
+                        return false;
+                    }
+                }
+                try (PreparedStatement ps = conn.prepareStatement(
+                        "DELETE FROM remember_tokens WHERE user_id = ?")) {
+                    ps.setInt(1, userId);
+                    ps.executeUpdate();
+                }
+                conn.commit();
+                return true;
+            } catch (SQLException | RuntimeException e) {
+                conn.rollback();
+                throw e;
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Could not change password.", e);
         }
     }
 
@@ -88,7 +213,7 @@ public class UserDAO {
     }
 
     public UserAccount findRememberedUser(String tokenHash) {
-        String sql = "SELECT u.user_id, u.username, u.full_name, u.email, u.role "
+        String sql = "SELECT u.user_id, u.username, u.full_name, u.email, u.role, u.must_change_password "
                 + "FROM remember_tokens t JOIN users u ON u.user_id = t.user_id "
                 + "WHERE t.token_hash = ? AND t.expires_at > GETDATE()";
         try (Connection conn = DBContext.getConnection()) {
@@ -100,7 +225,8 @@ public class UserDAO {
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {
                         return new UserAccount(rs.getInt("user_id"), rs.getString("username"),
-                                rs.getString("full_name"), rs.getString("email"), rs.getString("role"));
+                                rs.getString("full_name"), rs.getString("email"), rs.getString("role"),
+                                rs.getBoolean("must_change_password"));
                     }
                 }
             }

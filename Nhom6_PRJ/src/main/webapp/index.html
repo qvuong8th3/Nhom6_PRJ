@@ -23,9 +23,11 @@
         </div>
         <nav class="sidebar-nav">
             <ul>
-                <li class="active"><a href="#dashboardView" data-view-target="dashboardView"><i class="fa-solid fa-chart-pie"></i> Tổng quan nhóm</a></li>
-                <li id="studentsNavItem"><a href="#studentsView" data-view-target="studentsView"><i class="fa-solid fa-users"></i> Quản lý sinh viên</a></li>
+                <li id="dashboardNavItem" class="active"><a href="#dashboardView" data-view-target="dashboardView"><i class="fa-solid fa-chart-pie"></i> Tổng quan nhóm</a></li>
+                <li id="studentsNavItem" class="hidden"><a href="#studentsView" data-view-target="studentsView"><i class="fa-solid fa-users"></i> Tài khoản sinh viên</a></li>
                 <li id="examsNavItem"><a href="#examsView" data-view-target="examsView"><i class="fa-solid fa-file-circle-question"></i> Đề thi & bài tập</a></li>
+                <li id="coursesNavItem" class="hidden"><a href="#coursesView" data-view-target="coursesView"><i class="fa-solid fa-book-open"></i> Môn học</a></li>
+                <li id="lecturersNavItem" class="hidden"><a href="#lecturersView" data-view-target="lecturersView"><i class="fa-solid fa-chalkboard-user"></i> Giảng viên</a></li>
             </ul>
         </nav>
         <div class="sidebar-footer">
@@ -36,7 +38,8 @@
                     <span>Khoa CNTT</span>
                 </div>
             </div>
-            <button id="logoutBtn" class="btn-logout"><i class="fa-solid fa-sign-out-alt"></i></button>
+            <button id="changePasswordBtn" class="btn-logout" title="Đổi mật khẩu" aria-label="Đổi mật khẩu"><i class="fa-solid fa-key"></i></button>
+            <button id="logoutBtn" class="btn-logout" title="Đăng xuất" aria-label="Đăng xuất"><i class="fa-solid fa-sign-out-alt"></i></button>
         </div>
     </aside>
 
@@ -119,7 +122,7 @@
         <section id="studentsView" class="page-view hidden">
             <div class="card glass-panel students-panel">
                 <div class="card-header flex-between">
-                    <h3><i class="fa-solid fa-users"></i> Danh sách sinh viên</h3>
+                    <h3><i class="fa-solid fa-users"></i> Tài khoản sinh viên toàn hệ thống</h3>
                     <button class="btn-secondary" id="addStudentBtn"><i class="fa-solid fa-plus"></i> Thêm sinh viên</button>
                 </div>
                 <p id="studentsMessage" class="students-message" role="status"></p>
@@ -129,6 +132,87 @@
                             <tr><th>Họ tên</th><th>Tên đăng nhập</th><th>Email</th><th>GitHub</th><th>Thao tác</th></tr>
                         </thead>
                         <tbody id="studentsTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section id="coursesView" class="page-view hidden">
+            <div class="card glass-panel students-panel">
+                <div class="card-header flex-between">
+                    <h3><i class="fa-solid fa-book-open"></i> Danh sách môn học</h3>
+                    <button class="btn-secondary hidden" id="addCourseBtn" type="button"><i class="fa-solid fa-plus"></i> Thêm môn học</button>
+                </div>
+                <p id="coursesMessage" class="students-message" role="status"></p>
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead><tr><th>Mã môn</th><th>Tên môn học</th><th>Học kỳ</th><th>Giảng viên</th><th>Lớp</th><th id="courseActionHeader">Thao tác</th></tr></thead>
+                        <tbody id="coursesTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section id="classesView" class="page-view hidden">
+            <div class="card glass-panel students-panel">
+                <div class="card-header flex-between">
+                    <div><h3><i class="fa-solid fa-users-rectangle"></i> Danh sách lớp</h3><p id="classesCourseName" class="subtitle"></p></div>
+                    <button class="btn-secondary hidden" id="addClassBtn" type="button"><i class="fa-solid fa-plus"></i> Thêm lớp</button>
+                </div>
+                <p id="classesMessage" class="students-message" role="status"></p>
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead><tr><th>Lớp</th><th>Số sinh viên</th><th id="classActionHeader">Thao tác</th></tr></thead>
+                        <tbody id="classesTableBody"></tbody>
+                    </table>
+                </div>
+                <button class="btn-outline" id="backToCourses" type="button"><i class="fa-solid fa-arrow-left"></i> Danh sách môn học</button>
+            </div>
+        </section>
+
+        <section id="classStudentsView" class="page-view hidden">
+            <div class="card glass-panel students-panel">
+                <div class="card-header flex-between">
+                    <div>
+                        <h3><i class="fa-solid fa-users"></i> Sinh viên trong lớp</h3>
+                        <p id="classStudentsCourseName" class="subtitle"></p>
+                    </div>
+                    <button class="btn-secondary hidden" id="editClassRosterBtn" type="button">
+                        <i class="fa-solid fa-user-pen"></i> Cập nhật danh sách lớp
+                    </button>
+                </div>
+                <p id="classStudentsMessage" class="students-message" role="status"></p>
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead><tr><th>Họ tên</th><th>Tên đăng nhập</th><th>Email</th></tr></thead>
+                        <tbody id="classStudentsTableBody"></tbody>
+                    </table>
+                </div>
+                <button class="btn-outline" id="backToClasses" type="button">
+                    <i class="fa-solid fa-arrow-left"></i> Danh sách lớp
+                </button>
+            </div>
+        </section>
+
+        <section id="lecturersView" class="page-view hidden">
+            <div class="card glass-panel students-panel">
+                <div class="card-header"><h3><i class="fa-solid fa-chalkboard-user"></i> Tài khoản giảng viên</h3></div>
+                <form id="lecturerForm" class="student-form">
+                    <div class="exam-form-grid">
+                        <label>Tên đăng nhập<input name="username" required minlength="3" maxlength="50" pattern="[A-Za-z0-9._-]+"></label>
+                        <label>Họ và tên<input name="fullName" required maxlength="100"></label>
+                        <label>Email<input name="email" type="email" required maxlength="100"></label>
+                        <label>Mật khẩu khởi tạo (12 ký tự trở lên)<input name="initialPassword" type="password" required minlength="12" maxlength="128" autocomplete="new-password"></label>
+                    </div>
+                    <p class="students-message">Giảng viên phải đổi mật khẩu khi đăng nhập lần đầu.</p>
+                    <p id="lecturerFormMessage" class="students-message" role="status"></p>
+                    <p id="lecturerFormError" class="error-msg hidden" role="alert"></p>
+                    <button class="btn-primary" type="submit"><i class="fa-solid fa-user-plus"></i> Cấp tài khoản</button>
+                </form>
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead><tr><th>Họ tên</th><th>Tên đăng nhập</th><th>Email</th></tr></thead>
+                        <tbody id="lecturersTableBody"></tbody>
                     </table>
                 </div>
             </div>
@@ -149,6 +233,9 @@
 
                     <form id="assignmentCreateForm" class="exam-upload-form hidden" enctype="multipart/form-data">
                         <div class="exam-form-grid">
+                            <label>Môn học
+                                <select name="courseId" id="assignmentCourseId" required></select>
+                            </label>
                             <label>Tên bài tập<input name="title" required maxlength="160"></label>
                             <label class="exam-description">Mô tả / yêu cầu<input name="description" maxlength="2000"></label>
                             <label>Hạn nộp (không bắt buộc)
@@ -168,7 +255,7 @@
                     <p id="assignmentError" class="error-msg hidden" role="alert"></p>
                     <div class="table-responsive">
                         <table class="data-table">
-                            <thead><tr><th>Bài tập</th><th>File đề</th><th>Bài đã nộp</th><th>Hạn nộp</th><th>Ngày giao</th><th>Thao tác</th></tr></thead>
+                            <thead><tr><th>Môn học</th><th>Bài tập</th><th>File đề</th><th>Bài đã nộp</th><th>Hạn nộp</th><th>Ngày giao</th><th>Thao tác</th></tr></thead>
                             <tbody id="assignmentsTableBody"></tbody>
                         </table>
                     </div>
@@ -202,6 +289,9 @@
 
                 <form id="examUploadForm" class="exam-upload-form hidden" enctype="multipart/form-data">
                     <div class="exam-form-grid">
+                        <label>Môn học
+                            <select name="courseId" id="examCourseId" required></select>
+                        </label>
                         <label>Tên đề<input name="title" required maxlength="160"></label>
                         <label class="exam-description">Mô tả<input name="description" maxlength="2000"></label>
                         <label class="exam-file">File đề (.csv, .xlsx)<input name="file" type="file" accept=".csv,.xlsx" required></label>
@@ -215,7 +305,7 @@
 
                 <div class="table-responsive">
                     <table class="data-table">
-                        <thead><tr><th>Tên đề</th><th>Số câu</th><th>Kết quả</th><th>Ngày tạo</th><th>Thao tác</th></tr></thead>
+                        <thead><tr><th>Môn học</th><th>Tên đề</th><th>Số câu</th><th>Kết quả</th><th>Ngày tạo</th><th>Thao tác</th></tr></thead>
                         <tbody id="examsTableBody"></tbody>
                     </table>
                 </div>
@@ -258,6 +348,55 @@
             <label>Mật khẩu <span id="passwordHint">(bắt buộc)</span><input id="studentPassword" type="password" autocomplete="new-password"></label>
             <p id="studentFormError" class="error-msg hidden" role="alert"></p>
             <button type="submit" class="btn-primary">Lưu sinh viên</button>
+        </form>
+    </dialog>
+
+    <dialog id="courseDialog" class="student-dialog">
+        <form id="courseForm" class="student-form">
+            <div class="card-header flex-between">
+                <h3 id="courseDialogTitle">Thêm môn học</h3>
+                <button type="button" class="dialog-close" id="closeCourseDialog" aria-label="Đóng"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <input type="hidden" name="id" id="courseId">
+            <label>Mã môn học<input name="courseCode" id="courseCode" required maxlength="30"></label>
+            <label>Tên môn học<input name="courseName" id="courseName" required maxlength="150"></label>
+            <label>Học kỳ<input name="semester" id="courseSemester" maxlength="50" placeholder="Ví dụ: Fall 2026"></label>
+            <label>Giảng viên (giữ Ctrl để chọn nhiều)
+                <select name="lecturerIds" id="courseLecturers" multiple required></select>
+            </label>
+            <p id="courseFormError" class="error-msg hidden" role="alert"></p>
+            <button type="submit" class="btn-primary">Lưu môn học</button>
+        </form>
+    </dialog>
+
+    <dialog id="classDialog" class="student-dialog">
+        <form id="classForm" class="student-form">
+            <div class="card-header flex-between">
+                <h3 id="classDialogTitle">Thêm lớp học</h3>
+                <button type="button" class="dialog-close" id="closeClassDialog" aria-label="Đóng"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <input type="hidden" name="classId" id="classId">
+            <label id="classNameLabel">Tên lớp<input name="className" id="className" required maxlength="100" placeholder="Ví dụ: SE20C"></label>
+            <label>Danh sách học sinh (giữ Ctrl để chọn nhiều)
+                <select name="studentIds" id="classStudents" multiple size="10"></select>
+            </label>
+            <p id="classFormError" class="error-msg hidden" role="alert"></p>
+            <button type="submit" class="btn-primary">Lưu lớp và danh sách học sinh</button>
+        </form>
+    </dialog>
+
+    <dialog id="passwordDialog" class="student-dialog">
+        <form id="passwordForm" class="student-form">
+            <div class="card-header flex-between">
+                <h3>Đổi mật khẩu</h3>
+                <button type="button" class="dialog-close" id="closePasswordDialog" aria-label="Đóng"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <label>Mật khẩu hiện tại<input name="currentPassword" type="password" autocomplete="current-password" required></label>
+            <label>Mật khẩu mới (8-128 ký tự)<input name="newPassword" type="password" autocomplete="new-password" minlength="8" maxlength="128" required></label>
+            <label>Xác nhận mật khẩu mới<input name="confirmPassword" type="password" autocomplete="new-password" minlength="8" maxlength="128" required></label>
+            <p id="passwordFormError" class="error-msg hidden" role="alert"></p>
+            <p id="passwordFormSuccess" class="students-message hidden" role="status"></p>
+            <button type="submit" class="btn-primary">Cập nhật mật khẩu</button>
         </form>
     </dialog>
 

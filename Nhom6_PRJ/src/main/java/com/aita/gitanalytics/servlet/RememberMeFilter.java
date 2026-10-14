@@ -33,7 +33,19 @@ public class RememberMeFilter implements Filter {
             UserAccount remembered = RememberMeService.restore(request, response, userDAO);
             if (remembered != null) {
                 request.getSession(true).setAttribute("authenticatedUser", remembered);
+                account = remembered;
             }
+        }
+        if (account instanceof UserAccount
+                && ((UserAccount) account).isMustChangePassword()
+                && request.getServletPath().startsWith("/api/v1/")
+                && !"/api/v1/auth/change-password".equals(request.getServletPath())
+                && !"/api/v1/auth/logout".equals(request.getServletPath())) {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            response.getWriter().print("{\"error\":\"Bạn phải đổi mật khẩu trước khi tiếp tục.\"}");
+            return;
         }
         chain.doFilter(request, response);
     }

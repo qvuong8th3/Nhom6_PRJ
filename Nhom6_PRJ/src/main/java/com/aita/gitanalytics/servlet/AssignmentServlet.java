@@ -107,6 +107,7 @@ public class AssignmentServlet extends HttpServlet {
                 }
                 String title = request.getParameter("title");
                 String description = request.getParameter("description");
+                int courseId = parseId(request.getParameter("courseId"));
                 if (isBlank(title) || title.trim().length() > 160) {
                     throw new IllegalArgumentException("Tên bài tập bắt buộc và tối đa 160 ký tự.");
                 }
@@ -121,7 +122,7 @@ public class AssignmentServlet extends HttpServlet {
                     fileData = readPart(prompt);
                 }
 
-                int assignmentId = assignmentDAO.createAssignment(user.getUserId(), title.trim(),
+                int assignmentId = assignmentDAO.createAssignment(user.getUserId(), courseId, title.trim(),
                         isBlank(description) ? null : description.trim(), fileName, fileData,
                         parseDueAt(request.getParameter("dueAt")));
                 Map<String, Object> result = new LinkedHashMap<>();

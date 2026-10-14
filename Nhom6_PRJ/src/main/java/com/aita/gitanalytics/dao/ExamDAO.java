@@ -15,10 +15,10 @@ import java.util.Map;
 
 public class ExamDAO {
 
-    public int createExam(int lecturerId, String title, String description,
+    public int createExam(int lecturerId, int courseId, String title, String description,
                           List<QuestionDraft> questions) {
-        String examSql = "INSERT INTO Exams (title, description, created_by) "
-                + "OUTPUT INSERTED.exam_id VALUES (?, ?, ?)";
+        String examSql = "INSERT INTO Exams (title, description, created_by, course_id) "
+                + "OUTPUT INSERTED.exam_id VALUES (?, ?, ?, ?)";
         String questionSql = "INSERT INTO Exam_Questions "
                 + "(exam_id, question_order, question_type, question_text, points, correct_answer) "
                 + "OUTPUT INSERTED.question_id VALUES (?, ?, ?, ?, ?, ?)";
@@ -28,11 +28,13 @@ public class ExamDAO {
         try (Connection connection = requireConnection()) {
             connection.setAutoCommit(false);
             try {
+                validateLecturerCourse(connection, lecturerId, courseId);
                 int examId;
                 try (PreparedStatement statement = connection.prepareStatement(examSql)) {
                     statement.setString(1, title);
                     statement.setString(2, description);
                     statement.setInt(3, lecturerId);
+                    statement.setInt(4, courseId);
                     try (ResultSet result = statement.executeQuery()) {
                         if (!result.next()) {
                             throw new SQLException("Exam insert did not return an ID.");
@@ -86,16 +88,25 @@ public class ExamDAO {
         String sql = "SELECT e.exam_id, e.title, e.description, e.created_at, "
                 + "(SELECT COUNT(*) FROM Exam_Questions q WHERE q.exam_id = e.exam_id) AS question_count, "
             + "(SELECT COUNT(*) FROM Exam_Attempts a2 WHERE a2.exam_id = e.exam_id) AS attempt_count, "
-                + "a.score, a.max_score, a.submitted_at "
+                + "a.score, a.max_score, a.submitted_at, c.course_name "
                 + "FROM Exams e LEFT JOIN Exam_Attempts a "
                 + "ON a.exam_id = e.exam_id AND a.student_id = ? "
-                + (lecturer ? "WHERE e.created_by = ? " : "")
+                + "LEFT JOIN Courses c ON c.course_id = e.course_id "
+                + (lecturer ? "WHERE e.created_by = ? AND EXISTS ("
+                        + "SELECT 1 FROM Lecturer_Courses lc WHERE lc.course_id = e.course_id "
+                        + "AND lc.lecturer_id = ?) " : "WHERE e.course_id IS NOT NULL AND EXISTS ("
+                        + "SELECT 1 FROM Course_Classes cl JOIN Class_Students cs "
+                        + "ON cs.class_id = cl.class_id WHERE cl.course_id = e.course_id "
+                        + "AND cs.student_id = ?) ")
                 + "ORDER BY e.created_at DESC, e.exam_id DESC";
         List<Map<String, Object>> exams = new ArrayList<>();
         try (Connection connection = requireConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setInt(1, userId);
             if (lecturer) {
+                statement.setInt(2, userId);
+                statement.setInt(3, userId);
+            } else {
                 statement.setInt(2, userId);
             }
             try (ResultSet result = statement.executeQuery()) {
@@ -104,6 +115,7 @@ public class ExamDAO {
                     exam.put("examId", result.getInt("exam_id"));
                     exam.put("title", result.getString("title"));
                     exam.put("description", result.getString("description"));
+                    exam.put("courseName", result.getString("course_name"));
                     exam.put("createdAt", result.getTimestamp("created_at").toString());
                     exam.put("questionCount", result.getInt("question_count"));
                     exam.put("attemptCount", result.getInt("attempt_count"));
@@ -123,8 +135,14 @@ public class ExamDAO {
     }
 
     public Map<String, Object> getExam(int examId, int userId, boolean lecturer) {
-        String examSql = "SELECT exam_id, title, description, created_at FROM Exams WHERE exam_id = ?"
-                + (lecturer ? " AND created_by = ?" : "");
+        String examSql = "SELECT e.exam_id, e.title, e.description, e.created_at, c.course_name "
+                + "FROM Exams e LEFT JOIN Courses c ON c.course_id = e.course_id "
+                + "WHERE e.exam_id = ?"
+                + (lecturer ? " AND e.created_by = ? AND EXISTS (SELECT 1 FROM Lecturer_Courses lc "
+                        + "WHERE lc.course_id = e.course_id AND lc.lecturer_id = ?)"
+                        : " AND e.course_id IS NOT NULL AND EXISTS (SELECT 1 FROM Course_Classes cl "
+                                + "JOIN Class_Students cs ON cs.class_id = cl.class_id "
+                                + "WHERE cl.course_id = e.course_id AND cs.student_id = ?)");
         String questionSql = "SELECT question_id, question_type, question_text, points "
                 + "FROM Exam_Questions WHERE exam_id = ? ORDER BY question_order";
         String optionSql = "SELECT option_key, option_text FROM Exam_Options "
@@ -135,6 +153,9 @@ public class ExamDAO {
                 statement.setInt(1, examId);
                 if (lecturer) {
                     statement.setInt(2, userId);
+                    statement.setInt(3, userId);
+                } else {
+                    statement.setInt(2, userId);
                 }
                 try (ResultSet result = statement.executeQuery()) {
                     if (result.next()) {
@@ -142,6 +163,7 @@ public class ExamDAO {
                         exam.put("examId", result.getInt("exam_id"));
                         exam.put("title", result.getString("title"));
                         exam.put("description", result.getString("description"));
+                        exam.put("courseName", result.getString("course_name"));
                         exam.put("createdAt", result.getTimestamp("created_at").toString());
                     }
                 }
@@ -211,7 +233,9 @@ public class ExamDAO {
     }
 
     public Map<String, Object> getResults(int examId, int lecturerId) {
-        String examSql = "SELECT title FROM Exams WHERE exam_id = ? AND created_by = ?";
+        String examSql = "SELECT title FROM Exams e WHERE exam_id = ? AND created_by = ? "
+                + "AND EXISTS (SELECT 1 FROM Lecturer_Courses lc "
+                + "WHERE lc.course_id = e.course_id AND lc.lecturer_id = ?)";
         String resultsSql = "SELECT u.full_name, u.username, a.score, a.max_score, a.submitted_at "
                 + "FROM Exam_Attempts a JOIN Users u ON u.user_id = a.student_id "
                 + "WHERE a.exam_id = ? ORDER BY u.full_name";
@@ -220,6 +244,7 @@ public class ExamDAO {
             try (PreparedStatement statement = connection.prepareStatement(examSql)) {
                 statement.setInt(1, examId);
                 statement.setInt(2, lecturerId);
+                statement.setInt(3, lecturerId);
                 try (ResultSet result = statement.executeQuery()) {
                     if (!result.next()) {
                         return null;
@@ -255,6 +280,9 @@ public class ExamDAO {
         try (Connection connection = requireConnection()) {
             connection.setAutoCommit(false);
             try {
+                if (!studentCanAccessExam(connection, examId, studentId)) {
+                    throw new IllegalArgumentException("Bạn chưa được xếp vào môn học của đề thi này.");
+                }
                 List<GradedAnswer> gradedAnswers = new ArrayList<>();
                 BigDecimal score = BigDecimal.ZERO;
                 BigDecimal maxScore = BigDecimal.ZERO;
@@ -270,6 +298,7 @@ public class ExamDAO {
                             if (answer != null && answer.length() > 1000) {
                                 throw new IllegalArgumentException("Câu trả lời vượt quá 1000 ký tự.");
                             }
+
                             boolean correct = ExamService.isCorrect(type, expected, answer);
                             BigDecimal awarded = correct ? points : BigDecimal.ZERO;
                             maxScore = maxScore.add(points);
@@ -333,6 +362,35 @@ public class ExamDAO {
             }
         } catch (SQLException e) {
             throw new DataAccessException("Could not submit exam.", e);
+        }
+    }
+
+    private void validateLecturerCourse(Connection connection, int lecturerId, int courseId)
+            throws SQLException {
+        try (PreparedStatement statement = connection.prepareStatement(
+                "SELECT 1 FROM Lecturer_Courses WHERE lecturer_id = ? AND course_id = ?")) {
+            statement.setInt(1, lecturerId);
+            statement.setInt(2, courseId);
+            try (ResultSet result = statement.executeQuery()) {
+                if (!result.next()) {
+                    throw new IllegalArgumentException("Bạn chưa được phân công giảng dạy môn học này.");
+                }
+            }
+        }
+    }
+
+    private boolean studentCanAccessExam(Connection connection, int examId, int studentId)
+            throws SQLException {
+        String sql = "SELECT 1 FROM Exams e WHERE e.exam_id = ? AND e.course_id IS NOT NULL "
+                + "AND EXISTS (SELECT 1 FROM Course_Classes cl JOIN Class_Students cs "
+                + "ON cs.class_id = cl.class_id WHERE cl.course_id = e.course_id "
+                + "AND cs.student_id = ?)";
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, examId);
+            statement.setInt(2, studentId);
+            try (ResultSet result = statement.executeQuery()) {
+                return result.next();
+            }
         }
     }
 

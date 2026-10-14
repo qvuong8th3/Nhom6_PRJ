@@ -16,11 +16,13 @@ async function loadAssignments() {
     const error = document.getElementById('assignmentError');
     const user = JSON.parse(localStorage.getItem('aita_user') || 'null');
     const lecturer = user && user.role === 'LECTURER';
+    const student = user && user.role === 'STUDENT' && !user.mustChangePassword;
     message.textContent = 'Đang tải bài tập...';
     error.classList.add('hidden');
     try {
         const assignments = await requestJson('api/v1/assignments');
         body.innerHTML = assignments.length ? assignments.map(assignment => `<tr>
+            <td>${assignmentEscapeHtml(assignment.courseName || 'Chưa gắn môn học')}</td>
             <td><strong>${assignmentEscapeHtml(assignment.title)}</strong>
                 ${assignment.description ? `<br><span class="text-muted">${assignmentEscapeHtml(assignment.description)}</span>` : ''}</td>
             <td>${assignment.promptFileName
@@ -50,7 +52,7 @@ async function loadAssignments() {
                        <label class="assignment-file-label">File bài làm<input type="file" name="file" accept=".pdf,.doc,.docx,.odt,.rtf,.txt" required></label>
                        <button class="btn-outline" type="submit"><i class="fa-solid fa-cloud-arrow-up"></i> ${assignment.submittedAt ? 'Nộp lại' : 'Nộp bài'}</button>
                    </form>`)}</td>
-        </tr>`).join('') : '<tr><td colspan="6" class="empty-state">Chưa có bài tập tự luận.</td></tr>';
+        </tr>`).join('') : '<tr><td colspan="7" class="empty-state">Chưa có bài tập trong các môn học của bạn.</td></tr>';
         message.textContent = `${assignments.length} bài tập · chấp nhận PDF, DOC, DOCX, ODT, RTF, TXT tối đa 15 MB`;
     } catch (requestError) {
         message.textContent = '';
@@ -88,6 +90,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const createForm = document.getElementById('assignmentCreateForm');
     const createError = document.getElementById('assignmentCreateError');
     createToggle.classList.toggle('hidden', !lecturer);
+    if (lecturer) {
+        populateTeachingCourseSelect('assignmentCourseId').catch(error => {
+            createError.textContent = error.message;
+            createError.classList.remove('hidden');
+        });
+    } else if (student) {
+        loadAssignments();
+    }
     document.addEventListener('exams-view-open', loadAssignments);
 
     createToggle.addEventListener('click', () => createForm.classList.toggle('hidden'));

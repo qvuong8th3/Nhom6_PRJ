@@ -12,7 +12,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-@WebServlet(urlPatterns = {"/api/v1/auth/login", "/api/v1/auth/logout", "/api/v1/auth/register"})
+@WebServlet(urlPatterns = {"/api/v1/auth/login", "/api/v1/auth/logout", "/api/v1/auth/register",
+        "/api/v1/auth/change-password"})
 public class AuthServlet extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
@@ -27,6 +28,11 @@ public class AuthServlet extends HttpServlet {
 
         if (request.getServletPath().endsWith("/register")) {
             registerStudent(request, response);
+            return;
+        }
+
+        if (request.getServletPath().endsWith("/change-password")) {
+            changePassword(request, response);
             return;
         }
 
@@ -99,6 +105,59 @@ public class AuthServlet extends HttpServlet {
                 writeError(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
                         "Không thể lưu tài khoản vào database lúc này.");
             }
+        }
+    }
+
+    private void changePassword(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        Object value = request.getSession(false) == null
+                ? null : request.getSession(false).getAttribute("authenticatedUser");
+        if (!(value instanceof UserAccount)) {
+            writeError(response, HttpServletResponse.SC_UNAUTHORIZED, "Vui lòng đăng nhập lại.");
+            return;
+        }
+
+        String currentPassword = request.getParameter("currentPassword");
+        String newPassword = request.getParameter("newPassword");
+        String confirmPassword = request.getParameter("confirmPassword");
+        if (currentPassword == null || currentPassword.isEmpty()) {
+            writeError(response, HttpServletResponse.SC_BAD_REQUEST, "Vui lòng nhập mật khẩu hiện tại.");
+            return;
+        }
+        if (currentPassword.length() > 128) {
+            writeError(response, HttpServletResponse.SC_BAD_REQUEST,
+                    "Mật khẩu hiện tại tối đa 128 ký tự.");
+            return;
+        }
+        if (newPassword == null || newPassword.length() < 8 || newPassword.length() > 128) {
+            writeError(response, HttpServletResponse.SC_BAD_REQUEST,
+                    "Mật khẩu mới phải có từ 8 đến 128 ký tự.");
+            return;
+        }
+        if (!newPassword.equals(confirmPassword)) {
+            writeError(response, HttpServletResponse.SC_BAD_REQUEST, "Mật khẩu xác nhận không khớp.");
+            return;
+        }
+        if (currentPassword.equals(newPassword)) {
+            writeError(response, HttpServletResponse.SC_BAD_REQUEST,
+                    "Mật khẩu mới phải khác mật khẩu hiện tại.");
+            return;
+        }
+
+        try {
+            UserAccount account = (UserAccount) value;
+            if (!userDAO.changePassword(account.getUserId(), currentPassword, newPassword)) {
+                writeError(response, HttpServletResponse.SC_BAD_REQUEST, "Mật khẩu hiện tại không đúng.");
+                return;
+            }
+            RememberMeService.revoke(request, response, userDAO);
+            request.getSession(false).setAttribute("authenticatedUser",
+                    new UserAccount(account.getUserId(), account.getUsername(), account.getFullName(),
+                            account.getEmail(), account.getRole(), false));
+            response.getWriter().print("{\"status\":\"success\"}");
+        } catch (DataAccessException e) {
+            e.printStackTrace();
+            writeError(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+                    "Không thể cập nhật mật khẩu lúc này.");
         }
     }
 

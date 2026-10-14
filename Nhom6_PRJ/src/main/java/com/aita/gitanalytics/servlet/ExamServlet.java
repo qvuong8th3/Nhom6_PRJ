@@ -92,6 +92,7 @@ public class ExamServlet extends HttpServlet {
                 request.setCharacterEncoding("UTF-8");
                 String title = request.getParameter("title");
                 String description = request.getParameter("description");
+                int courseId = parseId(request.getParameter("courseId"));
                 Part file = request.getPart("file");
                 if (isBlank(title) || title.trim().length() > 160) {
                     throw new IllegalArgumentException("Tên đề thi bắt buộc và tối đa 160 ký tự.");
@@ -104,7 +105,7 @@ public class ExamServlet extends HttpServlet {
                 }
                 List<QuestionDraft> questions = examService.parseSpreadsheet(
                         file.getSubmittedFileName(), file.getInputStream());
-                int examId = examDAO.createExam(user.getUserId(), title.trim(),
+                int examId = examDAO.createExam(user.getUserId(), courseId, title.trim(),
                         isBlank(description) ? null : description.trim(), questions);
                 Map<String, Object> result = new LinkedHashMap<>();
                 result.put("status", "success");

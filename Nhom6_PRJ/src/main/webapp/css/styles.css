@@ -417,6 +417,19 @@ a { text-decoration: none; color: inherit; }
     border: 1px solid var(--glass-border);
     border-radius: 6px;
 }
+.student-form select {
+    display: block;
+    width: 100%;
+    min-height: 44px;
+    margin-top: 7px;
+    padding: 10px 12px;
+    color: var(--text-main);
+    background: #172235;
+    border: 1px solid var(--glass-border);
+    border-radius: 6px;
+}
+.student-form select:focus { outline: 2px solid var(--accent-primary); outline-offset: 1px; }
+.student-form select option { padding: 6px; }
 .student-form input:focus { outline: 2px solid var(--accent-primary); outline-offset: 1px; }
 .dialog-close { border: 0; color: var(--text-muted); background: transparent; font-size: 1.1rem; cursor: pointer; }
 .student-form .error-msg { text-align: left; }

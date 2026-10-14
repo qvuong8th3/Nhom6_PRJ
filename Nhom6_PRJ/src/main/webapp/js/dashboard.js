@@ -1,7 +1,25 @@
 const apiUrl = path => new URL(path, document.baseURI);
+let activeCourse = null;
+let activeClass = null;
+let studentsForClasses = [];
+let teachingCoursesPromise;
 const escapeHtml = value => String(value == null ? '' : value).replace(/[&<>"']/g, character => ({
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
 })[character]);
+
+async function populateTeachingCourseSelect(selectId) {
+    if (!teachingCoursesPromise) {
+        teachingCoursesPromise = requestJson('api/v1/courses');
+    }
+    const courses = await teachingCoursesPromise;
+    const select = document.getElementById(selectId);
+    select.innerHTML = '<option value="">Chọn môn học</option>' + courses.map(course =>
+        `<option value="${course.courseId}">${escapeHtml(course.courseCode)} - ${escapeHtml(course.courseName)}</option>`
+    ).join('');
+    if (!courses.length) {
+        select.disabled = true;
+    }
+}
 
 async function requestJson(path, options) {
     const response = await fetch(apiUrl(path), { credentials: 'same-origin', ...options });
@@ -26,6 +44,15 @@ function setActiveView(viewId) {
     }
     if (viewId === 'examsView') {
         document.dispatchEvent(new Event('exams-view-open'));
+    }
+    if (viewId === 'coursesView') {
+        loadCourses();
+    }
+    if (viewId === 'classesView' && activeCourse) {
+        loadClasses(activeCourse);
+    }
+    if (viewId === 'lecturersView') {
+        loadLecturers();
     }
 }
 
@@ -114,14 +141,109 @@ async function loadStudents() {
     }
 }
 
+async function loadCourses() {
+    const tbody = document.getElementById('coursesTableBody');
+    const message = document.getElementById('coursesMessage');
+    message.textContent = 'Đang tải dữ liệu...';
+    try {
+        const courses = await requestJson('api/v1/courses');
+        const isAdministrator = JSON.parse(localStorage.getItem('aita_user') || 'null')?.role === 'ADMIN';
+        tbody.innerHTML = courses.length ? courses.map(course => `<tr>
+            <td><strong>${escapeHtml(course.courseCode)}</strong></td>
+            <td>${escapeHtml(course.courseName)}</td>
+            <td>${escapeHtml(course.semester || '-')}</td>
+            <td>${escapeHtml((course.lecturers || []).map(lecturer => lecturer.fullName).join(', ') || '-')}</td>
+            <td>${course.classCount}</td>
+            <td><button class="btn-outline" data-open-classes="${course.courseId}"><i class="fa-solid fa-users-rectangle"></i> Quản lý lớp</button></td>
+            ${isAdministrator ? `<td class="student-actions">
+                <button class="btn-outline" data-edit-course="${course.courseId}" title="Sửa"><i class="fa-solid fa-pen"></i></button>
+                <button class="btn-outline btn-danger" data-delete-course="${course.courseId}" title="Xóa"><i class="fa-solid fa-trash"></i></button>
+            </td>` : ''}
+        </tr>`).join('') : `<tr><td colspan="${isAdministrator ? 7 : 6}" class="empty-state">${isAdministrator ? 'Chưa có môn học nào.' : 'Bạn chưa được phân công môn học nào.'}</td></tr>`;
+        document.getElementById('courseActionHeader').classList.toggle('hidden', !isAdministrator);
+        message.textContent = `${courses.length} môn học`;
+        tbody.dataset.courses = JSON.stringify(courses);
+    } catch (error) {
+        message.textContent = error.message;
+        tbody.innerHTML = '';
+    }
+}
+
+async function loadClasses(course) {
+    activeCourse = course;
+    document.getElementById('classesCourseName').textContent = `${course.courseCode} - ${course.courseName}`;
+    const tbody = document.getElementById('classesTableBody');
+    const message = document.getElementById('classesMessage');
+    message.textContent = 'Đang tải dữ liệu...';
+    try {
+        const classes = await requestJson(`api/v1/courses/classes?courseId=${encodeURIComponent(course.courseId)}`);
+        const isAdministrator = JSON.parse(localStorage.getItem('aita_user') || 'null')?.role === 'ADMIN';
+        tbody.innerHTML = classes.length ? classes.map(courseClass => `<tr>
+            <td><strong>${escapeHtml(courseClass.className)}</strong></td>
+            <td>${courseClass.students.length}</td>
+            <td class="student-actions">
+                <button class="btn-outline" data-open-class-students="${courseClass.classId}">
+                    <i class="fa-solid fa-users"></i> Sinh viên lớp
+                </button>
+                ${isAdministrator ? `<button class="btn-outline" data-edit-class="${courseClass.classId}" title="Sửa danh sách sinh viên"><i class="fa-solid fa-user-pen"></i></button>
+                <button class="btn-outline btn-danger" data-delete-class="${courseClass.classId}" title="Xóa lớp"><i class="fa-solid fa-trash"></i></button>` : ''}
+            </td>
+        </tr>`).join('') : '<tr><td colspan="3" class="empty-state">Môn học này chưa có lớp.</td></tr>';
+        document.getElementById('classActionHeader').classList.remove('hidden');
+        message.textContent = `${classes.length} lớp`;
+        tbody.dataset.classes = JSON.stringify(classes);
+    } catch (error) {
+        message.textContent = error.message;
+        tbody.innerHTML = '';
+    }
+}
+
+async function loadLecturers() {
+    const tbody = document.getElementById('lecturersTableBody');
+    const message = document.getElementById('lecturerFormMessage');
+    try {
+        const lecturers = await requestJson('api/v1/admin/lecturers');
+        tbody.innerHTML = lecturers.length ? lecturers.map(lecturer => `<tr>
+            <td><strong>${escapeHtml(lecturer.fullName)}</strong></td>
+            <td>${escapeHtml(lecturer.username)}</td>
+            <td>${escapeHtml(lecturer.email)}</td>
+        </tr>`).join('') : '<tr><td colspan="3" class="empty-state">Chưa có tài khoản giảng viên.</td></tr>';
+        message.textContent = `${lecturers.length} giảng viên`;
+    } catch (error) {
+        message.textContent = error.message;
+        tbody.innerHTML = '';
+    }
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
-    Chart.defaults.color = '#94a3b8';
-    Chart.defaults.font.family = "'Inter', sans-serif";
     const savedUser = JSON.parse(localStorage.getItem('aita_user') || 'null');
-    const isLecturer = savedUser && savedUser.role === 'LECTURER';
-    document.getElementById('studentsNavItem').classList.toggle('hidden', !isLecturer);
-    document.getElementById('addStudentBtn').classList.toggle('hidden', !isLecturer);
+    const isLecturer = Boolean(savedUser && savedUser.role === 'LECTURER');
+    const isAdministrator = Boolean(savedUser && savedUser.role === 'ADMIN');
+    const isStudent = Boolean(savedUser && savedUser.role === 'STUDENT');
+    let passwordChangeRequired = Boolean(savedUser && savedUser.mustChangePassword);
+    if (!isAdministrator) {
+        Chart.defaults.color = '#94a3b8';
+        Chart.defaults.font.family = "'Inter', sans-serif";
+    }
+    document.getElementById('studentsNavItem').classList.toggle('hidden', !isAdministrator);
+    document.getElementById('addStudentBtn').classList.toggle('hidden', !isAdministrator);
     document.getElementById('dashboardActionHeader').classList.toggle('hidden', !isLecturer);
+    document.getElementById('dashboardNavItem').classList.toggle('hidden', isAdministrator || isLecturer || isStudent);
+    document.getElementById('examsNavItem').classList.toggle('hidden', isAdministrator);
+    document.getElementById('coursesNavItem').classList.toggle('hidden', !isLecturer && !isAdministrator);
+    document.getElementById('lecturersNavItem').classList.toggle('hidden', !isAdministrator);
+    document.getElementById('addCourseBtn').classList.toggle('hidden', !isAdministrator);
+    document.getElementById('courseActionHeader').classList.toggle('hidden', !isAdministrator);
+    document.getElementById('addClassBtn').classList.toggle('hidden', !isAdministrator);
+    document.getElementById('classActionHeader').classList.remove('hidden');
+    document.getElementById('syncBtn').classList.toggle('hidden', isAdministrator || isStudent);
+    if (passwordChangeRequired) {
+        document.getElementById('dashboardNavItem').classList.add('hidden');
+        document.getElementById('studentsNavItem').classList.add('hidden');
+        document.getElementById('examsNavItem').classList.add('hidden');
+        document.getElementById('coursesNavItem').classList.add('hidden');
+        document.getElementById('lecturersNavItem').classList.add('hidden');
+    }
     if (savedUser && savedUser.fullName) {
         document.getElementById('currentUserName').textContent = savedUser.fullName;
     }
@@ -134,13 +256,26 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (event.target.closest('[data-open-students]')) setActiveView('studentsView');
     });
 
-    try {
-        const result = await requestJson('api/v1/git-analytics/dashboard?groupId=1');
-        renderDashboard(result.data, isLecturer);
-    } catch (error) {
-        if (error.message !== 'Phiên đăng nhập đã hết hạn.') {
-            document.getElementById('studentTableBody').innerHTML = `<tr><td colspan="${isLecturer ? 6 : 5}" class="empty-state">${escapeHtml(error.message)}</td></tr>`;
+    if (!passwordChangeRequired && isLecturer) {
+        document.querySelector('.top-header h1').textContent = 'Môn học được phân công';
+        document.getElementById('groupName').textContent = 'Chọn lớp để xem danh sách sinh viên của lớp';
+        setActiveView('coursesView');
+    } else if (!passwordChangeRequired && isStudent) {
+        document.querySelector('.top-header h1').textContent = 'Bài tập và đề thi của môn học đã xếp lớp';
+        document.getElementById('groupName').textContent =
+            'Chỉ hiển thị nội dung thuộc các môn có lớp mà bạn đã được ghi danh';
+        setActiveView('examsView');
+    } else if (!passwordChangeRequired && !isAdministrator) {
+        try {
+            const result = await requestJson('api/v1/git-analytics/dashboard?groupId=1');
+            renderDashboard(result.data, isLecturer);
+        } catch (error) {
+            if (error.message !== 'Phiên đăng nhập đã hết hạn.') {
+                document.getElementById('studentTableBody').innerHTML = `<tr><td colspan="${isLecturer ? 6 : 5}" class="empty-state">${escapeHtml(error.message)}</td></tr>`;
+            }
         }
+    } else if (!passwordChangeRequired) {
+        setActiveView('coursesView');
     }
 
     const dialog = document.getElementById('studentDialog');
@@ -212,6 +347,289 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
+    const courseDialog = document.getElementById('courseDialog');
+    const courseForm = document.getElementById('courseForm');
+    const courseFormError = document.getElementById('courseFormError');
+    const courseLecturers = document.getElementById('courseLecturers');
+    if (isAdministrator && !passwordChangeRequired) {
+        try {
+            const lecturers = await requestJson('api/v1/courses/lecturers');
+            courseLecturers.innerHTML = lecturers.map(lecturer =>
+                `<option value="${lecturer.userId}">${escapeHtml(lecturer.fullName)} (${escapeHtml(lecturer.email)})</option>`
+            ).join('');
+        } catch (error) {
+            document.getElementById('coursesMessage').textContent = error.message;
+        }
+    }
+    document.getElementById('addCourseBtn').addEventListener('click', () => {
+        courseForm.reset();
+        document.getElementById('courseId').value = '';
+        document.getElementById('courseDialogTitle').textContent = 'Thêm môn học';
+        courseFormError.classList.add('hidden');
+        courseDialog.showModal();
+    });
+    document.getElementById('closeCourseDialog').addEventListener('click', () => courseDialog.close());
+    document.getElementById('coursesTableBody').addEventListener('click', async event => {
+        const classesButton = event.target.closest('[data-open-classes]');
+        const editButton = event.target.closest('[data-edit-course]');
+        const deleteButton = event.target.closest('[data-delete-course]');
+        const courses = JSON.parse(event.currentTarget.dataset.courses || '[]');
+        if (classesButton) {
+            activeCourse = courses.find(item => item.courseId === Number(classesButton.dataset.openClasses));
+            if (activeCourse) setActiveView('classesView');
+        }
+        if (editButton) {
+            const course = courses.find(item => item.courseId === Number(editButton.dataset.editCourse));
+            if (!course) return;
+            document.getElementById('courseId').value = course.courseId;
+            document.getElementById('courseCode').value = course.courseCode;
+            document.getElementById('courseName').value = course.courseName;
+            document.getElementById('courseSemester').value = course.semester || '';
+            const assignedIds = new Set((course.lecturers || []).map(lecturer => String(lecturer.userId)));
+            Array.from(courseLecturers.options).forEach(option => {
+                option.selected = assignedIds.has(option.value);
+            });
+            document.getElementById('courseDialogTitle').textContent = 'Cập nhật môn học';
+            courseFormError.classList.add('hidden');
+            courseDialog.showModal();
+        }
+        if (deleteButton && window.confirm('Xóa môn học này và các phân công giảng viên?')) {
+            try {
+                await requestJson(`api/v1/courses/${deleteButton.dataset.deleteCourse}`, { method: 'DELETE' });
+                await loadCourses();
+            } catch (error) {
+                document.getElementById('coursesMessage').textContent = error.message;
+            }
+        }
+    });
+    courseForm.addEventListener('submit', async event => {
+        event.preventDefault();
+        courseFormError.classList.add('hidden');
+        try {
+            await requestJson('api/v1/courses', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams(new FormData(courseForm))
+            });
+            courseDialog.close();
+            await loadCourses();
+        } catch (error) {
+            courseFormError.textContent = error.message;
+            courseFormError.classList.remove('hidden');
+        }
+    });
+
+    const classDialog = document.getElementById('classDialog');
+    const classForm = document.getElementById('classForm');
+    const classFormError = document.getElementById('classFormError');
+    const classStudents = document.getElementById('classStudents');
+    document.getElementById('addClassBtn').addEventListener('click', async () => {
+        classForm.reset();
+        document.getElementById('classId').value = '';
+        document.getElementById('className').readOnly = false;
+        document.getElementById('classNameLabel').classList.remove('hidden');
+        document.getElementById('classDialogTitle').textContent = 'Thêm lớp học';
+        classFormError.classList.add('hidden');
+        try {
+            studentsForClasses = await requestJson('api/v1/courses/students');
+            classStudents.innerHTML = studentsForClasses.map(student =>
+                `<option value="${student.userId}">${escapeHtml(student.fullName)} (${escapeHtml(student.username)})</option>`
+            ).join('');
+            classDialog.showModal();
+        } catch (error) {
+            document.getElementById('classesMessage').textContent = error.message;
+        }
+    });
+    function renderClassRoster(courseClass) {
+        activeClass = courseClass;
+        document.getElementById('classStudentsCourseName').textContent =
+            `${activeCourse.courseCode} - ${activeCourse.courseName} / Lớp ${courseClass.className}`;
+        const tbody = document.getElementById('classStudentsTableBody');
+        tbody.innerHTML = courseClass.students.length ? courseClass.students.map(student => `<tr>
+            <td><strong>${escapeHtml(student.fullName)}</strong></td>
+            <td>${escapeHtml(student.username)}</td>
+            <td>${escapeHtml(student.email)}</td>
+        </tr>`).join('') : '<tr><td colspan="3" class="empty-state">Lớp này chưa có sinh viên.</td></tr>';
+        document.getElementById('classStudentsMessage').textContent =
+            `${courseClass.students.length} sinh viên thuộc lớp này`;
+        document.getElementById('editClassRosterBtn').classList.toggle('hidden', !isAdministrator);
+        setActiveView('classStudentsView');
+    }
+
+    async function openClassEditor(courseClass) {
+        try {
+            studentsForClasses = await requestJson('api/v1/courses/students');
+            classStudents.innerHTML = studentsForClasses.map(student =>
+                `<option value="${student.userId}">${escapeHtml(student.fullName)} (${escapeHtml(student.username)})</option>`
+            ).join('');
+            document.getElementById('classId').value = courseClass.classId;
+            document.getElementById('className').value = courseClass.className;
+            document.getElementById('className').readOnly = true;
+            document.getElementById('classNameLabel').classList.remove('hidden');
+            document.getElementById('classDialogTitle').textContent = 'Cập nhật danh sách sinh viên lớp';
+            const enrolledIds = new Set(courseClass.students.map(student => String(student.userId)));
+            Array.from(classStudents.options).forEach(option => {
+                option.selected = enrolledIds.has(option.value);
+            });
+            classFormError.classList.add('hidden');
+            classDialog.showModal();
+        } catch (error) {
+            document.getElementById('classesMessage').textContent = error.message;
+        }
+    }
+
+    document.getElementById('closeClassDialog').addEventListener('click', () => classDialog.close());
+    document.getElementById('backToCourses').addEventListener('click', () => setActiveView('coursesView'));
+    document.getElementById('backToClasses').addEventListener('click', () => setActiveView('classesView'));
+    document.getElementById('editClassRosterBtn').addEventListener('click', async () => {
+        if (isAdministrator && activeClass) {
+            await openClassEditor(activeClass);
+        }
+    });
+    document.getElementById('classesTableBody').addEventListener('click', async event => {
+        const rosterButton = event.target.closest('[data-open-class-students]');
+        const editButton = event.target.closest('[data-edit-class]');
+        const deleteButton = event.target.closest('[data-delete-class]');
+        const classes = JSON.parse(event.currentTarget.dataset.classes || '[]');
+        if (rosterButton) {
+            const courseClass = classes.find(item => item.classId === Number(rosterButton.dataset.openClassStudents));
+            if (courseClass) {
+                renderClassRoster(courseClass);
+            }
+        }
+        if (editButton) {
+            const courseClass = classes.find(item => item.classId === Number(editButton.dataset.editClass));
+            if (!courseClass) return;
+            await openClassEditor(courseClass);
+        }
+        if (deleteButton && window.confirm('Xóa lớp này cùng danh sách sinh viên đã ghi danh?')) {
+            try {
+                await requestJson(`api/v1/courses/classes/${deleteButton.dataset.deleteClass}`, { method: 'DELETE' });
+                await loadClasses(activeCourse);
+            } catch (error) {
+                document.getElementById('classesMessage').textContent = error.message;
+            }
+        }
+    });
+    classForm.addEventListener('submit', async event => {
+        event.preventDefault();
+        classFormError.classList.add('hidden');
+        const formData = new FormData(classForm);
+        const classId = document.getElementById('classId').value;
+        const refreshRoster = Boolean(classId && !document.getElementById('classStudentsView').classList.contains('hidden'));
+        try {
+            if (classId) {
+                await requestJson(`api/v1/courses/classes/${classId}/students`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams(formData)
+                });
+            } else {
+                formData.append('courseId', String(activeCourse.courseId));
+                await requestJson('api/v1/courses/classes', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams(formData)
+                });
+            }
+            classDialog.close();
+            await loadClasses(activeCourse);
+            await loadCourses();
+            if (refreshRoster) {
+                const refreshedClass = JSON.parse(document.getElementById('classesTableBody').dataset.classes || '[]')
+                    .find(item => item.classId === Number(classId));
+                if (refreshedClass) {
+                    renderClassRoster(refreshedClass);
+                }
+            }
+        } catch (error) {
+            classFormError.textContent = error.message;
+            classFormError.classList.remove('hidden');
+        }
+    });
+
+    const lecturerForm = document.getElementById('lecturerForm');
+    const lecturerFormError = document.getElementById('lecturerFormError');
+    lecturerForm.addEventListener('submit', async event => {
+        event.preventDefault();
+        lecturerFormError.classList.add('hidden');
+        try {
+            await requestJson('api/v1/admin/lecturers', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams(new FormData(lecturerForm))
+            });
+            lecturerForm.reset();
+            await loadLecturers();
+            document.getElementById('lecturerFormMessage').textContent =
+                'Đã cấp tài khoản. Giảng viên cần đổi mật khẩu khi đăng nhập lần đầu.';
+            const lecturers = await requestJson('api/v1/courses/lecturers');
+            courseLecturers.innerHTML = lecturers.map(lecturer =>
+                `<option value="${lecturer.userId}">${escapeHtml(lecturer.fullName)} (${escapeHtml(lecturer.email)})</option>`
+            ).join('');
+        } catch (error) {
+            lecturerFormError.textContent = error.message;
+            lecturerFormError.classList.remove('hidden');
+        }
+    });
+
+    const passwordDialog = document.getElementById('passwordDialog');
+    const passwordForm = document.getElementById('passwordForm');
+    const passwordFormError = document.getElementById('passwordFormError');
+    const passwordFormSuccess = document.getElementById('passwordFormSuccess');
+    document.getElementById('changePasswordBtn').addEventListener('click', () => {
+        passwordForm.reset();
+        passwordFormError.classList.add('hidden');
+        passwordFormSuccess.classList.add('hidden');
+        passwordDialog.showModal();
+    });
+    document.getElementById('closePasswordDialog').addEventListener('click', () => passwordDialog.close());
+    passwordForm.addEventListener('submit', async event => {
+        event.preventDefault();
+        passwordFormError.classList.add('hidden');
+        passwordFormSuccess.classList.add('hidden');
+        try {
+            await requestJson('api/v1/auth/change-password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams(new FormData(passwordForm))
+            });
+            passwordForm.reset();
+            passwordChangeRequired = false;
+            if (savedUser) {
+                savedUser.mustChangePassword = false;
+                localStorage.setItem('aita_user', JSON.stringify(savedUser));
+            }
+            passwordFormSuccess.textContent = 'Đổi mật khẩu thành công.';
+            passwordFormSuccess.classList.remove('hidden');
+            document.getElementById('closePasswordDialog').classList.remove('hidden');
+            document.getElementById('dashboardNavItem').classList.toggle('hidden', isAdministrator);
+            document.getElementById('studentsNavItem').classList.toggle('hidden', !isAdministrator);
+            document.getElementById('examsNavItem').classList.toggle('hidden', isAdministrator);
+            document.getElementById('coursesNavItem').classList.toggle('hidden', !isLecturer && !isAdministrator);
+            document.getElementById('lecturersNavItem').classList.toggle('hidden', !isAdministrator);
+            if (isAdministrator) {
+                setActiveView('coursesView');
+                await requestJson('api/v1/courses/lecturers').then(lecturers => {
+                    courseLecturers.innerHTML = lecturers.map(lecturer =>
+                        `<option value="${lecturer.userId}">${escapeHtml(lecturer.fullName)} (${escapeHtml(lecturer.email)})</option>`
+                    ).join('');
+                });
+                await loadCourses();
+            } else if (isLecturer) {
+                setActiveView('coursesView');
+            } else if (isStudent) {
+                setActiveView('examsView');
+            } else {
+                const result = await requestJson('api/v1/git-analytics/dashboard?groupId=1');
+                renderDashboard(result.data, isLecturer);
+            }
+        } catch (error) {
+            passwordFormError.textContent = error.message;
+            passwordFormError.classList.remove('hidden');
+        }
+    });
+
     document.getElementById('logoutBtn').addEventListener('click', async () => {
         try {
             await requestJson('api/v1/auth/logout', { method: 'POST' });
@@ -225,4 +643,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         setActiveView('dashboardView');
         window.location.reload();
     });
+    if (passwordChangeRequired) {
+        document.getElementById('closePasswordDialog').classList.add('hidden');
+        passwordDialog.showModal();
+    }
 });

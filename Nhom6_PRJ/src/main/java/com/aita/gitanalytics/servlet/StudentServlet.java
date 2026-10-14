@@ -20,7 +20,7 @@ public class StudentServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        if (!requireLecturer(request, response)) {
+        if (!requireAdministrator(request, response)) {
             return;
         }
         try {
@@ -33,7 +33,7 @@ public class StudentServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         request.setCharacterEncoding("UTF-8");
-        if (!requireLecturer(request, response)) {
+        if (!requireAdministrator(request, response)) {
             return;
         }
 
@@ -60,7 +60,7 @@ public class StudentServlet extends HttpServlet {
 
     @Override
     protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        if (!requireLecturer(request, response)) {
+        if (!requireAdministrator(request, response)) {
             return;
         }
 
@@ -78,15 +78,16 @@ public class StudentServlet extends HttpServlet {
         }
     }
 
-    private boolean requireLecturer(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    private boolean requireAdministrator(HttpServletRequest request, HttpServletResponse response) throws IOException {
         Object value = request.getSession(false) == null
                 ? null : request.getSession(false).getAttribute("authenticatedUser");
         if (!(value instanceof UserAccount)) {
             writeError(response, HttpServletResponse.SC_UNAUTHORIZED, "Vui lòng đăng nhập lại.");
             return false;
         }
-        if (!"LECTURER".equals(((UserAccount) value).getRole())) {
-            writeError(response, HttpServletResponse.SC_FORBIDDEN, "Chỉ giảng viên được quản lý sinh viên.");
+        if (!"ADMIN".equals(((UserAccount) value).getRole())) {
+            writeError(response, HttpServletResponse.SC_FORBIDDEN,
+                    "Chỉ quản trị viên được quản lý tài khoản sinh viên toàn hệ thống.");
             return false;
         }
         return true;

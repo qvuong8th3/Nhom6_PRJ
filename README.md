@@ -7,7 +7,18 @@
 - JDK 11, Maven và Apache Tomcat 9.
 - SQL Server đang chạy TCP/IP trên cổng `1433`.
 
-Với database mới, trong SQL Server Management Studio chạy lần lượt `Nhom6_PRJ/database/schema.sql`, `Nhom6_PRJ/database/SQLQuery1.sql` và `Nhom6_PRJ/database/exams.sql`. `SQLQuery1.sql` tạo dữ liệu mẫu và chỉ nên chạy một lần. Với database đã có dữ liệu người dùng, chạy `Nhom6_PRJ/database/remember_me.sql` để tạo bảng token ghi nhớ đăng nhập, sau đó chạy `Nhom6_PRJ/database/exams.sql` để thêm các bảng đề thi và bài tập tự luận; có thể chạy lại file này để tạo các bảng còn thiếu. Chạy `Nhom6_PRJ/database/migrate_optional_github_username.sql` một lần nếu database cũ đang có ràng buộc duy nhất trực tiếp trên `github_username`, vì trường GitHub trên biểu mẫu đăng ký là không bắt buộc. Chạy `Nhom6_PRJ/database/setup_demo_lecturer.sql` nếu cần thêm tài khoản demo.
+Với database mới, trong SQL Server Management Studio chạy lần lượt `Nhom6_PRJ/database/schema.sql`, `Nhom6_PRJ/database/SQLQuery1.sql`, `Nhom6_PRJ/database/exams.sql`, `Nhom6_PRJ/database/subjects_and_admin.sql` và `Nhom6_PRJ/database/task_course_access.sql`. `SQLQuery1.sql` tạo dữ liệu mẫu và chỉ nên chạy một lần. Với database đã có, chạy `Nhom6_PRJ/database/remember_me.sql`, `Nhom6_PRJ/database/exams.sql`, `Nhom6_PRJ/database/subjects_and_admin.sql` và `Nhom6_PRJ/database/task_course_access.sql`; có thể chạy lại các migration để tạo các bảng/cột còn thiếu. Migration môn học ghép bài thi/bài tập cũ vào môn của giảng viên nếu giảng viên chỉ được phân công đúng một môn; nội dung còn mơ hồ được để chưa gắn môn và không hiển thị cho học sinh đến khi được tạo lại trong môn phù hợp. Chạy `Nhom6_PRJ/database/migrate_optional_github_username.sql` một lần nếu database cũ đang có ràng buộc duy nhất trực tiếp trên `github_username`. Chạy `Nhom6_PRJ/database/setup_demo_lecturer.sql` nếu cần tài khoản giảng viên demo.
+
+Khi khởi động, ứng dụng tạo tài khoản quản trị viên nếu chưa có tài khoản `ADMIN` trong database. Đặt các biến môi trường sau cho tiến trình Tomcat trước khi khởi động; mật khẩu cần có ít nhất 12 ký tự và không được lưu trong source code:
+
+```powershell
+$env:AITA_ADMIN_USERNAME = "admin"
+$env:AITA_ADMIN_FULL_NAME = "Quan tri vien"
+$env:AITA_ADMIN_EMAIL = "admin@example.com"
+$env:AITA_ADMIN_PASSWORD = "replace-with-a-unique-12-character-password"
+```
+
+Đăng nhập bằng username/email và mật khẩu khởi tạo này; hệ thống bắt buộc đổi mật khẩu trước khi dùng các chức năng khác. Quản trị viên có thể cấp tài khoản giảng viên, quản lý tài khoản sinh viên toàn hệ thống, tạo môn học, phân công giảng viên và tạo lớp kèm danh sách học sinh. Giảng viên chỉ xem môn được phân công và danh sách sinh viên theo từng lớp của các môn đó; khi giao bài hoặc tạo đề thi, phải chọn một môn mình được phân công. Học sinh chỉ xem và làm/nộp bài thi, bài tập của những môn có lớp mà mình đã được ghi danh; các quyền này cũng được kiểm tra ở API, không chỉ ẩn trên giao diện. API quản lý sinh viên toàn hệ thống chỉ dành cho quản trị viên. Học sinh cần có tài khoản trước khi được ghi danh vào lớp; các em có thể đăng ký từ trang đăng nhập. Người dùng đã đăng nhập có thể đổi mật khẩu từ biểu tượng chìa khóa; thao tác yêu cầu mật khẩu hiện tại và thu hồi token “ghi nhớ đăng nhập” cũ.
 
 ## Đề thi và chấm tự động
 
@@ -46,4 +57,4 @@ Tài khoản giảng viên demo:
 
 Đổi mật khẩu demo trước khi dùng ngoài môi trường local.
 
-Dashboard đọc điểm từ `Contribution_Scores` và số commit từ `Commits`. Màn “Quản lý sinh viên” cho phép thêm, sửa, xóa tài khoản có role `STUDENT`; database có thể từ chối xóa nếu sinh viên còn bản ghi điểm đang tham chiếu.
+Dashboard đọc điểm từ `Contribution_Scores` và số commit từ `Commits`. Mục “Tài khoản sinh viên” dành cho quản trị viên để thêm, sửa, xóa tài khoản có role `STUDENT`; database có thể từ chối xóa nếu sinh viên còn bản ghi điểm đang tham chiếu. Giảng viên vào “Môn học” → “Quản lý lớp” → “Sinh viên lớp” để chỉ xem danh sách sinh viên thuộc lớp đang phụ trách.
