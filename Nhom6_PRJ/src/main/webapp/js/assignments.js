@@ -21,6 +21,10 @@ async function loadAssignments() {
     error.classList.add('hidden');
     try {
         const assignments = await requestJson('api/v1/assignments');
+        if (!lecturer) {
+            document.getElementById('studentAssignmentCount').textContent =
+                assignments.filter(assignment => !assignment.submittedAt).length;
+        }
         body.innerHTML = assignments.length ? assignments.map(assignment => `<tr>
             <td>${assignmentEscapeHtml(assignment.courseName || 'Chưa gắn môn học')}</td>
             <td><strong>${assignmentEscapeHtml(assignment.title)}</strong>
@@ -90,14 +94,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const createForm = document.getElementById('assignmentCreateForm');
     const createError = document.getElementById('assignmentCreateError');
     createToggle.classList.toggle('hidden', !lecturer);
-    if (lecturer) {
-        populateTeachingCourseSelect('assignmentCourseId').catch(error => {
-            createError.textContent = error.message;
-            createError.classList.remove('hidden');
-        });
-    } else if (student) {
-        loadAssignments();
-    }
     document.addEventListener('exams-view-open', loadAssignments);
 
     createToggle.addEventListener('click', () => createForm.classList.toggle('hidden'));

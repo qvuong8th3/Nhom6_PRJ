@@ -7,20 +7,6 @@ const escapeHtml = value => String(value == null ? '' : value).replace(/[&<>"']/
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
 })[character]);
 
-async function populateTeachingCourseSelect(selectId) {
-    if (!teachingCoursesPromise) {
-        teachingCoursesPromise = requestJson('api/v1/courses');
-    }
-    const courses = await teachingCoursesPromise;
-    const select = document.getElementById(selectId);
-    select.innerHTML = '<option value="">Chọn môn học</option>' + courses.map(course =>
-        `<option value="${course.courseId}">${escapeHtml(course.courseCode)} - ${escapeHtml(course.courseName)}</option>`
-    ).join('');
-    if (!courses.length) {
-        select.disabled = true;
-    }
-}
-
 async function requestJson(path, options) {
     const response = await fetch(apiUrl(path), { credentials: 'same-origin', ...options });
     if (response.status === 401) {
@@ -35,10 +21,30 @@ async function requestJson(path, options) {
 }
 
 function setActiveView(viewId) {
+    if ((!isLecturer && viewId === 'studentsView') || (isLecturer && viewId === 'examDetailView')) {
+        return;
+    }
     document.querySelectorAll('.page-view').forEach(view => view.classList.toggle('hidden', view.id !== viewId));
     document.querySelectorAll('[data-view-target]').forEach(link => {
         link.parentElement.classList.toggle('active', link.dataset.viewTarget === viewId);
     });
+    const titles = {
+        dashboardView: ['Tổng quan lớp học', 'Theo dõi tiến độ và hoạt động học tập'],
+        studentHomeView: ['Học tập của bạn', 'Chủ động theo dõi và hoàn thành nhiệm vụ'],
+        studentsView: ['Quản lý sinh viên', 'Danh sách và thông tin sinh viên trong lớp'],
+        examsView: [isLecturer ? 'Bài tập & đề thi' : 'Bài tập của bạn', isLecturer
+            ? 'Giao bài, theo dõi bài nộp và quản lý đề kiểm tra'
+            : 'Xem yêu cầu, nộp bài và hoàn thành bài kiểm tra'],
+        examDetailView: ['Làm bài kiểm tra', 'Đọc kỹ câu hỏi trước khi nộp bài']
+    };
+    if (titles[viewId]) {
+        document.getElementById('pageTitle').textContent = titles[viewId][0];
+        document.getElementById('groupName').textContent = titles[viewId][1];
+    }
+    document.getElementById('headerEyebrow').textContent = viewId === 'studentHomeView' || viewId === 'examDetailView'
+        ? 'KHÔNG GIAN SINH VIÊN' : (isLecturer ? 'KHÔNG GIAN GIẢNG DẠY' : 'KHÔNG GIAN SINH VIÊN');
+    document.querySelector('.repo-info').classList.toggle('hidden', !isLecturer || viewId !== 'dashboardView');
+    document.getElementById('syncBtn').classList.toggle('hidden', !isLecturer || viewId !== 'dashboardView');
     if (viewId === 'studentsView') {
         loadStudents();
     }
@@ -58,7 +64,7 @@ function setActiveView(viewId) {
 
 function renderDashboard(data, isLecturer) {
     const contributions = data.contributions || [];
-    const colors = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444', '#06b6d4'];
+    const colors = ['#5265e8', '#25a887', '#e7aa46', '#8872de', '#df6570', '#50a5c9'];
     new Chart(document.getElementById('contributionPieChart'), {
         type: 'doughnut',
         data: {
@@ -73,7 +79,7 @@ function renderDashboard(data, isLecturer) {
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: { legend: { position: 'bottom', labels: { padding: 20, color: '#f8fafc' } } },
+            plugins: { legend: { position: 'bottom', labels: { padding: 20, color: '#59637b' } } },
             cutout: '70%'
         }
     });
@@ -84,9 +90,9 @@ function renderDashboard(data, isLecturer) {
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: { legend: { position: 'top', labels: { color: '#f8fafc' } } },
+            plugins: { legend: { position: 'top', labels: { color: '#59637b' } } },
             scales: {
-                y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } },
+                y: { beginAtZero: true, grid: { color: '#edf0f5' } },
                 x: { grid: { display: false } }
             }
         }
@@ -216,67 +222,38 @@ async function loadLecturers() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
+    Chart.defaults.color = '#94a3b8';
+    Chart.defaults.font.family = "'Inter', sans-serif";
     const savedUser = JSON.parse(localStorage.getItem('aita_user') || 'null');
-    const isLecturer = Boolean(savedUser && savedUser.role === 'LECTURER');
-    const isAdministrator = Boolean(savedUser && savedUser.role === 'ADMIN');
-    const isStudent = Boolean(savedUser && savedUser.role === 'STUDENT');
-    let passwordChangeRequired = Boolean(savedUser && savedUser.mustChangePassword);
-    if (!isAdministrator) {
-        Chart.defaults.color = '#94a3b8';
-        Chart.defaults.font.family = "'Inter', sans-serif";
-    }
-    document.getElementById('studentsNavItem').classList.toggle('hidden', !isAdministrator);
-    document.getElementById('addStudentBtn').classList.toggle('hidden', !isAdministrator);
+    const isLecturer = savedUser && savedUser.role === 'LECTURER';
+    document.getElementById('studentsNavItem').classList.toggle('hidden', !isLecturer);
+    document.getElementById('addStudentBtn').classList.toggle('hidden', !isLecturer);
     document.getElementById('dashboardActionHeader').classList.toggle('hidden', !isLecturer);
-    document.getElementById('dashboardNavItem').classList.toggle('hidden', isAdministrator || isLecturer || isStudent);
-    document.getElementById('examsNavItem').classList.toggle('hidden', isAdministrator);
-    document.getElementById('coursesNavItem').classList.toggle('hidden', !isLecturer && !isAdministrator);
-    document.getElementById('lecturersNavItem').classList.toggle('hidden', !isAdministrator);
-    document.getElementById('addCourseBtn').classList.toggle('hidden', !isAdministrator);
-    document.getElementById('courseActionHeader').classList.toggle('hidden', !isAdministrator);
-    document.getElementById('addClassBtn').classList.toggle('hidden', !isAdministrator);
-    document.getElementById('classActionHeader').classList.remove('hidden');
-    document.getElementById('syncBtn').classList.toggle('hidden', isAdministrator || isStudent);
-    if (passwordChangeRequired) {
-        document.getElementById('dashboardNavItem').classList.add('hidden');
-        document.getElementById('studentsNavItem').classList.add('hidden');
-        document.getElementById('examsNavItem').classList.add('hidden');
-        document.getElementById('coursesNavItem').classList.add('hidden');
-        document.getElementById('lecturersNavItem').classList.add('hidden');
-    }
     if (savedUser && savedUser.fullName) {
         document.getElementById('currentUserName').textContent = savedUser.fullName;
+        document.getElementById('studentWelcomeName').textContent = savedUser.fullName.split(/\s+/).slice(-1)[0];
     }
 
     document.querySelectorAll('[data-view-target]').forEach(link => link.addEventListener('click', event => {
         event.preventDefault();
         setActiveView(link.dataset.viewTarget);
     }));
+    document.querySelectorAll('[data-open-view]').forEach(button => button.addEventListener('click', () => {
+        setActiveView(button.dataset.openView);
+    }));
     document.addEventListener('click', event => {
         if (event.target.closest('[data-open-students]')) setActiveView('studentsView');
     });
 
-    if (!passwordChangeRequired && isLecturer) {
-        document.querySelector('.top-header h1').textContent = 'Môn học được phân công';
-        document.getElementById('groupName').textContent = 'Chọn lớp để xem danh sách sinh viên của lớp';
-        setActiveView('coursesView');
-    } else if (!passwordChangeRequired && isStudent) {
-        document.querySelector('.top-header h1').textContent = 'Bài tập và đề thi của môn học đã xếp lớp';
-        document.getElementById('groupName').textContent =
-            'Chỉ hiển thị nội dung thuộc các môn có lớp mà bạn đã được ghi danh';
-        setActiveView('examsView');
-    } else if (!passwordChangeRequired && !isAdministrator) {
-        try {
-            const result = await requestJson('api/v1/git-analytics/dashboard?groupId=1');
-            renderDashboard(result.data, isLecturer);
-        } catch (error) {
-            if (error.message !== 'Phiên đăng nhập đã hết hạn.') {
-                document.getElementById('studentTableBody').innerHTML = `<tr><td colspan="${isLecturer ? 6 : 5}" class="empty-state">${escapeHtml(error.message)}</td></tr>`;
-            }
+    try {
+        const result = await requestJson('api/v1/git-analytics/dashboard?groupId=1');
+        renderDashboard(result.data, isLecturer);
+    } catch (error) {
+        if (error.message !== 'Phiên đăng nhập đã hết hạn.') {
+            document.getElementById('studentTableBody').innerHTML = `<tr><td colspan="${isLecturer ? 6 : 5}" class="empty-state">${escapeHtml(error.message)}</td></tr>`;
         }
-    } else if (!passwordChangeRequired) {
-        setActiveView('coursesView');
     }
+    document.dispatchEvent(new Event('exams-view-open'));
 
     const dialog = document.getElementById('studentDialog');
     const form = document.getElementById('studentForm');

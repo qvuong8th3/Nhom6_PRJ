@@ -12,7 +12,6 @@ async function loadExams() {
         const exams = await requestJson('api/v1/exams');
         const user = JSON.parse(localStorage.getItem('aita_user') || 'null');
         const lecturer = user && user.role === 'LECTURER';
-        const student = user && user.role === 'STUDENT' && !user.mustChangePassword;
         body.innerHTML = exams.length ? exams.map(exam => `<tr>
             <td>${examEscapeHtml(exam.courseName || 'Chưa gắn môn học')}</td>
             <td><strong>${examEscapeHtml(exam.title)}</strong>${exam.description ? `<br><span class="text-muted">${examEscapeHtml(exam.description)}</span>` : ''}</td>
@@ -156,4 +155,5 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    setActiveView('examsView');
 });

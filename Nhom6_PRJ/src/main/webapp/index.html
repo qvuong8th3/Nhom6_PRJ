@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AITA - Dashboard Báo Cáo Git</title>
+    <title>AITA | Không gian học tập</title>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- FontAwesome for icons -->
@@ -19,27 +19,24 @@
     <aside class="sidebar glass-panel">
         <div class="sidebar-logo">
             <i class="fa-solid fa-code-branch"></i>
-            <span>AITA</span>
+            <div><span>AITA</span><small>Learning workspace</small></div>
         </div>
         <nav class="sidebar-nav">
             <ul>
-                <li id="dashboardNavItem" class="active"><a href="#dashboardView" data-view-target="dashboardView"><i class="fa-solid fa-chart-pie"></i> Tổng quan nhóm</a></li>
-                <li id="studentsNavItem" class="hidden"><a href="#studentsView" data-view-target="studentsView"><i class="fa-solid fa-users"></i> Tài khoản sinh viên</a></li>
+                <li class="active"><a href="#dashboardView" data-view-target="dashboardView"><i class="fa-solid fa-chart-pie"></i> Tổng quan nhóm</a></li>
+                <li id="studentsNavItem"><a href="#studentsView" data-view-target="studentsView"><i class="fa-solid fa-users"></i> Quản lý sinh viên</a></li>
                 <li id="examsNavItem"><a href="#examsView" data-view-target="examsView"><i class="fa-solid fa-file-circle-question"></i> Đề thi & bài tập</a></li>
-                <li id="coursesNavItem" class="hidden"><a href="#coursesView" data-view-target="coursesView"><i class="fa-solid fa-book-open"></i> Môn học</a></li>
-                <li id="lecturersNavItem" class="hidden"><a href="#lecturersView" data-view-target="lecturersView"><i class="fa-solid fa-chalkboard-user"></i> Giảng viên</a></li>
             </ul>
         </nav>
         <div class="sidebar-footer">
             <div class="user-info">
-                <img src="https://ui-avatars.com/api/?name=Giang+Vien&background=random" alt="Avatar" class="avatar">
+                <div class="avatar user-avatar" aria-hidden="true"><i class="fa-solid fa-user"></i></div>
                 <div class="details">
-                    <strong id="currentUserName">Giảng viên</strong>
-                    <span>Khoa CNTT</span>
+                    <strong id="currentUserName">Tài khoản</strong>
+                    <span id="currentUserRole">...</span>
                 </div>
             </div>
-            <button id="changePasswordBtn" class="btn-logout" title="Đổi mật khẩu" aria-label="Đổi mật khẩu"><i class="fa-solid fa-key"></i></button>
-            <button id="logoutBtn" class="btn-logout" title="Đăng xuất" aria-label="Đăng xuất"><i class="fa-solid fa-sign-out-alt"></i></button>
+            <button id="logoutBtn" class="btn-logout"><i class="fa-solid fa-sign-out-alt"></i></button>
         </div>
     </aside>
 
@@ -47,27 +44,68 @@
     <main class="main-content">
         <header class="top-header glass-panel">
             <div class="header-left">
-                <h1>Báo cáo phân tích đóng góp</h1>
-                <p class="subtitle" id="groupName">Báo cáo đóng góp nhóm</p>
+                <p class="eyebrow" id="headerEyebrow">KHÔNG GIAN GIẢNG DẠY</p>
+                <h1 id="pageTitle">Tổng quan lớp học</h1>
+                <p class="subtitle" id="groupName">Theo dõi tiến độ và hoạt động học tập</p>
             </div>
             <div class="header-right">
                 <div class="repo-info">
                     <i class="fa-brands fa-github"></i>
                     <span id="repoUrl">Chưa cấu hình repository</span>
-                    <span class="status badge-success">Dữ liệu từ database</span>
+                    <span class="status badge-success">Đang hoạt động</span>
                 </div>
-                <button class="btn-secondary" id="syncBtn">
-                    <i class="fa-solid fa-rotate"></i> Tải lại dữ liệu
+                <button class="btn-secondary" id="syncBtn" type="button">
+                    <i class="fa-solid fa-rotate"></i> Làm mới
                 </button>
             </div>
         </header>
+
+        <section id="studentHomeView" class="page-view hidden">
+            <div class="student-welcome">
+                <div>
+                    <span class="welcome-kicker"><i class="fa-regular fa-sun"></i> KHÔNG GIAN HỌC TẬP CỦA BẠN</span>
+                    <h2>Chào bạn, <span id="studentWelcomeName">sinh viên</span>!</h2>
+                    <p>Theo dõi bài tập, hoàn thành đề thi và xem tiến độ học tập tại một nơi.</p>
+                </div>
+                <div class="welcome-illustration" aria-hidden="true"><i class="fa-solid fa-book-open-reader"></i></div>
+            </div>
+            <div class="student-stat-grid">
+                <article class="student-stat-card"><span class="stat-icon stat-purple"><i class="fa-solid fa-list-check"></i></span><div><p>Bài tập cần chú ý</p><strong id="studentAssignmentCount">—</strong></div><span class="stat-caption">bài đang được giao</span></article>
+                <article class="student-stat-card"><span class="stat-icon stat-blue"><i class="fa-solid fa-file-circle-question"></i></span><div><p>Đề thi của bạn</p><strong id="studentExamCount">—</strong></div><span class="stat-caption">đề chưa hoàn thành</span></article>
+                <article class="student-stat-card"><span class="stat-icon stat-green"><i class="fa-solid fa-people-group"></i></span><div><p>Nhóm học tập</p><strong id="studentGroupName">Đang tải</strong></div><span class="stat-caption">tiến độ được cập nhật</span></article>
+            </div>
+            <div class="student-home-grid">
+                <article class="card glass-panel student-action-card">
+                    <div class="action-card-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+                    <span class="card-kicker">BÀI TẬP</span>
+                    <h3>Nộp bài đúng hạn</h3>
+                    <p>Xem yêu cầu, tải tài liệu và gửi bài làm cho giảng viên.</p>
+                    <button class="text-action" type="button" data-open-view="examsView">Đi đến bài tập <i class="fa-solid fa-arrow-right"></i></button>
+                </article>
+                <article class="card glass-panel student-action-card">
+                    <div class="action-card-icon action-blue"><i class="fa-solid fa-pen-to-square"></i></div>
+                    <span class="card-kicker">ĐỀ THI</span>
+                    <h3>Làm bài trực tuyến</h3>
+                    <p>Hoàn thành bài kiểm tra và xem điểm ngay sau khi nộp.</p>
+                    <button class="text-action" type="button" data-open-view="examsView">Xem đề thi <i class="fa-solid fa-arrow-right"></i></button>
+                </article>
+                <article class="card glass-panel student-progress-card">
+                    <div class="card-header">
+                        <div><span class="card-kicker">BẮT ĐẦU TẠI ĐÂY</span><h3>Tiến độ học tập</h3></div>
+                        <i class="fa-solid fa-chart-line progress-icon"></i>
+                    </div>
+                    <p>Hoàn thành bài tập và bài kiểm tra để theo dõi kết quả của bạn. Các bài đã nộp sẽ được lưu trong tài khoản.</p>
+                    <button class="btn-primary" type="button" data-open-view="examsView">Mở bài tập & đề thi <i class="fa-solid fa-arrow-right"></i></button>
+                </article>
+            </div>
+        </section>
 
         <section id="dashboardView" class="page-view">
         <div class="dashboard-grid">
             <!-- Pie Chart Card: Contribution % -->
             <div class="card glass-panel col-span-1">
                 <div class="card-header">
-                    <h3><i class="fa-solid fa-percent"></i> Tỷ lệ đóng góp (Contribution Score)</h3>
+                    <h3><i class="fa-solid fa-percent"></i> Tỷ lệ đóng góp</h3>
                 </div>
                 <div class="card-body chart-container">
                     <canvas id="contributionPieChart"></canvas>
@@ -80,7 +118,7 @@
             <!-- Bar Chart Card: Timeline -->
             <div class="card glass-panel col-span-2">
                 <div class="card-header">
-                    <h3><i class="fa-solid fa-timeline"></i> Tiến độ làm việc theo thời gian (Commits/Tuần)</h3>
+                    <h3><i class="fa-solid fa-timeline"></i> Hoạt động theo thời gian</h3>
                 </div>
                 <div class="card-body chart-container">
                     <canvas id="timelineBarChart"></canvas>
@@ -102,10 +140,10 @@
                             <thead>
                                 <tr>
                                     <th>Sinh Viên</th>
-                                    <th>Số Commits (30%)</th>
-                                    <th>Khối lượng code (LOC - 50%)</th>
-                                    <th>Độ đều đặn (20%)</th>
-                                    <th>Điểm Đề Xuất</th>
+                                    <th>Commits</th>
+                                    <th>Khối lượng code</th>
+                                    <th>Độ đều đặn</th>
+                                    <th>Đóng góp</th>
                                     <th id="dashboardActionHeader">Hành động</th>
                                 </tr>
                             </thead>
@@ -223,6 +261,7 @@
                 <section class="assignments-section">
                     <div class="card-header flex-between exam-header">
                         <div>
+                            <span class="card-kicker">GIAO VÀ NỘP BÀI</span>
                             <h3><i class="fa-solid fa-file-arrow-up"></i> Bài tập tự luận</h3>
                             <p id="assignmentMessage" class="students-message" role="status"></p>
                         </div>
@@ -255,7 +294,7 @@
                     <p id="assignmentError" class="error-msg hidden" role="alert"></p>
                     <div class="table-responsive">
                         <table class="data-table">
-                            <thead><tr><th>Môn học</th><th>Bài tập</th><th>File đề</th><th>Bài đã nộp</th><th>Hạn nộp</th><th>Ngày giao</th><th>Thao tác</th></tr></thead>
+                            <thead><tr><th>Bài tập</th><th>File đề</th><th>Bài đã nộp</th><th>Hạn nộp</th><th>Ngày giao</th><th>Thao tác</th></tr></thead>
                             <tbody id="assignmentsTableBody"></tbody>
                         </table>
                     </div>
@@ -279,7 +318,8 @@
                 <div class="assignment-exams-divider"><span>Đề thi trắc nghiệm / tự luận ngắn</span></div>
                 <div class="card-header flex-between exam-header">
                     <div>
-                        <h3><i class="fa-solid fa-file-circle-question"></i> Đề thi</h3>
+                    <span class="card-kicker">KIỂM TRA TRỰC TUYẾN</span>
+                    <h3><i class="fa-solid fa-file-circle-question"></i> Đề thi</h3>
                         <p id="examMessage" class="students-message" role="status"></p>
                     </div>
                     <button class="btn-primary exam-upload-toggle" id="examUploadToggle" type="button">
