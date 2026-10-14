@@ -13,7 +13,7 @@ async function loadExams() {
         const user = JSON.parse(localStorage.getItem('aita_user') || 'null');
         const lecturer = user && user.role === 'LECTURER';
         body.innerHTML = exams.length ? exams.map(exam => `<tr>
-            <td>${examEscapeHtml(exam.courseName || 'Chưa gắn môn học')}</td>
+            <td><strong>${examEscapeHtml(exam.courseCode || '')}</strong>${exam.courseCode ? '<br>' : ''}<span class="text-muted">${examEscapeHtml(exam.courseName || 'Chưa gắn môn học')}</span></td>
             <td><strong>${examEscapeHtml(exam.title)}</strong>${exam.description ? `<br><span class="text-muted">${examEscapeHtml(exam.description)}</span>` : ''}</td>
             <td>${exam.questionCount}</td>
             <td>${lecturer ? `${exam.attemptCount} bài nộp` : (exam.submitted ? `${exam.score}/${exam.maxScore}` : 'Chưa làm')}</td>
@@ -95,6 +95,7 @@ async function openExam(examId) {
 document.addEventListener('DOMContentLoaded', () => {
     const user = JSON.parse(localStorage.getItem('aita_user') || 'null');
     const lecturer = user && user.role === 'LECTURER';
+    const student = user && user.role === 'STUDENT' && !user.mustChangePassword;
     const uploadForm = document.getElementById('examUploadForm');
     const uploadError = document.getElementById('examUploadError');
     const uploadToggle = document.getElementById('examUploadToggle');
@@ -109,7 +110,26 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     document.addEventListener('exams-view-open', loadExams);
-    uploadToggle.addEventListener('click', () => uploadForm.classList.toggle('hidden'));
+    uploadToggle.addEventListener('click', async () => {
+        uploadForm.classList.toggle('hidden');
+        if (!uploadForm.classList.contains('hidden') && lecturer) {
+            try {
+                const courses = await populateTeachingCourseSelect('examCourseId');
+                const submitButton = uploadForm.querySelector('button[type="submit"]');
+                if (!courses || courses.length === 0) {
+                    uploadError.textContent = 'Bạn chưa được phân công môn học nào. Vui lòng liên hệ Quản trị viên để được phân môn trước khi tải đề lên.';
+                    uploadError.classList.remove('hidden');
+                    if (submitButton) submitButton.disabled = true;
+                } else {
+                    uploadError.classList.add('hidden');
+                    if (submitButton) submitButton.disabled = false;
+                }
+            } catch (error) {
+                uploadError.textContent = error.message;
+                uploadError.classList.remove('hidden');
+            }
+        }
+    });
     document.getElementById('closeExamResults').addEventListener('click', () => {
         document.getElementById('examResultsPanel').classList.add('hidden');
     });
@@ -140,6 +160,12 @@ document.addEventListener('DOMContentLoaded', () => {
     uploadForm.addEventListener('submit', async event => {
         event.preventDefault();
         uploadError.classList.add('hidden');
+        const courseSelect = document.getElementById('examCourseId');
+        if (!courseSelect || !courseSelect.value) {
+            uploadError.textContent = 'Vui lòng chọn môn học bạn được phân công để tải đề thi.';
+            uploadError.classList.remove('hidden');
+            return;
+        }
         const button = uploadForm.querySelector('button[type="submit"]');
         button.disabled = true;
         try {
@@ -154,6 +180,4 @@ document.addEventListener('DOMContentLoaded', () => {
             button.disabled = false;
         }
     });
-
-    setActiveView('examsView');
 });

@@ -47,16 +47,16 @@ public class AssignmentDAO {
     }
 
     public List<Map<String, Object>> listAssignments(int userId, boolean lecturer) {
-        String sql = "SELECT a.assignment_id, a.title, a.description, a.created_at, a.due_at, "
+        String sql = "SELECT a.assignment_id, a.course_id, a.title, a.description, a.created_at, a.due_at, "
                 + "a.prompt_file_name, "
                 + "(SELECT COUNT(*) FROM Essay_Submissions s "
                 + "WHERE s.assignment_id = a.assignment_id) AS submission_count, "
-                + "s.submitted_at, c.course_name "
+                + "s.submitted_at, c.course_name, c.course_code "
                 + "FROM Essay_Assignments a "
                 + "LEFT JOIN Essay_Submissions s ON s.assignment_id = a.assignment_id "
                 + "AND s.student_id = ? "
                 + "LEFT JOIN Courses c ON c.course_id = a.course_id "
-                + (lecturer ? "WHERE a.created_by = ? AND EXISTS ("
+                + (lecturer ? "WHERE a.course_id IS NOT NULL AND EXISTS ("
                         + "SELECT 1 FROM Lecturer_Courses lc WHERE lc.course_id = a.course_id "
                         + "AND lc.lecturer_id = ?) " : "WHERE a.course_id IS NOT NULL AND EXISTS ("
                         + "SELECT 1 FROM Course_Classes cl JOIN Class_Students cs "
@@ -67,19 +67,16 @@ public class AssignmentDAO {
         try (Connection connection = requireConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setInt(1, userId);
-            if (lecturer) {
-                statement.setInt(2, userId);
-                statement.setInt(3, userId);
-            } else {
-                statement.setInt(2, userId);
-            }
+            statement.setInt(2, userId);
             try (ResultSet result = statement.executeQuery()) {
                 while (result.next()) {
                     Map<String, Object> assignment = new LinkedHashMap<>();
                     assignment.put("assignmentId", result.getInt("assignment_id"));
+                    assignment.put("courseId", result.getInt("course_id"));
                     assignment.put("title", result.getString("title"));
                     assignment.put("description", result.getString("description"));
                     assignment.put("courseName", result.getString("course_name"));
+                    assignment.put("courseCode", result.getString("course_code"));
                     assignment.put("createdAt", result.getTimestamp("created_at").toString());
                     Timestamp dueAt = result.getTimestamp("due_at", utcCalendar());
                     assignment.put("dueAt", dueAt == null ? null : dueAt.toInstant().toString());
@@ -102,7 +99,7 @@ public class AssignmentDAO {
                 + "FROM Essay_Submissions s "
                 + "JOIN Users u ON u.user_id = s.student_id "
                 + "JOIN Essay_Assignments a ON a.assignment_id = s.assignment_id "
-                + "WHERE s.assignment_id = ? AND a.created_by = ? AND EXISTS ("
+                + "WHERE s.assignment_id = ? AND EXISTS ("
                 + "SELECT 1 FROM Lecturer_Courses lc WHERE lc.course_id = a.course_id "
                 + "AND lc.lecturer_id = ?) "
                 + "ORDER BY s.submitted_at DESC";
@@ -111,7 +108,6 @@ public class AssignmentDAO {
              PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setInt(1, assignmentId);
             statement.setInt(2, lecturerId);
-            statement.setInt(3, lecturerId);
             try (ResultSet result = statement.executeQuery()) {
                 while (result.next()) {
                     Map<String, Object> submission = new LinkedHashMap<>();
@@ -133,7 +129,7 @@ public class AssignmentDAO {
 
     public boolean updateDeadline(int assignmentId, int lecturerId, Timestamp dueAt) {
         String sql = "UPDATE a SET due_at = ? FROM Essay_Assignments a "
-                + "WHERE a.assignment_id = ? AND a.created_by = ? AND EXISTS ("
+                + "WHERE a.assignment_id = ? AND EXISTS ("
                 + "SELECT 1 FROM Lecturer_Courses lc WHERE lc.course_id = a.course_id "
                 + "AND lc.lecturer_id = ?)";
         try (Connection connection = requireConnection();
@@ -145,7 +141,6 @@ public class AssignmentDAO {
             }
             statement.setInt(2, assignmentId);
             statement.setInt(3, lecturerId);
-            statement.setInt(4, lecturerId);
             return statement.executeUpdate() > 0;
         } catch (SQLException e) {
             throw new DataAccessException("Could not update assignment deadline.", e);
@@ -155,7 +150,7 @@ public class AssignmentDAO {
     public StoredFile getPromptFile(int assignmentId, int userId, boolean lecturer) {
         String sql = "SELECT a.prompt_file_name, a.prompt_file_data FROM Essay_Assignments a "
                 + "WHERE a.assignment_id = ? AND a.prompt_file_data IS NOT NULL"
-                + (lecturer ? " AND a.created_by = ? AND EXISTS (SELECT 1 FROM Lecturer_Courses lc "
+                + (lecturer ? " AND EXISTS (SELECT 1 FROM Lecturer_Courses lc "
                         + "WHERE lc.course_id = a.course_id AND lc.lecturer_id = ?)"
                         : " AND a.course_id IS NOT NULL AND EXISTS (SELECT 1 FROM Course_Classes cl "
                                 + "JOIN Class_Students cs ON cs.class_id = cl.class_id "
@@ -163,12 +158,7 @@ public class AssignmentDAO {
         try (Connection connection = requireConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setInt(1, assignmentId);
-            if (lecturer) {
-                statement.setInt(2, userId);
-                statement.setInt(3, userId);
-            } else {
-                statement.setInt(2, userId);
-            }
+            statement.setInt(2, userId);
             try (ResultSet result = statement.executeQuery()) {
                 return result.next()
                         ? new StoredFile(result.getString("prompt_file_name"),
@@ -184,7 +174,7 @@ public class AssignmentDAO {
         String sql = "SELECT s.file_name, s.file_data FROM Essay_Submissions s "
                 + "JOIN Essay_Assignments a ON a.assignment_id = s.assignment_id "
                 + "WHERE s.assignment_id = ? AND s.student_id = ? AND "
-                + (lecturer ? "a.created_by = ? AND EXISTS (SELECT 1 FROM Lecturer_Courses lc "
+                + (lecturer ? "EXISTS (SELECT 1 FROM Lecturer_Courses lc "
                         + "WHERE lc.course_id = a.course_id AND lc.lecturer_id = ?)"
                         : "s.student_id = ? AND a.course_id IS NOT NULL AND EXISTS ("
                                 + "SELECT 1 FROM Course_Classes cl JOIN Class_Students cs "
@@ -195,9 +185,7 @@ public class AssignmentDAO {
             statement.setInt(1, assignmentId);
             statement.setInt(2, studentId);
             statement.setInt(3, userId);
-            if (lecturer) {
-                statement.setInt(4, userId);
-            } else {
+            if (!lecturer) {
                 statement.setInt(4, userId);
             }
             try (ResultSet result = statement.executeQuery()) {

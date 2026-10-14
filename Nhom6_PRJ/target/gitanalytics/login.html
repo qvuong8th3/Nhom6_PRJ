@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AITA - Giảng Viên Đăng Nhập</title>
+    <title>AITA | Đăng nhập</title>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- FontAwesome for icons -->
@@ -17,8 +17,9 @@
         <div class="logo-area">
             <i class="fa-solid fa-code-branch logo-icon"></i>
             <h2>AITA</h2>
-            <p>Git Analytics Teamwork Assessor</p>
+            <p>Nền tảng học tập và đánh giá nhóm</p>
         </div>
+        <p class="auth-intro">Đăng nhập để tiếp tục đến không gian lớp học của bạn.</p>
 
         <form id="loginForm" class="login-form">
             <div class="input-group">
@@ -43,7 +44,7 @@
                     <span class="checkmark"></span>
                     Nhớ đăng nhập
                 </label>
-                <a href="#" class="forgot-pwd">Quên mật khẩu?</a>
+                <span class="login-help">Đăng ký chỉ dành cho sinh viên</span>
             </div>
 
             <button type="submit" class="btn-primary">
@@ -52,9 +53,72 @@
             </button>
             <p id="error-msg" class="error-msg hidden">Sai thông tin đăng nhập!</p>
         </form>
+        <p id="register-success-msg" class="success-msg hidden" role="status"></p>
+
+        <form id="registerForm" class="login-form hidden">
+            <div class="input-group">
+                <label for="registerFullName">Họ và tên</label>
+                <div class="input-wrapper">
+                    <i class="fa-regular fa-user"></i>
+                    <input type="text" id="registerFullName" name="fullName" maxlength="100"
+                           autocomplete="name" required>
+                </div>
+            </div>
+            <div class="input-group">
+                <label for="registerUsername">Tên đăng nhập</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-at"></i>
+                    <input type="text" id="registerUsername" name="username" minlength="3" maxlength="50"
+                           pattern="[A-Za-z0-9._\-]{3,50}" autocomplete="username" required>
+                </div>
+            </div>
+            <div class="input-group">
+                <label for="registerEmail">Email</label>
+                <div class="input-wrapper">
+                    <i class="fa-regular fa-envelope"></i>
+                    <input type="email" id="registerEmail" name="email" maxlength="100"
+                           autocomplete="email" required>
+                </div>
+            </div>
+            <div class="input-group">
+                <label for="registerGithub">GitHub username <span>(không bắt buộc)</span></label>
+                <div class="input-wrapper">
+                    <i class="fa-brands fa-github"></i>
+                    <input type="text" id="registerGithub" name="githubUsername" maxlength="50"
+                           autocomplete="off">
+                </div>
+            </div>
+            <div class="input-group">
+                <label for="registerPassword">Mật khẩu (ít nhất 8 ký tự)</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" id="registerPassword" name="password" minlength="8" maxlength="128"
+                           autocomplete="new-password" required>
+                </div>
+            </div>
+            <div class="input-group">
+                <label for="confirmPassword">Xác nhận mật khẩu</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" id="confirmPassword" name="confirmPassword" minlength="8" maxlength="128"
+                           autocomplete="new-password" required>
+                </div>
+            </div>
+            <button type="submit" class="btn-primary">
+                Tạo tài khoản sinh viên
+                <i class="fa-solid fa-user-plus"></i>
+            </button>
+            <p class="registration-note">Tài khoản giảng viên được cấp bởi quản trị viên.</p>
+            <p id="register-error-msg" class="error-msg hidden" role="alert"></p>
+        </form>
+
+        <p class="auth-switch">
+            <span id="auth-switch-prompt">Chưa có tài khoản?</span>
+            <button type="button" id="auth-switch-button">Đăng ký sinh viên</button>
+        </p>
     </div>
 
     <!-- Custom JS -->
-    <script src="js/login.js"></script>
+    <script src="js/login.js?v=2"></script>
 </body>
 </html>

@@ -26,8 +26,8 @@ async function loadAssignments() {
                 assignments.filter(assignment => !assignment.submittedAt).length;
         }
         body.innerHTML = assignments.length ? assignments.map(assignment => `<tr>
-            <td>${assignmentEscapeHtml(assignment.courseName || 'Chưa gắn môn học')}</td>
-            <td><strong>${assignmentEscapeHtml(assignment.title)}</strong>
+            <td><strong>${assignmentEscapeHtml(assignment.courseCode || '')}</strong>${assignment.courseCode ? '<br>' : ''}<span class="text-muted">${assignmentEscapeHtml(assignment.courseName || 'Chưa gắn môn học')}</span></td>
+            <td><strong class="assignment-title">${assignmentEscapeHtml(assignment.title)}</strong>
                 ${assignment.description ? `<br><span class="text-muted">${assignmentEscapeHtml(assignment.description)}</span>` : ''}</td>
             <td>${assignment.promptFileName
                 ? `<a class="assignment-download" href="api/v1/assignments/${assignment.assignmentId}/file"><i class="fa-solid fa-download"></i> ${assignmentEscapeHtml(assignment.promptFileName)}</a>`
@@ -90,13 +90,45 @@ async function loadAssignmentSubmissions(assignmentId, title) {
 document.addEventListener('DOMContentLoaded', () => {
     const user = JSON.parse(localStorage.getItem('aita_user') || 'null');
     const lecturer = user && user.role === 'LECTURER';
+    const student = user && user.role === 'STUDENT' && !user.mustChangePassword;
     const createToggle = document.getElementById('assignmentCreateToggle');
     const createForm = document.getElementById('assignmentCreateForm');
     const createError = document.getElementById('assignmentCreateError');
     createToggle.classList.toggle('hidden', !lecturer);
     document.addEventListener('exams-view-open', loadAssignments);
 
-    createToggle.addEventListener('click', () => createForm.classList.toggle('hidden'));
+    if (lecturer) {
+        populateTeachingCourseSelect('assignmentCourseId').catch(error => {
+            if (createError) {
+                createError.textContent = error.message;
+                createError.classList.remove('hidden');
+            }
+        });
+    } else if (student) {
+        loadAssignments();
+    }
+
+    createToggle.addEventListener('click', async () => {
+        createForm.classList.toggle('hidden');
+        if (!createForm.classList.contains('hidden') && lecturer) {
+            try {
+                const courses = await populateTeachingCourseSelect('assignmentCourseId');
+                const submitButton = createForm.querySelector('button[type="submit"]');
+                if (!courses || courses.length === 0) {
+                    createError.textContent = 'Bạn chưa được phân công môn học nào. Vui lòng liên hệ Quản trị viên để được phân môn trước khi giao bài tập.';
+                    createError.classList.remove('hidden');
+                    if (submitButton) submitButton.disabled = true;
+                } else {
+                    createError.classList.add('hidden');
+                    if (submitButton) submitButton.disabled = false;
+                }
+            } catch (error) {
+                createError.textContent = error.message;
+                createError.classList.remove('hidden');
+            }
+        }
+    });
+
     document.getElementById('closeAssignmentSubmissions').addEventListener('click', () => {
         document.getElementById('assignmentSubmissionsPanel').classList.add('hidden');
     });
@@ -104,6 +136,12 @@ document.addEventListener('DOMContentLoaded', () => {
     createForm.addEventListener('submit', async event => {
         event.preventDefault();
         createError.classList.add('hidden');
+        const courseSelect = document.getElementById('assignmentCourseId');
+        if (!courseSelect || !courseSelect.value) {
+            createError.textContent = 'Vui lòng chọn môn học bạn được phân công để giao bài tập.';
+            createError.classList.remove('hidden');
+            return;
+        }
         const button = createForm.querySelector('button[type="submit"]');
         button.disabled = true;
         try {
@@ -127,7 +165,8 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         const row = button.closest('tr');
-        const title = row.querySelector('td strong').textContent;
+        const titleEl = row.querySelector('.assignment-title') || row.querySelector('td strong');
+        const title = titleEl ? titleEl.textContent : '';
         loadAssignmentSubmissions(button.dataset.assignmentSubmissions, title);
     });
 

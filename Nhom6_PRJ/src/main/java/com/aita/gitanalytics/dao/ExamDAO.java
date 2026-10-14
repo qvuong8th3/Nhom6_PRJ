@@ -85,10 +85,10 @@ public class ExamDAO {
     }
 
     public List<Map<String, Object>> listExams(int userId, boolean lecturer) {
-        String sql = "SELECT e.exam_id, e.title, e.description, e.created_at, "
+        String sql = "SELECT e.exam_id, e.course_id, e.title, e.description, e.created_at, "
                 + "(SELECT COUNT(*) FROM Exam_Questions q WHERE q.exam_id = e.exam_id) AS question_count, "
             + "(SELECT COUNT(*) FROM Exam_Attempts a2 WHERE a2.exam_id = e.exam_id) AS attempt_count, "
-                + "a.score, a.max_score, a.submitted_at, c.course_name "
+                + "a.score, a.max_score, a.submitted_at, c.course_name, c.course_code "
                 + "FROM Exams e LEFT JOIN Exam_Attempts a "
                 + "ON a.exam_id = e.exam_id AND a.student_id = ? "
                 + "LEFT JOIN Courses c ON c.course_id = e.course_id "
@@ -113,9 +113,11 @@ public class ExamDAO {
                 while (result.next()) {
                     Map<String, Object> exam = new LinkedHashMap<>();
                     exam.put("examId", result.getInt("exam_id"));
+                    exam.put("courseId", result.getInt("course_id"));
                     exam.put("title", result.getString("title"));
                     exam.put("description", result.getString("description"));
                     exam.put("courseName", result.getString("course_name"));
+                    exam.put("courseCode", result.getString("course_code"));
                     exam.put("createdAt", result.getTimestamp("created_at").toString());
                     exam.put("questionCount", result.getInt("question_count"));
                     exam.put("attemptCount", result.getInt("attempt_count"));
@@ -135,7 +137,7 @@ public class ExamDAO {
     }
 
     public Map<String, Object> getExam(int examId, int userId, boolean lecturer) {
-        String examSql = "SELECT e.exam_id, e.title, e.description, e.created_at, c.course_name "
+        String examSql = "SELECT e.exam_id, e.title, e.description, e.created_at, c.course_name, c.course_code "
                 + "FROM Exams e LEFT JOIN Courses c ON c.course_id = e.course_id "
                 + "WHERE e.exam_id = ?"
                 + (lecturer ? " AND e.created_by = ? AND EXISTS (SELECT 1 FROM Lecturer_Courses lc "
@@ -164,6 +166,7 @@ public class ExamDAO {
                         exam.put("title", result.getString("title"));
                         exam.put("description", result.getString("description"));
                         exam.put("courseName", result.getString("course_name"));
+                        exam.put("courseCode", result.getString("course_code"));
                         exam.put("createdAt", result.getTimestamp("created_at").toString());
                     }
                 }

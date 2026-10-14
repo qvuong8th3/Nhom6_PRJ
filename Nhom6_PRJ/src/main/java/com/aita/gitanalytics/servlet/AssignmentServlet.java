@@ -107,7 +107,11 @@ public class AssignmentServlet extends HttpServlet {
                 }
                 String title = request.getParameter("title");
                 String description = request.getParameter("description");
-                int courseId = parseId(request.getParameter("courseId"));
+                String courseIdParam = request.getParameter("courseId");
+                if (isBlank(courseIdParam)) {
+                    throw new IllegalArgumentException("Vui lòng chọn môn học bạn được phân công để giao bài tập.");
+                }
+                int courseId = parseId(courseIdParam);
                 if (isBlank(title) || title.trim().length() > 160) {
                     throw new IllegalArgumentException("Tên bài tập bắt buộc và tối đa 160 ký tự.");
                 }

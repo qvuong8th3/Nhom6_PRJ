@@ -25,6 +25,28 @@ async function requestJson(path, options) {
     return result;
 }
 
+async function populateTeachingCourseSelect(selectId) {
+    const select = document.getElementById(selectId);
+    if (!select) return [];
+    select.innerHTML = '<option value="">-- Đang tải môn học... --</option>';
+    try {
+        const courses = await requestJson('api/v1/courses');
+        if (!courses || courses.length === 0) {
+            select.innerHTML = '<option value="">-- Bạn chưa được phân công môn học nào --</option>';
+            select.disabled = true;
+            return [];
+        }
+        select.disabled = false;
+        select.innerHTML = '<option value="">-- Chọn môn học --</option>' + courses.map(course =>
+            `<option value="${course.courseId}">${escapeHtml(course.courseCode ? `${course.courseCode} - ${course.courseName}` : course.courseName)}</option>`
+        ).join('');
+        return courses;
+    } catch (error) {
+        select.innerHTML = '<option value="">-- Lỗi tải danh sách môn học --</option>';
+        throw error;
+    }
+}
+
 function setActiveView(viewId) {
     if ((!isLecturer && !isAdministrator && viewId === 'studentsView') || (isLecturer && viewId === 'examDetailView')) {
         return;
