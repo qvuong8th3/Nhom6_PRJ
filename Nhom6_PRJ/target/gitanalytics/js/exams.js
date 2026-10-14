@@ -13,6 +13,7 @@ async function loadExams() {
         const user = JSON.parse(localStorage.getItem('aita_user') || 'null');
         const lecturer = user && user.role === 'LECTURER';
         body.innerHTML = exams.length ? exams.map(exam => `<tr>
+            <td>${examEscapeHtml(exam.courseName || 'Chưa gắn môn học')}</td>
             <td><strong>${examEscapeHtml(exam.title)}</strong>${exam.description ? `<br><span class="text-muted">${examEscapeHtml(exam.description)}</span>` : ''}</td>
             <td>${exam.questionCount}</td>
             <td>${lecturer ? `${exam.attemptCount} bài nộp` : (exam.submitted ? `${exam.score}/${exam.maxScore}` : 'Chưa làm')}</td>
@@ -22,7 +23,7 @@ async function loadExams() {
                     ? `<button class="btn-outline" data-exam-results="${exam.examId}" title="Xem kết quả"><i class="fa-solid fa-chart-column"></i></button>`
                     : `<button class="btn-outline" data-open-exam="${exam.examId}" ${exam.submitted ? 'disabled title="Đã nộp bài"' : 'title="Làm bài"'}><i class="fa-solid fa-arrow-up-right-from-square"></i></button>`}
             </td>
-        </tr>`).join('') : `<tr><td colspan="5" class="empty-state">Chưa có đề thi trong database.</td></tr>`;
+        </tr>`).join('') : `<tr><td colspan="6" class="empty-state">Chưa có đề thi trong các môn học của bạn.</td></tr>`;
         message.textContent = `${exams.length} đề thi`;
     } catch (error) {
         message.textContent = error.message;
@@ -98,6 +99,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const uploadError = document.getElementById('examUploadError');
     const uploadToggle = document.getElementById('examUploadToggle');
     uploadToggle.classList.toggle('hidden', !lecturer);
+    if (lecturer) {
+        populateTeachingCourseSelect('examCourseId').catch(error => {
+            uploadError.textContent = error.message;
+            uploadError.classList.remove('hidden');
+        });
+    } else if (student) {
+        loadExams();
+    }
 
     document.addEventListener('exams-view-open', loadExams);
     uploadToggle.addEventListener('click', () => uploadForm.classList.toggle('hidden'));

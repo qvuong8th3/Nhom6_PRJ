@@ -4,12 +4,14 @@ import com.aita.gitanalytics.dao.ContributionDAO;
 import com.aita.gitanalytics.dao.ContributionDAO.StudentContribution;
 import com.aita.gitanalytics.dao.UserDAO;
 import com.aita.gitanalytics.model.UserAccount;
+import com.aita.gitanalytics.service.GitScoreCalculatorService;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.ServletException;
@@ -29,6 +31,7 @@ public class GitAnalyticsServlet extends HttpServlet {
     private final Gson gson = new Gson();
     private final ContributionDAO contributionDAO = new ContributionDAO();
     private final UserDAO userDAO = new UserDAO();
+    private final GitScoreCalculatorService scoreCalculator = new GitScoreCalculatorService();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) 
@@ -76,6 +79,19 @@ public class GitAnalyticsServlet extends HttpServlet {
 
         // 2. Gọi tầng DAO để lấy dữ liệu thực tế từ Database
         List<StudentContribution> contributions = contributionDAO.getGroupContributions(groupId);
+        Map<String, GitScoreCalculatorService.StudentGitData> groupGitData = new LinkedHashMap<>();
+        for (int index = 0; index < contributions.size(); index++) {
+            StudentContribution contribution = contributions.get(index);
+            groupGitData.put(String.valueOf(index), new GitScoreCalculatorService.StudentGitData(
+                    contribution.studentName,
+                    contribution.commits,
+                    contribution.loc,
+                    contribution.regularity));
+        }
+        Map<String, Double> suggestedPercentages = scoreCalculator.calculateGroupContributions(groupGitData);
+        for (int index = 0; index < contributions.size(); index++) {
+            contributions.get(index).suggestedPercentage = suggestedPercentages.get(String.valueOf(index));
+        }
 
         // 3. Chuẩn bị Map dữ liệu trả về và dùng Gson để chuyển thành JSON
         Map<String, Object> data = new HashMap<>();

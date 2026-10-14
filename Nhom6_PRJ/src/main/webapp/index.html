@@ -101,17 +101,39 @@
         </section>
 
         <section id="dashboardView" class="page-view">
+        <section class="assessor-banner glass-panel" aria-labelledby="assessorTitle">
+            <div class="assessor-intro">
+                <span class="assessor-kicker">FE-L-03 · GIT ANALYTICS TEAMWORK ASSESSOR</span>
+                <h2 id="assessorTitle"><i class="fa-solid fa-scale-balanced"></i> Đánh giá công bằng đóng góp</h2>
+                <p>Đề xuất tỷ lệ đóng góp từ lịch sử Git để giảng viên có thêm căn cứ nhận diện thành viên có thể đang đóng góp thấp.</p>
+            </div>
+            <div class="assessor-facts">
+                <div class="assessor-fact">
+                    <span>Công thức đề xuất</span>
+                    <strong>30% commit · 50% LOC · 20% đều đặn</strong>
+                </div>
+                <div class="assessor-fact">
+                    <span>Chênh lệch đóng góp</span>
+                    <strong id="contributionSpread">—</strong>
+                </div>
+                <div class="assessor-fact">
+                    <span>Cần giảng viên xem xét</span>
+                    <strong id="lowContributionCount">—</strong>
+                </div>
+            </div>
+            <p class="assessor-note"><i class="fa-solid fa-circle-info"></i> Cảnh báo khi điểm đề xuất thấp hơn 50% mức bình quân nhóm. Đây là gợi ý từ dữ liệu Git, không tự động kết luận hay thay đổi điểm đã lưu.</p>
+        </section>
         <div class="dashboard-grid">
             <!-- Pie Chart Card: Contribution % -->
             <div class="card glass-panel col-span-1">
                 <div class="card-header">
-                    <h3><i class="fa-solid fa-percent"></i> Tỷ lệ đóng góp</h3>
+                    <h3><i class="fa-solid fa-percent"></i> Tỷ lệ đóng góp đề xuất</h3>
                 </div>
                 <div class="card-body chart-container">
                     <canvas id="contributionPieChart"></canvas>
                 </div>
                 <div class="card-footer" id="alertContainer">
-                    <!-- Alerts will be injected here via JS if any student has < 15% contribution -->
+                    <!-- Cảnh báo đóng góp thấp được hiển thị từ dữ liệu Git -->
                 </div>
             </div>
 
@@ -124,7 +146,7 @@
                     <canvas id="timelineBarChart"></canvas>
                 </div>
                 <div class="card-footer">
-                    <p class="text-muted">Đánh giá độ đều đặn. Sinh viên code dồn vào cuối kỳ sẽ bị giảm điểm regularity.</p>
+                    <p class="text-muted">Lịch sử commit theo tuần được dùng để đánh giá độ đều đặn trong đề xuất.</p>
                 </div>
             </div>
 
@@ -143,7 +165,8 @@
                                     <th>Commits</th>
                                     <th>Khối lượng code</th>
                                     <th>Độ đều đặn</th>
-                                    <th>Đóng góp</th>
+                                    <th>Điểm đang lưu</th>
+                                    <th>Đề xuất FE-L-03</th>
                                     <th id="dashboardActionHeader">Hành động</th>
                                 </tr>
                             </thead>

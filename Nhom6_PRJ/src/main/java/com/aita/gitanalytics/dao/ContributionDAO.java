@@ -23,6 +23,7 @@ public class ContributionDAO {
         public int loc;
         public int regularity;
         public double percentage;
+        public double suggestedPercentage;
 
         public StudentContribution(String studentName, int commits, int loc, int regularity, double percentage) {
             this.studentName = studentName;
@@ -30,6 +31,7 @@ public class ContributionDAO {
             this.loc = loc;
             this.regularity = regularity;
             this.percentage = percentage;
+            this.suggestedPercentage = percentage;
         }
     }
 
@@ -40,10 +42,14 @@ public class ContributionDAO {
     public List<StudentContribution> getGroupContributions(int groupId) {
         List<StudentContribution> list = new ArrayList<>();
         
-        String sql = "SELECT u.full_name, cs.total_commits, cs.total_loc, cs.regularity_score, cs.final_contribution_percentage " +
-                     "FROM Contribution_Scores cs " +
-                     "JOIN Users u ON cs.user_id = u.user_id " +
-                     "WHERE cs.group_id = ?";
+        String sql = "WITH LatestScores AS ("
+                + "SELECT cs.user_id, cs.total_commits, cs.total_loc, cs.regularity_score, "
+                + "cs.final_contribution_percentage, "
+                + "ROW_NUMBER() OVER (PARTITION BY cs.user_id ORDER BY cs.created_at DESC, cs.score_id DESC) AS row_num "
+                + "FROM Contribution_Scores cs WHERE cs.group_id = ?"
+                + ") SELECT u.full_name, cs.total_commits, cs.total_loc, cs.regularity_score, "
+                + "cs.final_contribution_percentage FROM LatestScores cs "
+                + "JOIN Users u ON cs.user_id = u.user_id WHERE cs.row_num = 1";
 
         try (Connection conn = DBContext.getConnection();
              PreparedStatement ps = conn != null ? conn.prepareStatement(sql) : null) {

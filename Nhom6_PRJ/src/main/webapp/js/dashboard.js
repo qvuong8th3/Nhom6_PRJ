@@ -3,6 +3,11 @@ let activeCourse = null;
 let activeClass = null;
 let studentsForClasses = [];
 let teachingCoursesPromise;
+let savedUser = JSON.parse(localStorage.getItem('aita_user') || 'null');
+let isLecturer = savedUser && savedUser.role === 'LECTURER';
+let isAdministrator = savedUser && savedUser.role === 'ADMIN';
+let isStudent = savedUser && savedUser.role === 'STUDENT';
+let passwordChangeRequired = Boolean(savedUser && savedUser.mustChangePassword);
 const escapeHtml = value => String(value == null ? '' : value).replace(/[&<>"']/g, character => ({
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
 })[character]);
@@ -65,12 +70,16 @@ function setActiveView(viewId) {
 function renderDashboard(data, isLecturer) {
     const contributions = data.contributions || [];
     const colors = ['#5265e8', '#25a887', '#e7aa46', '#8872de', '#df6570', '#50a5c9'];
+    const getSuggestedPercentage = item => {
+        const value = Number(item.suggestedPercentage);
+        return Number.isFinite(value) ? value : (Number(item.percentage) || 0);
+    };
     new Chart(document.getElementById('contributionPieChart'), {
         type: 'doughnut',
         data: {
             labels: contributions.map(item => item.studentName),
             datasets: [{
-                data: contributions.map(item => item.percentage),
+                data: contributions.map(getSuggestedPercentage),
                 backgroundColor: colors,
                 borderWidth: 0,
                 hoverOffset: 8
@@ -100,24 +109,43 @@ function renderDashboard(data, isLecturer) {
 
     const tableBody = document.getElementById('studentTableBody');
     const alerts = [];
+    const averageContribution = contributions.length ? 100 / contributions.length : 0;
+    const lowContributionThreshold = averageContribution * 0.5;
+    const hasGitActivity = contributions.some(item =>
+        Number(item.commits) > 0 || Number(item.loc) > 0 || Number(item.regularity) > 0);
+    let lowestSuggestedPercentage = null;
+    let highestSuggestedPercentage = null;
+    let lowContributionCount = 0;
     tableBody.innerHTML = contributions.map(item => {
-        const percentage = Number(item.percentage) || 0;
-        const scoreClass = percentage < 15 ? 'score-low' : percentage < 25 ? 'score-medium' : 'score-high';
-        if (percentage < 15) {
-            alerts.push(`<p class="alert alert-warning"><i class="fa-solid fa-triangle-exclamation"></i> Cảnh báo: <strong>${escapeHtml(item.studentName)}</strong> có tỷ lệ đóng góp thấp (${percentage}%).</p>`);
+        const percentage = getSuggestedPercentage(item);
+        const savedPercentage = Number(item.percentage) || 0;
+        lowestSuggestedPercentage = lowestSuggestedPercentage === null
+            ? percentage : Math.min(lowestSuggestedPercentage, percentage);
+        highestSuggestedPercentage = highestSuggestedPercentage === null
+            ? percentage : Math.max(highestSuggestedPercentage, percentage);
+        const needsReview = hasGitActivity && averageContribution > 0 && percentage < lowContributionThreshold;
+        const scoreClass = needsReview ? 'score-low' : percentage < averageContribution ? 'score-medium' : 'score-high';
+        if (needsReview) {
+            lowContributionCount++;
+            alerts.push(`<p class="alert alert-warning"><i class="fa-solid fa-triangle-exclamation"></i> Gợi ý xem xét: <strong>${escapeHtml(item.studentName)}</strong> có điểm đề xuất thấp hơn một nửa mức bình quân nhóm (${percentage.toFixed(2)}%).</p>`);
         }
         return `<tr>
             <td><strong>${escapeHtml(item.studentName)}</strong></td>
             <td>${item.commits} commits</td>
             <td>${item.loc} dòng</td>
             <td>${item.regularity}/100</td>
-            <td><span class="score-pill ${scoreClass}">${percentage}%</span></td>
+            <td><span class="score-pill score-medium">${savedPercentage.toFixed(2)}%</span></td>
+            <td><span class="score-pill ${scoreClass}">${percentage.toFixed(2)}%</span>
+                <small class="assessor-status">${needsReview ? 'Cần xem xét' : 'Tham khảo'}</small></td>
             ${isLecturer ? '<td><button class="btn-outline" data-open-students>Quản lý <i class="fa-solid fa-chevron-right"></i></button></td>' : ''}
         </tr>`;
     }).join('');
     document.getElementById('alertContainer').innerHTML = alerts.join('');
+    document.getElementById('contributionSpread').textContent = lowestSuggestedPercentage === null
+        ? 'Chưa có dữ liệu' : `${(highestSuggestedPercentage - lowestSuggestedPercentage).toFixed(2)} điểm %`;
+    document.getElementById('lowContributionCount').textContent = `${lowContributionCount} / ${contributions.length} thành viên`;
     if (!contributions.length) {
-        tableBody.innerHTML = `<tr><td colspan="${isLecturer ? 6 : 5}" class="empty-state">Chưa có dữ liệu đóng góp trong database.</td></tr>`;
+        tableBody.innerHTML = `<tr><td colspan="${isLecturer ? 7 : 6}" class="empty-state">Chưa có dữ liệu đóng góp trong database.</td></tr>`;
     }
     document.getElementById('groupName').textContent = data.groupName || 'Chưa cấu hình nhóm';
     document.getElementById('repoUrl').textContent = data.repoUrl || 'Chưa cấu hình repository';
@@ -224,8 +252,6 @@ async function loadLecturers() {
 document.addEventListener('DOMContentLoaded', async () => {
     Chart.defaults.color = '#94a3b8';
     Chart.defaults.font.family = "'Inter', sans-serif";
-    const savedUser = JSON.parse(localStorage.getItem('aita_user') || 'null');
-    const isLecturer = savedUser && savedUser.role === 'LECTURER';
     document.getElementById('studentsNavItem').classList.toggle('hidden', !isLecturer);
     document.getElementById('addStudentBtn').classList.toggle('hidden', !isLecturer);
     document.getElementById('dashboardActionHeader').classList.toggle('hidden', !isLecturer);
