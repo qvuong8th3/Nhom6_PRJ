@@ -12,6 +12,32 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Custom CSS -->
     <link rel="stylesheet" href="css/styles.css">
+    <script>
+        (function() {
+            try {
+                var u = JSON.parse(localStorage.getItem('aita_user') || 'null');
+                if (u && u.role === 'ADMIN') {
+                    document.documentElement.classList.add('role-admin');
+                }
+            } catch(e) {}
+        })();
+    </script>
+    <style>
+        .role-admin #dashboardNavItem,
+        .role-admin #examsNavItem {
+            display: none !important;
+        }
+        .role-admin #coursesNavItem,
+        .role-admin #lecturersNavItem,
+        .role-admin #studentsNavItem {
+            display: list-item !important;
+        }
+        .role-admin #addCourseBtn,
+        .role-admin #addClassBtn,
+        .role-admin #addStudentBtn {
+            display: inline-flex !important;
+        }
+    </style>
 </head>
 <body class="dashboard-body">
 
@@ -23,9 +49,11 @@
         </div>
         <nav class="sidebar-nav">
             <ul>
-                <li class="active"><a href="#dashboardView" data-view-target="dashboardView"><i class="fa-solid fa-chart-pie"></i> Tổng quan nhóm</a></li>
+                <li id="dashboardNavItem" class="active"><a href="#dashboardView" data-view-target="dashboardView"><i class="fa-solid fa-chart-pie"></i> Tổng quan nhóm</a></li>
                 <li id="studentsNavItem"><a href="#studentsView" data-view-target="studentsView"><i class="fa-solid fa-users"></i> Quản lý sinh viên</a></li>
                 <li id="examsNavItem"><a href="#examsView" data-view-target="examsView"><i class="fa-solid fa-file-circle-question"></i> Đề thi & bài tập</a></li>
+                <li id="coursesNavItem" class="hidden"><a href="#coursesView" data-view-target="coursesView"><i class="fa-solid fa-book-open"></i> Môn học & Phân lớp</a></li>
+                <li id="lecturersNavItem" class="hidden"><a href="#lecturersView" data-view-target="lecturersView"><i class="fa-solid fa-chalkboard-user"></i> Tài khoản giảng viên</a></li>
             </ul>
         </nav>
         <div class="sidebar-footer">
@@ -36,7 +64,8 @@
                     <span id="currentUserRole">...</span>
                 </div>
             </div>
-            <button id="logoutBtn" class="btn-logout"><i class="fa-solid fa-sign-out-alt"></i></button>
+            <button id="changePasswordBtn" class="btn-logout" title="Đổi mật khẩu" aria-label="Đổi mật khẩu"><i class="fa-solid fa-key"></i></button>
+            <button id="logoutBtn" class="btn-logout" title="Đăng xuất" aria-label="Đăng xuất"><i class="fa-solid fa-sign-out-alt"></i></button>
         </div>
     </aside>
 
@@ -464,8 +493,8 @@
     </dialog>
 
     <!-- Custom JS -->
-    <script src="js/dashboard.js"></script>
-    <script src="js/exams.js"></script>
-    <script src="js/assignments.js"></script>
+    <script src="js/dashboard.js?v=20261014_admin_final"></script>
+    <script src="js/exams.js?v=20261014_admin_final"></script>
+    <script src="js/assignments.js?v=20261014_admin_final"></script>
 </body>
 </html>
