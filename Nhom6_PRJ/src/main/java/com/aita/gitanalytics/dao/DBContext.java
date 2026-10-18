@@ -27,6 +27,11 @@ public class DBContext {
             // Nạp Driver SQL Server
             Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
             conn = DriverManager.getConnection(URL, USER, PASSWORD);
+            if (conn != null) {
+                try (java.sql.Statement stmt = conn.createStatement()) {
+                    stmt.execute("SET QUOTED_IDENTIFIER ON;");
+                } catch (SQLException ignored) {}
+            }
         } catch (ClassNotFoundException e) {
             System.err.println("❌ Lỗi: Không tìm thấy Driver SQL Server (Thiếu thư viện mssql-jdbc)!");
             e.printStackTrace();

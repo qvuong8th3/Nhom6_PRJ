@@ -80,8 +80,11 @@
             <div class="header-right">
                 <div class="repo-info">
                     <i class="fa-brands fa-github"></i>
-                    <span id="repoUrl">Chưa cấu hình repository</span>
+                    <a id="repoUrl" href="#" target="_blank" style="color: inherit; text-decoration: none;">Chưa cấu hình repository</a>
                     <span class="status badge-success">Đang hoạt động</span>
+                    <button class="btn-sm btn-outline hidden" id="openEditRepoBtn" type="button" title="Đổi GitHub Repository" style="padding: 2px 8px; margin-left: 6px; font-size: 0.78rem;">
+                        <i class="fa-solid fa-pen"></i> Đổi
+                    </button>
                 </div>
                 <button class="btn-secondary" id="syncBtn" type="button">
                     <i class="fa-solid fa-rotate"></i> Làm mới
@@ -132,26 +135,30 @@
         <section id="dashboardView" class="page-view">
         <section class="assessor-banner glass-panel" aria-labelledby="assessorTitle">
             <div class="assessor-intro">
-                <span class="assessor-kicker">FE-L-03 · GIT ANALYTICS TEAMWORK ASSESSOR</span>
-                <h2 id="assessorTitle"><i class="fa-solid fa-scale-balanced"></i> Đánh giá công bằng đóng góp</h2>
-                <p>Đề xuất tỷ lệ đóng góp từ lịch sử Git để giảng viên có thêm căn cứ nhận diện thành viên có thể đang đóng góp thấp.</p>
+                <span class="assessor-kicker">AITA · GIT ANALYTICS TEAMWORK ASSESSOR</span>
+                <h2 id="assessorTitle"><i class="fa-solid fa-scale-balanced"></i> Đánh giá công bằng đóng góp nhóm</h2>
+                <p>Hệ thống tự động hóa định lượng đóng góp cá nhân từ lịch sử Git, triệt tiêu free-riding và phát hiện commit spam/dồn phút chót.</p>
             </div>
             <div class="assessor-facts">
                 <div class="assessor-fact">
-                    <span>Công thức đề xuất</span>
-                    <strong>30% commit · 50% LOC · 20% đều đặn</strong>
+                    <span>Mô hình đề xuất</span>
+                    <strong id="assessorFormulaLabel">W₁·Volume + W₂·Freq + W₃·Review - W₄·Penalty</strong>
                 </div>
                 <div class="assessor-fact">
                     <span>Chênh lệch đóng góp</span>
                     <strong id="contributionSpread">—</strong>
                 </div>
                 <div class="assessor-fact">
-                    <span>Cần giảng viên xem xét</span>
-                    <strong id="lowContributionCount">—</strong>
+                    <span>Nghi vấn Free-rider / Spam</span>
+                    <strong id="lowContributionCount" style="color: #ef4444;">—</strong>
                 </div>
             </div>
-            <p class="assessor-note"><i class="fa-solid fa-circle-info"></i> Cảnh báo khi điểm đề xuất thấp hơn 50% mức bình quân nhóm. Đây là gợi ý từ dữ liệu Git, không tự động kết luận hay thay đổi điểm đã lưu.</p>
+            <div class="flex-between" style="margin-top: 1rem;">
+                <p class="assessor-note" style="margin: 0;"><i class="fa-solid fa-shield-halved"></i> Điểm = (W₁×Khối lượng) + (W₂×Tần suất) + (W₃×Review) - (W₄×Phạt). Giảng viên có quyền tinh chỉnh trọng số phù hợp theo vai trò.</p>
+                <button id="openWeightSettingsBtn" class="btn-outline hidden" type="button"><i class="fa-solid fa-sliders"></i> Cấu hình trọng số W</button>
+            </div>
         </section>
+
         <div class="dashboard-grid">
             <!-- Pie Chart Card: Contribution % -->
             <div class="card glass-panel col-span-1">
@@ -182,21 +189,25 @@
             <!-- Data Table Card -->
             <div class="card glass-panel col-span-full">
                 <div class="card-header flex-between">
-                    <h3><i class="fa-solid fa-table"></i> Chi tiết phân tích Git</h3>
-                    <button class="btn-outline"><i class="fa-solid fa-download"></i> Xuất Báo Cáo</button>
+                    <div>
+                        <h3><i class="fa-solid fa-table"></i> Bảng phân tích chỉ số đóng góp Git chi tiết</h3>
+                        <p class="text-muted" style="margin: 0; font-size: 0.85rem;">Nhận diện tự động tình trạng free-riding và chất lượng hoạt động mã nguồn</p>
+                    </div>
+                    <button class="btn-outline" type="button" onclick="window.print()"><i class="fa-solid fa-download"></i> Xuất Báo Cáo</button>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
                         <table class="data-table">
                             <thead>
                                 <tr>
-                                    <th>Sinh Viên</th>
+                                    <th>Thành viên</th>
                                     <th>Commits</th>
-                                    <th>Khối lượng code</th>
-                                    <th>Độ đều đặn</th>
-                                    <th>Điểm đang lưu</th>
-                                    <th>Đề xuất FE-L-03</th>
-                                    <th id="dashboardActionHeader">Hành động</th>
+                                    <th>Khối lượng (LOC)</th>
+                                    <th>Tần suất & Đều đặn</th>
+                                    <th>PR & Reviews</th>
+                                    <th>Phạt (Penalty)</th>
+                                    <th>Đề xuất Assessor</th>
+                                    <th>Trạng thái Đánh giá</th>
                                 </tr>
                             </thead>
                             <tbody id="studentTableBody">
@@ -495,9 +506,59 @@
         </form>
     </dialog>
 
+    <!-- Modal điều chỉnh trọng số cho giảng viên -->
+    <dialog id="weightsModal" class="student-dialog weights-modal">
+        <form id="weightsForm" class="student-form">
+            <div class="card-header flex-between">
+                <h3><i class="fa-solid fa-sliders"></i> Cấu hình trọng số W</h3>
+                <button type="button" class="dialog-close" id="closeWeightsModalBtn" aria-label="Đóng"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <label><strong>W₁: Khối lượng code (Volume)</strong>
+                <input type="number" id="weightVolumeInput" name="volumeWeight" step="0.05" min="0" max="1" required>
+                <small class="text-muted" style="display:block; margin-top:2px;">Tỷ lệ dòng code thực chất (LOC thêm/xóa)</small>
+            </label>
+            <label><strong>W₂: Tần suất & Đều đặn (Frequency)</strong>
+                <input type="number" id="weightFrequencyInput" name="frequencyWeight" step="0.05" min="0" max="1" required>
+                <small class="text-muted" style="display:block; margin-top:2px;">Độ đều đặn phân bố commits, chống dồn sát hạn</small>
+            </label>
+            <label><strong>W₃: Quản lý & Code Review (Review)</strong>
+                <input type="number" id="weightReviewInput" name="reviewWeight" step="0.05" min="0" max="1" required>
+                <small class="text-muted" style="display:block; margin-top:2px;">Tạo Pull Requests và review code đồng đội</small>
+            </label>
+            <label><strong>W₄: Hệ số phạt (Penalty)</strong>
+                <input type="number" id="weightPenaltyInput" name="penaltyWeight" step="0.05" min="0" max="1" required>
+                <small class="text-muted" style="display:block; margin-top:2px;">Trừ điểm commit rác ('fix', 'update') hoặc dồn code</small>
+            </label>
+            <p id="weightsFormMsg" class="error-msg hidden" role="alert"></p>
+            <div class="flex-between" style="margin-top: 18px; gap: 10px;">
+                <button type="button" class="btn-outline" id="cancelWeightsBtn" style="flex: 1;">Hủy</button>
+                <button type="submit" class="btn-primary" style="flex: 2;"><i class="fa-solid fa-save"></i> Lưu trọng số</button>
+            </div>
+        </form>
+    </dialog>
+
+    <!-- Modal đổi GitHub Repository -->
+    <dialog id="editRepoDialog" class="student-dialog weights-modal">
+        <form id="editRepoForm" class="student-form">
+            <div class="card-header flex-between">
+                <h3><i class="fa-brands fa-github"></i> Liên kết GitHub Repository</h3>
+                <button type="button" class="dialog-close" id="closeEditRepoDialogBtn" aria-label="Đóng"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <label><strong>Đường dẫn Repository (URL)</strong>
+                <input type="url" id="repoUrlInput" name="repoUrl" placeholder="https://github.com/owner/repository" required style="margin-top: 6px;">
+                <small class="text-muted" style="display:block; margin-top:4px;">Ví dụ: https://github.com/PRJ301-AITA/team-project-repo</small>
+            </label>
+            <p id="editRepoMsg" class="error-msg hidden" role="alert"></p>
+            <div class="flex-between" style="margin-top: 18px; gap: 10px;">
+                <button type="button" class="btn-outline" id="cancelEditRepoBtn" style="flex: 1;">Hủy</button>
+                <button type="submit" class="btn-primary" style="flex: 2;"><i class="fa-solid fa-link"></i> Lưu liên kết</button>
+            </div>
+        </form>
+    </dialog>
+
     <!-- Custom JS -->
-    <script src="js/dashboard.js?v=20261014_courses_v2"></script>
-    <script src="js/exams.js?v=20261014_courses_v2"></script>
-    <script src="js/assignments.js?v=20261014_courses_v2"></script>
+    <script src="js/dashboard.js?v=20261018_fix_repo_v4"></script>
+    <script src="js/exams.js?v=20261018_fix_repo_v4"></script>
+    <script src="js/assignments.js?v=20261018_fix_repo_v4"></script>
 </body>
 </html>

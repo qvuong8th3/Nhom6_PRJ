@@ -972,10 +972,88 @@ body {
     flex-wrap: wrap;
 }
 .btn-sm {
-    padding: 5px 10px;
-    font-size: 0.82rem;
-}
 .col-span-full {
     grid-column: 1 / -1;
 }
 
+/* --- Tối ưu hóa Dashboard Teamwork Assessor & Chống chồng chéo --- */
+.assessor-banner {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    border-radius: 16px;
+    padding: 22px 26px;
+    margin-bottom: 22px;
+}
+.assessor-facts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-top: 6px;
+}
+.assessor-fact {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 14px 18px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.assessor-fact span {
+    font-size: 0.8rem;
+    color: #64748b;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+}
+.assessor-fact strong {
+    font-size: 1.05rem;
+    color: #1e293b;
+    word-break: break-word;
+}
+.weights-modal {
+    width: min(500px, calc(100% - 32px));
+}
+.weights-modal input[type="number"] {
+    display: block;
+    width: 100%;
+    margin-top: 6px;
+    padding: 10px 12px;
+    border-radius: var(--radius-md);
+    border: 1px solid #cbd5e1;
+    background: #fbfcff;
+    color: var(--text-main);
+    font-size: 0.95rem;
+    box-sizing: border-box;
+}
+.weights-modal input[type="number"]:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 3px rgba(82, 101, 232, 0.15);
+}
+.data-table {
+    width: 100%;
+    min-width: 820px;
+    border-collapse: collapse;
+}
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+.data-table th, .data-table td {
+    padding: 12px 14px;
+    vertical-align: middle;
+}
+.status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-weight: 600;
+    white-space: nowrap;
+}
