@@ -7,6 +7,7 @@ import com.aita.gitanalytics.model.UserAccount;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
@@ -151,6 +152,43 @@ public class AssignmentServlet extends HttpServlet {
                 return;
             }
 
+            if (path.length == 2 && "grade".equals(path[1])) {
+                if (!requireRole(user, "LECTURER", response)) {
+                    return;
+                }
+                int assignmentId = parseId(path[0]);
+                String studentIdParam = request.getParameter("studentId");
+                if (isBlank(studentIdParam)) {
+                    throw new IllegalArgumentException("Mã sinh viên không được để trống.");
+                }
+                int studentId = parseId(studentIdParam);
+                String scoreParam = request.getParameter("score");
+                BigDecimal score = null;
+                if (!isBlank(scoreParam)) {
+                    try {
+                        score = new BigDecimal(scoreParam.trim());
+                        if (score.compareTo(BigDecimal.ZERO) < 0 || score.compareTo(new BigDecimal("100")) > 0) {
+                            throw new IllegalArgumentException("Điểm số phải từ 0 đến 10 (hoặc tối đa 100).");
+                        }
+                    } catch (NumberFormatException e) {
+                        throw new IllegalArgumentException("Điểm số không đúng định dạng số.");
+                    }
+                }
+                String feedback = request.getParameter("feedback");
+                if (feedback != null && feedback.length() > 1000) {
+                    throw new IllegalArgumentException("Nhận xét tối đa 1000 ký tự.");
+                }
+
+                boolean updated = assignmentDAO.gradeSubmission(assignmentId, studentId, user.getUserId(), score, feedback);
+                if (!updated) {
+                    writeError(response, HttpServletResponse.SC_NOT_FOUND,
+                            "Không tìm thấy bài nộp hoặc bạn không có quyền chấm bài này.");
+                    return;
+                }
+                writeJson(response, HttpServletResponse.SC_OK, Map.of("status", "success", "message", "Đã lưu điểm thành công."));
+                return;
+            }
+
             if (path.length == 2 && "submissions".equals(path[1])) {
                 if (!requireRole(user, "STUDENT", response)) {
                     return;
@@ -161,11 +199,10 @@ public class AssignmentServlet extends HttpServlet {
                 }
                 String fileName = validateFileName(submission.getSubmittedFileName());
                 byte[] fileData = readPart(submission);
-                boolean saved = assignmentDAO.saveSubmission(
-                        parseId(path[0]), user.getUserId(), fileName, fileData);
+                boolean saved = assignmentDAO.saveSubmission(parseId(path[0]), user.getUserId(), fileName, fileData);
                 if (!saved) {
-                    writeError(response, HttpServletResponse.SC_CONFLICT,
-                            "Bài tập đã hết hạn nộp hoặc không còn tồn tại.");
+                    writeError(response, HttpServletResponse.SC_BAD_REQUEST,
+                            "Đã hết hạn nộp bài hoặc bạn không thuộc lớp của môn học này.");
                     return;
                 }
                 writeJson(response, HttpServletResponse.SC_OK, Map.of("status", "success"));
@@ -177,7 +214,7 @@ public class AssignmentServlet extends HttpServlet {
             writeError(response, HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
         } catch (IllegalStateException e) {
             writeError(response, HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE,
-                    "File vượt quá giới hạn 15 MB.");
+                    "File tải lên vượt quá giới hạn 15 MB.");
         } catch (DataAccessException e) {
             writeDataAccessError(response, e);
         }

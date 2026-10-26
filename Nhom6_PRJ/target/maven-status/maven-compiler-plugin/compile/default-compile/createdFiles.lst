@@ -33,5 +33,6 @@ com\aita\gitanalytics\dao\ExamDAO$GradedAnswer.class
 com\aita\gitanalytics\dao\ContributionDAO$StudentContribution.class
 com\aita\gitanalytics\servlet\RememberMeService.class
 com\aita\gitanalytics\servlet\RememberMeFilter.class
+com\aita\gitanalytics\servlet\AssignmentServlet.class
 com\aita\gitanalytics\servlet\StudentServlet.class
 com\aita\gitanalytics\dao\AssignmentDAO.class

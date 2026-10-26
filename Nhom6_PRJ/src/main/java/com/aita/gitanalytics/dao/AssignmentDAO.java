@@ -1,5 +1,6 @@
 package com.aita.gitanalytics.dao;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -51,7 +52,7 @@ public class AssignmentDAO {
                 + "a.prompt_file_name, "
                 + "(SELECT COUNT(*) FROM Essay_Submissions s "
                 + "WHERE s.assignment_id = a.assignment_id) AS submission_count, "
-                + "s.submitted_at, c.course_name, c.course_code "
+                + "s.submitted_at, s.score, s.feedback, c.course_name, c.course_code "
                 + "FROM Essay_Assignments a "
                 + "LEFT JOIN Essay_Submissions s ON s.assignment_id = a.assignment_id "
                 + "AND s.student_id = ? "
@@ -84,6 +85,8 @@ public class AssignmentDAO {
                     assignment.put("submissionCount", result.getInt("submission_count"));
                     assignment.put("submittedAt", result.getTimestamp("submitted_at") == null
                             ? null : result.getTimestamp("submitted_at").toString());
+                    assignment.put("score", result.getBigDecimal("score"));
+                    assignment.put("feedback", result.getString("feedback"));
                     assignments.add(assignment);
                 }
             }
@@ -95,7 +98,7 @@ public class AssignmentDAO {
 
     public List<Map<String, Object>> listSubmissions(int assignmentId, int lecturerId) {
         String sql = "SELECT s.student_id, u.full_name, u.username, u.email, "
-                + "s.file_name, s.submitted_at "
+                + "s.file_name, s.submitted_at, s.score, s.feedback, s.graded_at "
                 + "FROM Essay_Submissions s "
                 + "JOIN Users u ON u.user_id = s.student_id "
                 + "JOIN Essay_Assignments a ON a.assignment_id = s.assignment_id "
@@ -117,14 +120,42 @@ public class AssignmentDAO {
                     submission.put("email", result.getString("email"));
                     submission.put("fileName", result.getString("file_name"));
                     submission.put("submittedAt", result.getTimestamp("submitted_at").toString());
+                    submission.put("score", result.getBigDecimal("score"));
+                    submission.put("feedback", result.getString("feedback"));
+                    submission.put("gradedAt", result.getTimestamp("graded_at") == null
+                            ? null : result.getTimestamp("graded_at").toString());
                     submissions.add(submission);
                 }
-
             }
         } catch (SQLException e) {
             throw new DataAccessException("Could not load assignment submissions.", e);
         }
         return submissions;
+    }
+
+    public boolean gradeSubmission(int assignmentId, int studentId, int lecturerId, BigDecimal score, String feedback) {
+        String sql = "UPDATE s SET score = ?, feedback = ?, graded_at = SYSUTCDATETIME(), graded_by = ? "
+                + "FROM Essay_Submissions s "
+                + "JOIN Essay_Assignments a ON a.assignment_id = s.assignment_id "
+                + "WHERE s.assignment_id = ? AND s.student_id = ? AND EXISTS ("
+                + "SELECT 1 FROM Lecturer_Courses lc WHERE lc.course_id = a.course_id "
+                + "AND lc.lecturer_id = ?)";
+        try (Connection connection = requireConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            if (score == null) {
+                statement.setNull(1, Types.DECIMAL);
+            } else {
+                statement.setBigDecimal(1, score);
+            }
+            statement.setString(2, feedback == null || feedback.trim().isEmpty() ? null : feedback.trim());
+            statement.setInt(3, lecturerId);
+            statement.setInt(4, assignmentId);
+            statement.setInt(5, studentId);
+            statement.setInt(6, lecturerId);
+            return statement.executeUpdate() > 0;
+        } catch (SQLException e) {
+            throw new DataAccessException("Could not grade assignment submission.", e);
+        }
     }
 
     public boolean updateDeadline(int assignmentId, int lecturerId, Timestamp dueAt) {
@@ -149,24 +180,23 @@ public class AssignmentDAO {
 
     public StoredFile getPromptFile(int assignmentId, int userId, boolean lecturer) {
         String sql = "SELECT a.prompt_file_name, a.prompt_file_data FROM Essay_Assignments a "
-                + "WHERE a.assignment_id = ? AND a.prompt_file_data IS NOT NULL"
-                + (lecturer ? " AND EXISTS (SELECT 1 FROM Lecturer_Courses lc "
+                + "WHERE a.assignment_id = ? AND a.prompt_file_data IS NOT NULL AND "
+                + (lecturer ? "EXISTS (SELECT 1 FROM Lecturer_Courses lc "
                         + "WHERE lc.course_id = a.course_id AND lc.lecturer_id = ?)"
-                        : " AND a.course_id IS NOT NULL AND EXISTS (SELECT 1 FROM Course_Classes cl "
-                                + "JOIN Class_Students cs ON cs.class_id = cl.class_id "
-                                + "WHERE cl.course_id = a.course_id AND cs.student_id = ?)");
+                        : "EXISTS (SELECT 1 FROM Course_Classes cl JOIN Class_Students cs "
+                                + "ON cs.class_id = cl.class_id WHERE cl.course_id = a.course_id "
+                                + "AND cs.student_id = ?)");
         try (Connection connection = requireConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setInt(1, assignmentId);
             statement.setInt(2, userId);
             try (ResultSet result = statement.executeQuery()) {
                 return result.next()
-                        ? new StoredFile(result.getString("prompt_file_name"),
-                                result.getBytes("prompt_file_data"))
+                        ? new StoredFile(result.getString("prompt_file_name"), result.getBytes("prompt_file_data"))
                         : null;
             }
         } catch (SQLException e) {
-            throw new DataAccessException("Could not load assignment file.", e);
+            throw new DataAccessException("Could not load assignment prompt file.", e);
         }
     }
 
@@ -176,10 +206,9 @@ public class AssignmentDAO {
                 + "WHERE s.assignment_id = ? AND s.student_id = ? AND "
                 + (lecturer ? "EXISTS (SELECT 1 FROM Lecturer_Courses lc "
                         + "WHERE lc.course_id = a.course_id AND lc.lecturer_id = ?)"
-                        : "s.student_id = ? AND a.course_id IS NOT NULL AND EXISTS ("
-                                + "SELECT 1 FROM Course_Classes cl JOIN Class_Students cs "
-                                + "ON cs.class_id = cl.class_id WHERE cl.course_id = a.course_id "
-                                + "AND cs.student_id = ?)");
+                        : "s.student_id = ? AND EXISTS (SELECT 1 FROM Course_Classes cl "
+                                + "JOIN Class_Students cs ON cs.class_id = cl.class_id "
+                                + "WHERE cl.course_id = a.course_id AND cs.student_id = ?)");
         try (Connection connection = requireConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setInt(1, assignmentId);
@@ -219,7 +248,6 @@ public class AssignmentDAO {
                     try (ResultSet result = deadline.executeQuery()) {
                         submissionOpen = result.next() && result.getBoolean(1);
                     }
-
                 }
                 if (!submissionOpen) {
                     connection.rollback();
