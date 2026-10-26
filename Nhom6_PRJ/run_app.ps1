@@ -61,8 +61,25 @@ $possibleTomcat = @(
 )
 
 foreach ($t in $possibleTomcat) {
-    if (Test-Path (Join-Path $t "bin\startup.bat")) {
+    if (Test-Path (Join-Path $t "bin\bootstrap.jar")) {
         $tomcatDir = $t
+        break
+    }
+}
+
+# 3. Tim Java JDK tuong thich cho Tomcat (JDK 11, 17, 21)
+$javaExe = "java.exe"
+$possibleJdks = @(
+    "C:\Program Files\Java\jdk-17\bin\java.exe",
+    "C:\Program Files\Java\jdk-11\bin\java.exe",
+    "C:\Program Files\Eclipse Adoptium\jdk-17\bin\java.exe",
+    "C:\Program Files\Eclipse Adoptium\jdk-11\bin\java.exe",
+    "C:\Program Files\Java\bin\java.exe"
+)
+
+foreach ($j in $possibleJdks) {
+    if (Test-Path $j) {
+        $javaExe = $j
         break
     }
 }
@@ -72,11 +89,18 @@ if ($tomcatDir) {
     Write-Host "[*] Chep gitanalytics.war vao Tomcat: $webappsDir" -ForegroundColor Yellow
     Copy-Item $warFile -Destination (Join-Path $webappsDir "gitanalytics.war") -Force
 
-    Write-Host "[*] Dang khoi dong Apache Tomcat..." -ForegroundColor Green
-    $startupBat = Join-Path $tomcatDir "bin\startup.bat"
-    Start-Process -FilePath "cmd.exe" -ArgumentList "/c `"$startupBat`""
+    # Kiem tra xem Tomcat co dang chay tren port 8080 khong
+    $conn = Test-NetConnection -ComputerName localhost -Port 8080 -WarningAction SilentlyContinue
+    if (-not $conn.TcpTestSucceeded) {
+        Write-Host "[*] Dang khoi dong Apache Tomcat..." -ForegroundColor Green
+        $cp = "$tomcatDir\bin\bootstrap.jar;$tomcatDir\bin\tomcat-juli.jar"
+        Start-Process -FilePath $javaExe -ArgumentList "-Dcatalina.home=`"$tomcatDir`" -Dcatalina.base=`"$tomcatDir`" -Djava.io.tmpdir=`"$tomcatDir\temp`" -cp `"$cp`" org.apache.catalina.startup.Bootstrap start" -WindowStyle Normal
+        Start-Sleep -Seconds 4
+    } else {
+        Write-Host "[OK] Apache Tomcat dang chay tren port 8080!" -ForegroundColor Green
+    }
 
-    Start-Sleep -Seconds 3
+    Write-Host "[*] Dang mo trinh duyet..." -ForegroundColor Cyan
     Start-Process "http://localhost:8080/gitanalytics/login.jsp"
 } else {
     Write-Host "[i] Khong tim thay thu muc Tomcat 9 tu dong." -ForegroundColor Yellow
