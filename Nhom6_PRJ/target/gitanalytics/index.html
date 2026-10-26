@@ -1,564 +1,2580 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AITA | Không gian học tập</title>
+    <title>AITA - Learning workspace | Git Analytics Platform</title>
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- FontAwesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Custom CSS -->
+    <!-- Base Design System Stylesheet -->
     <link rel="stylesheet" href="css/styles.css">
-    <script>
-        (function() {
-            try {
-                var u = JSON.parse(localStorage.getItem('aita_user') || 'null');
-                if (u && u.role === 'ADMIN') {
-                    document.documentElement.classList.add('role-admin');
-                }
-            } catch(e) {}
-        })();
-    </script>
+
+    <!-- Enhanced Harmonious Theme Styles (High-Contrast Slate Sidebar & Visual Hierarchy) -->
     <style>
-        .role-admin #dashboardNavItem,
-        .role-admin #examsNavItem {
-            display: none !important;
+        /* ─── BASE WORKSPACE HARMONY ───────────────────────────── */
+        :root {
+            --sidebar-width: 270px;
         }
-        .role-admin #coursesNavItem,
-        .role-admin #lecturersNavItem,
-        .role-admin #studentsNavItem {
-            display: list-item !important;
+        body {
+            background-color: #f1f5f9 !important; /* Soft, restful slate canvas - eliminates blinding white glare */
+            color: #1e293b;
         }
-        .role-admin #addCourseBtn,
-        .role-admin #addClassBtn,
-        .role-admin #addStudentBtn {
-            display: inline-flex !important;
+        .app-layout {
+            display: flex;
+            min-height: 100vh;
+            background-color: #f1f5f9;
         }
+        .aita-main-content {
+            margin-left: 270px !important;
+            background-color: #f1f5f9 !important;
+            padding: 24px 32px !important;
+            min-height: 100vh;
+            flex: 1;
+        }
+
+        /* ─── PREMIUM DARK SLATE SIDEBAR ───────────────────────── */
+        .aita-sidebar {
+            width: 270px !important;
+            background: #0f172a !important; /* Rich Deep Slate Navy */
+            border-right: 1px solid #1e293b !important;
+            box-shadow: 4px 0 24px rgba(0, 0, 0, 0.18) !important;
+            position: fixed !important;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+        }
+
+        .sidebar-header {
+            padding: 20px 18px !important;
+            background: #0b1120 !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+        }
+
+        .brand-icon-box {
+            background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%) !important;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4) !important;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff !important;
+        }
+
+        .brand-title {
+            color: #ffffff !important;
+            font-size: 1.3rem !important;
+            font-weight: 800 !important;
+            letter-spacing: -0.02em;
+        }
+
+        .brand-sub {
+            color: #94a3b8 !important;
+            font-size: 0.74rem !important;
+        }
+
+        /* Navigation List Container */
+        .sidebar-nav {
+            overflow-y: auto !important;
+            flex: 1;
+            padding: 10px 8px !important;
+            background: #0f172a !important;
+            scrollbar-width: thin;
+            scrollbar-color: #334155 transparent;
+        }
+        .sidebar-nav::-webkit-scrollbar { width: 5px; }
+        .sidebar-nav::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+
+        /* Group Item & Header */
+        .nav-group {
+            margin-bottom: 4px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .nav-group-header {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            background: transparent;
+            border: none;
+            color: #cbd5e1 !important; /* Crisp Slate 300 - 100% visible and readable */
+            font-size: 0.83rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.18s ease;
+            user-select: none;
+        }
+
+        .nav-group-header:hover {
+            background: rgba(255, 255, 255, 0.07) !important;
+            color: #ffffff !important;
+            transform: translateX(2px);
+        }
+
+        .nav-group-header.active {
+            background: rgba(99, 102, 241, 0.18) !important;
+            color: #ffffff !important;
+        }
+
+        .nav-group-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .nav-group-left > i {
+            width: 20px;
+            text-align: center;
+            font-size: 0.95rem;
+            flex-shrink: 0;
+            transition: transform 0.2s ease;
+        }
+
+        .nav-group-header:hover .nav-group-left > i {
+            transform: scale(1.1);
+        }
+
+        .nav-group-left > span {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+        }
+
+        /* Distinct Icon Colors per Module Group */
+        .nav-group:nth-child(1) .nav-group-left > i { color: #818cf8 !important; } /* Dashboard - Indigo */
+        .nav-group:nth-child(2) .nav-group-left > i { color: #38bdf8 !important; } /* Students - Sky */
+        .nav-group:nth-child(3) .nav-group-left > i { color: #fbbf24 !important; } /* Courses - Amber */
+        .nav-group:nth-child(4) .nav-group-left > i { color: #34d399 !important; } /* Exams - Emerald */
+        .nav-group:nth-child(5) .nav-group-left > i { color: #f472b6 !important; } /* Peer Review - Rose */
+        .nav-group:nth-child(6) .nav-group-left > i { color: #22d3ee !important; } /* Sandbox - Cyan */
+        .nav-group:nth-child(7) .nav-group-left > i { color: #c084fc !important; } /* AI Assistant - Purple */
+        .nav-group:nth-child(8) .nav-group-left > i { color: #2dd4bf !important; } /* Gradebook - Teal */
+        .nav-group:nth-child(9) .nav-group-left > i { color: #94a3b8 !important; } /* Settings - Slate */
+
+        /* Badges */
+        .nav-badge-new {
+            font-size: 0.62rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #4f46e5, #7c3aed) !important;
+            color: #ffffff !important;
+            padding: 2px 7px;
+            border-radius: 5px;
+            white-space: nowrap;
+            flex-shrink: 0;
+            letter-spacing: 0.02em;
+            box-shadow: 0 2px 6px rgba(79, 70, 229, 0.4);
+        }
+
+        /* Chevron indicator */
+        .nav-chevron {
+            font-size: 0.65rem;
+            color: #64748b;
+            transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), color 0.2s;
+            flex-shrink: 0;
+        }
+        .nav-group-header.open .nav-chevron {
+            transform: rotate(180deg);
+            color: #a5b4fc;
+        }
+
+        /* Submenu Accordion Container */
+        .nav-submenu {
+            display: none;
+            padding: 4px 0 6px 0;
+            background: #090e1a !important; /* Distinct deeper inset background */
+            border-left: 2px solid rgba(99, 102, 241, 0.4) !important;
+            margin-left: 22px;
+            margin-right: 6px;
+            margin-bottom: 6px;
+            margin-top: 2px;
+            border-radius: 0 8px 8px 0;
+        }
+        .nav-submenu.open {
+            display: block;
+            animation: fadeInSubmenu 0.2s ease;
+        }
+        @keyframes fadeInSubmenu {
+            from { opacity: 0; transform: translateY(-4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Sub-items */
+        .nav-sub-item {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            padding: 8px 12px;
+            margin: 2px 6px;
+            border-radius: 6px;
+            color: #94a3b8 !important; /* High-contrast readable slate text */
+            font-size: 0.78rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.15s ease;
+        }
+        .nav-sub-item > i {
+            width: 15px;
+            text-align: center;
+            font-size: 0.78rem;
+            color: #64748b;
+            flex-shrink: 0;
+            transition: color 0.15s;
+        }
+        .nav-sub-item:hover {
+            background: rgba(255, 255, 255, 0.08) !important;
+            color: #ffffff !important;
+        }
+        .nav-sub-item:hover > i {
+            color: #818cf8;
+        }
+        .nav-sub-item.active {
+            background: linear-gradient(90deg, #4f46e5 0%, #6366f1 100%) !important;
+            color: #ffffff !important;
+            font-weight: 700;
+            box-shadow: 0 2px 8px rgba(79, 70, 229, 0.4);
+        }
+        .nav-sub-item.active > i {
+            color: #ffffff !important;
+        }
+
+        /* Sidebar Footer (User Meta & Logout) */
+        .sidebar-footer {
+            padding: 14px 16px !important;
+            background: #090e1a !important;
+            border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .sidebar-user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4f46e5, #818cf8) !important;
+            color: #ffffff !important;
+            font-weight: 800;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            border: 1.5px solid rgba(255, 255, 255, 0.2);
+        }
+        .sidebar-user-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .sidebar-user-name {
+            font-size: 0.82rem !important;
+            font-weight: 700 !important;
+            color: #f8fafc !important;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .sidebar-user-role {
+            font-size: 0.7rem !important;
+            color: #94a3b8 !important;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .sidebar-footer-actions {
+            display: flex;
+            gap: 6px;
+        }
+        .btn-sidebar-action {
+            width: 30px;
+            height: 30px;
+            border-radius: 7px;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            background: rgba(255, 255, 255, 0.06) !important;
+            color: #cbd5e1 !important;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            transition: all 0.15s ease;
+        }
+        .btn-sidebar-action:hover {
+            background: #4f46e5 !important;
+            color: #ffffff !important;
+            border-color: #4f46e5 !important;
+        }
+        .btn-sidebar-action.logout:hover {
+            background: #ef4444 !important;
+            border-color: #ef4444 !important;
+            color: #ffffff !important;
+        }
+
+        /* ─── CARDS & CONTENT WORKSPACE POLISH ─────────────────── */
+        .aita-card {
+            background: #ffffff !important;
+            border: 1px solid #e2e8f0 !important;
+            border-radius: 12px !important;
+            box-shadow: 0 2px 6px -1px rgba(0, 0, 0, 0.05), 0 1px 3px -1px rgba(0, 0, 0, 0.03) !important;
+        }
+        .header-card {
+            background: #ffffff !important;
+            border-left: 4px solid #4f46e5 !important;
+        }
+        .kicker-label {
+            color: #4f46e5 !important;
+            font-weight: 700 !important;
+            letter-spacing: 0.05em;
+        }
+        .header-main-title {
+            color: #0f172a !important;
+        }
+
+        /* Correction points wallet grid */
+        .cp-wallet-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 14px; margin-top: 14px; }
+        .cp-wallet-card { background: #ffffff; border-radius: 12px; padding: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
+        .cp-wallet-card .cp-balance { font-size: 2.2rem; font-weight: 800; color: #4f46e5; line-height: 1; }
+        .cp-wallet-card .cp-label { font-size: 0.76rem; color: #64748b; margin-top: 6px; }
+
+        /* Formula display box */
+        .formula-display-box { background: #f8fafc; border: 1.5px solid #c7d2fe; border-radius: 10px; padding: 16px 20px; font-size: 0.88rem; color: #3730a3; line-height: 1.7; margin: 12px 0; }
+
+        /* Review loop diagram */
+        .review-loop-diagram { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 14px 0; }
+        .review-loop-node { background: #eef2ff; border: 2px solid #c7d2fe; color: #3730a3; font-weight: 700; font-size: 0.88rem; padding: 9px 16px; border-radius: 10px; }
+        .review-loop-node.highlight { background: #4f46e5; color: #fff; border-color: #4f46e5; }
+        .review-loop-arrow { color: #818cf8; font-size: 1.1rem; }
     </style>
 </head>
-<body class="dashboard-body">
+<body>
 
-    <!-- Sidebar -->
-    <aside class="sidebar glass-panel">
-        <div class="sidebar-logo">
-            <i class="fa-solid fa-code-branch"></i>
-            <div><span>AITA</span><small>Learning workspace</small></div>
-        </div>
-        <nav class="sidebar-nav">
-            <ul>
-                <li id="dashboardNavItem" class="active"><a href="#dashboardView" data-view-target="dashboardView"><i class="fa-solid fa-chart-pie"></i> Tổng quan nhóm</a></li>
-                <li id="studentsNavItem"><a href="#studentsView" data-view-target="studentsView"><i class="fa-solid fa-users"></i> Quản lý sinh viên</a></li>
-                <li id="examsNavItem"><a href="#examsView" data-view-target="examsView"><i class="fa-solid fa-file-circle-question"></i> Đề thi & bài tập</a></li>
-                <li id="coursesNavItem" class="hidden"><a href="#coursesView" data-view-target="coursesView"><i class="fa-solid fa-book-open"></i> Môn học & Phân lớp</a></li>
-                <li id="lecturersNavItem" class="hidden"><a href="#lecturersView" data-view-target="lecturersView"><i class="fa-solid fa-chalkboard-user"></i> Tài khoản giảng viên</a></li>
-            </ul>
-        </nav>
-        <div class="sidebar-footer">
-            <div class="user-info">
-                <div class="avatar user-avatar" aria-hidden="true"><i class="fa-solid fa-user"></i></div>
-                <div class="details">
-                    <strong id="currentUserName">Tài khoản</strong>
-                    <span id="currentUserRole">...</span>
+    <div class="app-layout">
+        <!-- ============================================================
+             SIDEBAR (EXACT MATCH TO MEDIA SCREENSHOT)
+             ============================================================ -->
+        <aside class="aita-sidebar">
+            <div class="sidebar-header">
+                <div class="brand-badge-container">
+                    <div class="brand-icon-box">
+                        <i class="fa-solid fa-code-branch"></i>
+                    </div>
+                    <div class="brand-text-block">
+                        <span class="brand-title">AITA</span>
+                        <span class="brand-sub">Learning workspace</span>
+                    </div>
                 </div>
             </div>
-            <button id="changePasswordBtn" class="btn-logout" title="Đổi mật khẩu" aria-label="Đổi mật khẩu"><i class="fa-solid fa-key"></i></button>
-            <button id="logoutBtn" class="btn-logout" title="Đăng xuất" aria-label="Đăng xuất"><i class="fa-solid fa-sign-out-alt"></i></button>
-        </div>
-    </aside>
 
-    <!-- Main Content -->
-    <main class="main-content">
-        <header class="top-header glass-panel">
-            <div class="header-left">
-                <p class="eyebrow" id="headerEyebrow">KHÔNG GIAN GIẢNG DẠY</p>
-                <h1 id="pageTitle">Tổng quan lớp học</h1>
-                <p class="subtitle" id="groupName">Theo dõi tiến độ và hoạt động học tập</p>
-            </div>
-            <div class="header-right">
-                <div class="repo-info">
-                    <i class="fa-brands fa-github"></i>
-                    <a id="repoUrl" href="#" target="_blank" style="color: inherit; text-decoration: none;">Chưa cấu hình repository</a>
-                    <span class="status badge-success">Đang hoạt động</span>
-                    <button class="btn-sm btn-outline hidden" id="openEditRepoBtn" type="button" title="Đổi GitHub Repository" style="padding: 2px 8px; margin-left: 6px; font-size: 0.78rem;">
-                        <i class="fa-solid fa-pen"></i> Đổi
+            <!-- SIDEBAR NAVIGATION MENU (FULL TREE) -->
+            <nav class="sidebar-nav" id="sidebarNav">
+
+                <!-- 1. Tổng quan nhóm -->
+                <div class="nav-group">
+                    <button class="nav-group-header active" onclick="toggleNavGroup(this)" data-view-target="dashboardView">
+                        <span class="nav-group-left">
+                            <i class="fa-solid fa-chart-pie"></i>
+                            <span>Tổng quan nhóm</span>
+                        </span>
+                        <span class="nav-badge-new">FE-L-03</span>
+                        <i class="fa-solid fa-chevron-down nav-chevron"></i>
+                    </button>
+                    <div class="nav-submenu open">
+                        <a href="#" class="nav-sub-item active" data-view-target="dashboardView" onclick="switchView('dashboardView', this)">
+                            <i class="fa-solid fa-filter"></i> Bộ lọc điều hướng
+                        </a>
+                        <a href="#" class="nav-sub-item" data-view-target="dashboardView" onclick="switchView('dashboardView', this)">
+                            <i class="fa-solid fa-chart-bar"></i> Biểu đồ Git Analytics
+                        </a>
+                        <a href="#" class="nav-sub-item" data-view-target="dashboardView" onclick="switchView('dashboardView', this)">
+                            <i class="fa-solid fa-bell"></i> Huy hiệu cảnh báo AI
+                        </a>
+                        <a href="#" class="nav-sub-item" data-view-target="dashboardView" onclick="switchView('dashboardView', this)">
+                            <i class="fa-solid fa-star"></i> Đề xuất điểm Git (AI)
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 2. Quản lý sinh viên -->
+                <div class="nav-group">
+                    <button class="nav-group-header" onclick="toggleNavGroup(this)" data-view-target="studentsView">
+                        <span class="nav-group-left">
+                            <i class="fa-solid fa-user-group"></i>
+                            <span>Quản lý sinh viên</span>
+                        </span>
+                        <i class="fa-solid fa-chevron-down nav-chevron"></i>
+                    </button>
+                    <div class="nav-submenu">
+                        <a href="#" class="nav-sub-item" data-view-target="studentsView" onclick="switchView('studentsView', this)">
+                            <i class="fa-solid fa-list-ul"></i> Danh sách sinh viên
+                        </a>
+                        <a href="#" class="nav-sub-item" data-view-target="gitMappingView" onclick="switchView('gitMappingView', this)">
+                            <i class="fa-brands fa-github"></i> Ánh xạ tài khoản Git
+                        </a>
+                        <a href="#" class="nav-sub-item" data-view-target="correctionPointsView" onclick="switchView('correctionPointsView', this)">
+                            <i class="fa-solid fa-coins"></i> Điểm sửa lỗi
+                        </a>
+                        <a href="#" class="nav-sub-item" data-view-target="studentsView" onclick="switchView('studentsView', this)">
+                            <i class="fa-solid fa-user-plus"></i> Hành động quản trị
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 3. Môn học & Phân lớp -->
+                <div class="nav-group">
+                    <button class="nav-group-header" onclick="toggleNavGroup(this)" data-view-target="coursesView">
+                        <span class="nav-group-left">
+                            <i class="fa-solid fa-book-open"></i>
+                            <span>Môn học & Phân lớp</span>
+                        </span>
+                        <i class="fa-solid fa-chevron-down nav-chevron"></i>
+                    </button>
+                    <div class="nav-submenu">
+                        <a href="#" class="nav-sub-item" data-view-target="coursesView" onclick="switchView('coursesView', this)">
+                            <i class="fa-solid fa-graduation-cap"></i> Quản lý Môn học
+                        </a>
+                        <a href="#" class="nav-sub-item" data-view-target="coursesView" onclick="switchView('coursesView', this)">
+                            <i class="fa-solid fa-chalkboard-user"></i> Quản lý lớp học
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 4. Đề thi & Cổng nộp bài -->
+                <div class="nav-group">
+                    <button class="nav-group-header" onclick="toggleNavGroup(this)" data-view-target="examsView">
+                        <span class="nav-group-left">
+                            <i class="fa-regular fa-file-lines"></i>
+                            <span>Đề thi & Cổng nộp bài</span>
+                        </span>
+                        <i class="fa-solid fa-chevron-down nav-chevron"></i>
+                    </button>
+                    <div class="nav-submenu">
+                        <a href="#" class="nav-sub-item" data-view-target="examsView" onclick="switchView('examsView', this)">
+                            <i class="fa-solid fa-book-open-reader"></i> Danh sách bài tập / Milestone
+                        </a>
+                        <a href="#" class="nav-sub-item" data-view-target="examsView" onclick="switchView('examsView', this)">
+                            <i class="fa-solid fa-sliders"></i> Cấu hình bài tập
+                        </a>
+                        <a href="#" class="nav-sub-item" data-view-target="examsView" onclick="switchView('examsView', this)">
+                            <i class="fa-solid fa-cloud-arrow-up"></i> Cổng nộp bài & cơ chế chấm chéo
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 5. Chấm chéo & Điểm sửa lỗi (Peer-Review Marketplace) -->
+                <div class="nav-group">
+                    <button class="nav-group-header" onclick="toggleNavGroup(this)" data-view-target="peerReviewView">
+                        <span class="nav-group-left">
+                            <i class="fa-solid fa-rotate"></i>
+                            <span>Chấm chéo & Điểm sửa lỗi</span>
+                        </span>
+                        <i class="fa-solid fa-chevron-down nav-chevron"></i>
+                    </button>
+                    <div class="nav-submenu">
+                        <a href="#" class="nav-sub-item" data-view-target="peerReviewView" onclick="switchView('peerReviewView', this)">
+                            <i class="fa-solid fa-diagram-project"></i> Sơ đồ xoay vòng (Review Loop)
+                        </a>
+                        <a href="#" class="nav-sub-item" data-view-target="peerReviewView" onclick="switchView('peerReviewView', this)">
+                            <i class="fa-solid fa-wallet"></i> Sàn giao dịch Điểm sửa lỗi (Wallet)
+                        </a>
+                        <a href="#" class="nav-sub-item" data-view-target="peerReviewView" onclick="switchView('peerReviewView', this)">
+                            <i class="fa-solid fa-clipboard-list"></i> Bảng nhập Rubric chấm chéo
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 6. Docker Sandbox & Test tự động (Moulinette) -->
+                <div class="nav-group">
+                    <button class="nav-group-header" onclick="toggleNavGroup(this)" data-view-target="sandboxView">
+                        <span class="nav-group-left">
+                            <i class="fa-brands fa-docker"></i>
+                            <span>Hàng đợi Sandbox (Moulinette)</span>
+                        </span>
+                        <i class="fa-solid fa-chevron-down nav-chevron"></i>
+                    </button>
+                    <div class="nav-submenu">
+                        <a href="#" class="nav-sub-item" data-view-target="sandboxView" onclick="switchView('sandboxView', this)">
+                            <i class="fa-solid fa-list-check"></i> Hàng đợi chấm bài (Job Queue)
+                        </a>
+                        <a href="#" class="nav-sub-item" data-view-target="sandboxView" onclick="switchView('sandboxView', this)">
+                            <i class="fa-solid fa-vial-circle-check"></i> Kết quả Test Case
+                        </a>
+                        <a href="#" class="nav-sub-item" data-view-target="sandboxView" onclick="switchView('sandboxView', this)">
+                            <i class="fa-solid fa-gauge-high"></i> Nhật ký tài nguyên (Resource Monitor)
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 7. Trợ lý AI -->
+                <div class="nav-group">
+                    <button class="nav-group-header" onclick="toggleNavGroup(this)" data-view-target="aiAssistantView">
+                        <span class="nav-group-left">
+                            <i class="fa-solid fa-robot"></i>
+                            <span>Trợ lý AI phản hồi lỗi</span>
+                        </span>
+                        <i class="fa-solid fa-chevron-down nav-chevron"></i>
+                    </button>
+                    <div class="nav-submenu">
+                        <a href="#" class="nav-sub-item" data-view-target="aiAssistantView" onclick="switchView('aiAssistantView', this)">
+                            <i class="fa-solid fa-bug"></i> Chuyển đổi lỗi biên dịch
+                        </a>
+                        <a href="#" class="nav-sub-item" data-view-target="aiAssistantView" onclick="switchView('aiAssistantView', this)">
+                            <i class="fa-solid fa-clock-rotate-left"></i> Lịch sử Prompt & Phản hồi
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 8. Bảng điểm tổng hợp -->
+                <div class="nav-group">
+                    <button class="nav-group-header" onclick="toggleNavGroup(this)" data-view-target="gradebookView">
+                        <span class="nav-group-left">
+                            <i class="fa-solid fa-chart-line"></i>
+                            <span>Bảng điểm tổng hợp</span>
+                        </span>
+                        <i class="fa-solid fa-chevron-down nav-chevron"></i>
+                    </button>
+                    <div class="nav-submenu">
+                        <a href="#" class="nav-sub-item" data-view-target="gradebookView" onclick="switchView('gradebookView', this)">
+                            <i class="fa-solid fa-table-list"></i> Bảng tổng hợp điểm đa nguồn
+                        </a>
+                        <a href="#" class="nav-sub-item" data-view-target="gradebookView" onclick="switchView('gradebookView', this)">
+                            <i class="fa-solid fa-file-export"></i> Xuất báo cáo (Excel/PDF)
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 9. Cài đặt hệ thống -->
+                <div class="nav-group">
+                    <button class="nav-group-header" onclick="toggleNavGroup(this)" data-view-target="settingsView">
+                        <span class="nav-group-left">
+                            <i class="fa-solid fa-gear"></i>
+                            <span>Cài đặt hệ thống</span>
+                        </span>
+                        <i class="fa-solid fa-chevron-down nav-chevron"></i>
+                    </button>
+                    <div class="nav-submenu">
+                        <a href="#" class="nav-sub-item" data-view-target="settingsView" onclick="switchView('settingsView', this)">
+                            <i class="fa-solid fa-key"></i> Cấu hình API Key
+                        </a>
+                        <a href="#" class="nav-sub-item" data-view-target="settingsView" onclick="switchView('settingsView', this)">
+                            <i class="fa-brands fa-docker"></i> Cấu hình Sandbox Rules
+                        </a>
+                        <a href="#" class="nav-sub-item" data-view-target="settingsView" onclick="switchView('settingsView', this)">
+                            <i class="fa-brands fa-github"></i> GitHub Token Config
+                        </a>
+                    </div>
+                </div>
+
+            </nav>
+
+            <!-- SIDEBAR FOOTER (USER INFO & ACTIONS) -->
+            <div class="sidebar-footer">
+                <div class="sidebar-user-avatar" id="sidebarUserAvatar">NV</div>
+                <div class="sidebar-user-info">
+                    <div class="sidebar-user-name" id="sidebarUserName">Nguyễn Quốc Vương</div>
+                    <div class="sidebar-user-role" id="sidebarUserRole">Sinh viên · QE200066</div>
+                </div>
+                <div class="sidebar-footer-actions">
+                    <button class="btn-sidebar-action" id="openChangePassBtn" title="Đổi mật khẩu" type="button">
+                        <i class="fa-solid fa-key"></i>
+                    </button>
+                    <button class="btn-sidebar-action logout" id="logoutBtn" title="Đăng xuất" type="button">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i>
                     </button>
                 </div>
-                <button class="btn-secondary" id="syncBtn" type="button">
-                    <i class="fa-solid fa-rotate"></i> Làm mới
-                </button>
             </div>
-        </header>
+        </aside>
 
-        <section id="studentHomeView" class="page-view hidden">
-            <div class="student-welcome">
-                <div>
-                    <span class="welcome-kicker"><i class="fa-regular fa-sun"></i> KHÔNG GIAN HỌC TẬP CỦA BẠN</span>
-                    <h2>Chào bạn, <span id="studentWelcomeName">sinh viên</span>!</h2>
-                    <p>Theo dõi bài tập, hoàn thành đề thi và xem tiến độ học tập tại một nơi.</p>
-                </div>
-                <div class="welcome-illustration" aria-hidden="true"><i class="fa-solid fa-book-open-reader"></i></div>
-            </div>
-            <div class="student-stat-grid">
-                <article class="student-stat-card"><span class="stat-icon stat-purple"><i class="fa-solid fa-list-check"></i></span><div><p>Bài tập cần chú ý</p><strong id="studentAssignmentCount">—</strong></div><span class="stat-caption">bài đang được giao</span></article>
-                <article class="student-stat-card"><span class="stat-icon stat-blue"><i class="fa-solid fa-file-circle-question"></i></span><div><p>Đề thi của bạn</p><strong id="studentExamCount">—</strong></div><span class="stat-caption">đề chưa hoàn thành</span></article>
-                <article class="student-stat-card"><span class="stat-icon stat-green"><i class="fa-solid fa-people-group"></i></span><div><p>Nhóm học tập</p><strong id="studentGroupName">Đang tải</strong></div><span class="stat-caption">tiến độ được cập nhật</span></article>
-            </div>
-            <div class="student-home-grid">
-                <article class="card glass-panel student-action-card">
-                    <div class="action-card-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
-                    <span class="card-kicker">BÀI TẬP</span>
-                    <h3>Nộp bài đúng hạn</h3>
-                    <p>Xem yêu cầu, tải tài liệu và gửi bài làm cho giảng viên.</p>
-                    <button class="text-action" type="button" data-open-view="examsView">Đi đến bài tập <i class="fa-solid fa-arrow-right"></i></button>
-                </article>
-                <article class="card glass-panel student-action-card">
-                    <div class="action-card-icon action-blue"><i class="fa-solid fa-pen-to-square"></i></div>
-                    <span class="card-kicker">ĐỀ THI</span>
-                    <h3>Làm bài trực tuyến</h3>
-                    <p>Hoàn thành bài kiểm tra và xem điểm ngay sau khi nộp.</p>
-                    <button class="text-action" type="button" data-open-view="examsView">Xem đề thi <i class="fa-solid fa-arrow-right"></i></button>
-                </article>
-                <article class="card glass-panel student-progress-card">
-                    <div class="card-header">
-                        <div><span class="card-kicker">BẮT ĐẦU TẠI ĐÂY</span><h3>Tiến độ học tập</h3></div>
-                        <i class="fa-solid fa-chart-line progress-icon"></i>
+        <!-- ============================================================
+             MAIN CONTENT WORKSPACE
+             ============================================================ -->
+        <main class="aita-main-content">
+
+            <!-- ========================================================
+                 VIEW 1: TỔNG QUAN NHÓM (DASHBOARD & GIT EVALUATION)
+                 ======================================================== -->
+            <div id="dashboardView" class="page-view">
+                
+                <!-- TOP HEADER CARD (MATCHING SCREENSHOT) -->
+                <div class="aita-card header-card">
+                    <div class="header-left-col">
+                        <span class="kicker-label">KHÔNG GIAN GIẢNG DẠY</span>
+                        <h1 class="header-main-title" id="pageMainHeading">Tổng quan lớp học</h1>
+                        <p class="header-sub-title" id="groupSubtitleText">Nhóm 6 - Git Analytics Platform</p>
                     </div>
-                    <p>Hoàn thành bài tập và bài kiểm tra để theo dõi kết quả của bạn. Các bài đã nộp sẽ được lưu trong tài khoản.</p>
-                    <button class="btn-primary" type="button" data-open-view="examsView">Mở bài tập & đề thi <i class="fa-solid fa-arrow-right"></i></button>
-                </article>
-            </div>
-        </section>
-
-        <section id="dashboardView" class="page-view">
-        <section class="assessor-banner glass-panel" aria-labelledby="assessorTitle">
-            <div class="assessor-intro">
-                <span class="assessor-kicker">AITA · GIT ANALYTICS TEAMWORK ASSESSOR</span>
-                <h2 id="assessorTitle"><i class="fa-solid fa-scale-balanced"></i> Đánh giá công bằng đóng góp nhóm</h2>
-                <p>Hệ thống tự động hóa định lượng đóng góp cá nhân từ lịch sử Git, triệt tiêu free-riding và phát hiện commit spam/dồn phút chót.</p>
-            </div>
-            <div class="assessor-facts">
-                <div class="assessor-fact">
-                    <span>Mô hình đề xuất</span>
-                    <strong id="assessorFormulaLabel">W₁·Volume + W₂·Freq + W₃·Review - W₄·Penalty</strong>
-                </div>
-                <div class="assessor-fact">
-                    <span>Chênh lệch đóng góp</span>
-                    <strong id="contributionSpread">—</strong>
-                </div>
-                <div class="assessor-fact">
-                    <span>Nghi vấn Free-rider / Spam</span>
-                    <strong id="lowContributionCount" style="color: #ef4444;">—</strong>
-                </div>
-            </div>
-            <div class="flex-between" style="margin-top: 1rem;">
-                <p class="assessor-note" style="margin: 0;"><i class="fa-solid fa-shield-halved"></i> Điểm = (W₁×Khối lượng) + (W₂×Tần suất) + (W₃×Review) - (W₄×Phạt). Giảng viên có quyền tinh chỉnh trọng số phù hợp theo vai trò.</p>
-                <button id="openWeightSettingsBtn" class="btn-outline hidden" type="button"><i class="fa-solid fa-sliders"></i> Cấu hình trọng số W</button>
-            </div>
-        </section>
-
-        <div class="dashboard-grid">
-            <!-- Pie Chart Card: Contribution % -->
-            <div class="card glass-panel col-span-1">
-                <div class="card-header">
-                    <h3><i class="fa-solid fa-percent"></i> Tỷ lệ đóng góp đề xuất</h3>
-                </div>
-                <div class="card-body chart-container">
-                    <canvas id="contributionPieChart"></canvas>
-                </div>
-                <div class="card-footer" id="alertContainer">
-                    <!-- Cảnh báo đóng góp thấp được hiển thị từ dữ liệu Git -->
-                </div>
-            </div>
-
-            <!-- Bar Chart Card: Timeline -->
-            <div class="card glass-panel col-span-2">
-                <div class="card-header">
-                    <h3><i class="fa-solid fa-timeline"></i> Hoạt động theo thời gian</h3>
-                </div>
-                <div class="card-body chart-container">
-                    <canvas id="timelineBarChart"></canvas>
-                </div>
-                <div class="card-footer">
-                    <p class="text-muted">Lịch sử commit theo tuần được dùng để đánh giá độ đều đặn trong đề xuất.</p>
-                </div>
-            </div>
-
-            <!-- Data Table Card -->
-            <div class="card glass-panel col-span-full">
-                <div class="card-header flex-between">
-                    <div>
-                        <h3><i class="fa-solid fa-table"></i> Bảng phân tích chỉ số đóng góp Git chi tiết</h3>
-                        <p class="text-muted" style="margin: 0; font-size: 0.85rem;">Nhận diện tự động tình trạng free-riding và chất lượng hoạt động mã nguồn</p>
+                    <div class="header-right-col">
+                        <div class="repo-pill-badge" id="repoBadgeContainer">
+                            <i class="fa-brands fa-github"></i>
+                            <span class="repo-link-text" id="displayRepoUrl" title="https://github.com/lx426352-art/PRJ301-Nh-m-6">https://github.com/lx426352-art/PRJ301-Nh-m-6</span>
+                            <span class="status-badge-active"><i class="fa-solid fa-circle" style="font-size: 0.45rem;"></i> Đang hoạt động</span>
+                            <button type="button" class="btn-pill-action" id="btnEditRepo" title="Gán link GitHub khác để chấm bài cho toàn bộ sinh viên">
+                                <i class="fa-solid fa-pen"></i> Đổi
+                            </button>
+                        </div>
+                        <button type="button" class="btn-refresh-pill" id="btnRefreshDashboard" title="Làm mới dữ liệu từ Git">
+                            <i class="fa-solid fa-rotate-right"></i> Làm mới
+                        </button>
                     </div>
-                    <button class="btn-outline" type="button" onclick="window.print()"><i class="fa-solid fa-download"></i> Xuất Báo Cáo</button>
                 </div>
-                <div class="card-body">
+
+                <!-- ========================================================
+                     BỘ LỌC ĐIỀU HƯỚNG & CẢNH BÁO THÔNG MINH (FE-L-03)
+                     ======================================================== -->
+                <div class="aita-card" id="dashboardFilterSection" style="padding: 14px 20px; margin-bottom: 20px;">
+                    <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px;">
+                        <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px;">
+                            <span style="font-size: 0.85rem; font-weight: 700; color: #1e293b; display: flex; align-items: center; gap: 6px;">
+                                <i class="fa-solid fa-filter" style="color: #4f46e5;"></i> Bộ lọc điều hướng:
+                            </span>
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <label style="font-size: 0.78rem; color: #64748b; font-weight: 600;">Môn:</label>
+                                <select id="filterCourseSelect" class="form-control-input" style="padding: 6px 12px; font-size: 0.82rem; width: auto;">
+                                    <option value="PRJ301" selected>PRJ301 - Java Web Application</option>
+                                    <option value="SWR302">SWR302 - Software Requirement</option>
+                                    <option value="JPD123">JPD123 - Core Java Lab</option>
+                                    <option value="CSD201">CSD201 - Data Structures</option>
+                                    <option value="IOT102">IOT102 - Internet of Things</option>
+                                </select>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <label style="font-size: 0.78rem; color: #64748b; font-weight: 600;">Lớp:</label>
+                                <select id="filterClassSelect" class="form-control-input" style="padding: 6px 12px; font-size: 0.82rem; width: auto;">
+                                    <option value="SE20C" selected>BIT_SE_K20C (25 SV)</option>
+                                </select>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <label style="font-size: 0.78rem; color: #64748b; font-weight: 600;">Nhóm:</label>
+                                <select id="filterGroupSelect" class="form-control-input" style="padding: 6px 12px; font-size: 0.82rem; width: auto;">
+                                    <option value="6" selected>Nhóm 6 (5 SV - Git Analytics Platform)</option>
+                                    <option value="1">Nhóm 1 (3 SV)</option>
+                                    <option value="2">Nhóm 2 (3 SV)</option>
+                                    <option value="3">Nhóm 3 (3 SV)</option>
+                                    <option value="4">Nhóm 4 (4 SV)</option>
+                                    <option value="5">Nhóm 5 (4 SV)</option>
+                                    <option value="7">Nhóm 7 (5 SV)</option>
+                                </select>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <label style="font-size: 0.78rem; color: #64748b; font-weight: 600;">Sprint:</label>
+                                <select id="filterSprintSelect" class="form-control-input" style="padding: 6px 12px; font-size: 0.82rem; width: auto;">
+                                    <option value="all" selected>Toàn bộ (Tuần 1 - 6)</option>
+                                    <option value="sprint2">Sprint 2 (Tuần 3-4)</option>
+                                    <option value="final">Final Milestone (Tuần 5-6)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="button" class="btn-primary" id="btnApplyDashboardFilter" style="padding: 7px 16px; font-size: 0.82rem;">
+                            <i class="fa-solid fa-arrows-rotate"></i> Lọc dữ liệu
+                        </button>
+                    </div>
+                </div>
+
+                <!-- HUY HIỆU CẢNH BÁO THÔNG MINH (AI / RULE ALERTS) -->
+                <div class="aita-card" id="dashboardAlertsSection" style="padding: 12px 20px; margin-bottom: 20px; background: #ffffff; border-left: 4px solid #f59e0b;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                            <span style="font-size: 0.82rem; font-weight: 700; color: #1e293b; display: flex; align-items: center; gap: 6px;">
+                                <i class="fa-solid fa-shield-cat" style="color: #f59e0b;"></i> Huy hiệu cảnh báo thông minh (AI / Rule Alerts):
+                            </span>
+                            <span class="badge-pill" style="background:#fee2e2; color:#b91c1c; font-weight:700; cursor:pointer;" title="Đóng góp dưới ngưỡng chuẩn 15% tổng volume">
+                                <i class="fa-solid fa-triangle-exclamation"></i> 3 Nghi vấn Free-rider
+                            </span>
+                            <span class="badge-pill" style="background:#fef9c3; color:#854d0e; font-weight:700; cursor:pointer;" title="Lượng commit tăng đột biến trước giờ nộp bài">
+                                <i class="fa-solid fa-bolt"></i> 1 Commit Burst (Dồn phút chót)
+                            </span>
+                            <span class="badge-pill" style="background:#ecfdf5; color:#065f46; font-weight:700; cursor:pointer;" title="Cam kết mã nguồn đều đặn các tuần">
+                                <i class="fa-solid fa-circle-check"></i> 2 Đều đặn (Freq &gt; 75%)
+                            </span>
+                            <span class="badge-pill" style="background:#e0e7ff; color:#3730a3; font-weight:700; cursor:pointer;" title="Tham gia Pull Request và phản hồi nhận xét code">
+                                <i class="fa-solid fa-code-pull-request"></i> 2 Reviewer tích cực
+                            </span>
+                        </div>
+                        <span style="font-size: 0.74rem; color: #64748b;"><i class="fa-solid fa-robot"></i> AI Engine FE-L-03 Assessor</span>
+                    </div>
+                </div>
+
+                <!-- BANNER CARD: GIT ANALYTICS TEAMWORK ASSESSOR (MATCHING SCREENSHOT) -->
+                <div class="aita-card banner-assessor-card">
+                    <span class="banner-kicker">AITA · GIT ANALYTICS TEAMWORK ASSESSOR</span>
+                    <div class="banner-title-row">
+                        <i class="fa-solid fa-scale-balanced"></i>
+                        <h2>Đánh giá công bằng đóng góp nhóm</h2>
+                    </div>
+                    <p class="banner-desc-text">
+                        Hệ thống tự động hóa định lượng đóng góp cá nhân từ lịch sử Git, triệt tiêu free-riding và phát hiện commit spam/dồn phút chót.
+                    </p>
+
+                    <!-- 3 FACT CARDS (EXACT VALUES AS SCREENSHOT) -->
+                    <div class="banner-facts-grid">
+                        <div class="fact-box">
+                            <div class="fact-box-label">Mô hình đề xuất</div>
+                            <div class="fact-box-val" id="modelFormulaDisplay">50% Volume + 40% Freq + 20% Review - 10% Penalty</div>
+                        </div>
+                        <div class="fact-box">
+                            <div class="fact-box-label">Chênh lệch đóng góp</div>
+                            <div class="fact-box-val" id="contributionDiffDisplay">30.29 điểm %</div>
+                        </div>
+                        <div class="fact-box">
+                            <div class="fact-box-label">Nghi vấn Free-rider / Spam</div>
+                            <div class="fact-box-val text-red" id="freeRiderCountDisplay">3 / 5 thành viên</div>
+                        </div>
+                    </div>
+
+                    <!-- BOTTOM FORMULA BAR WITH WEIGHTS CONFIG BUTTON -->
+                    <div class="banner-bottom-bar">
+                        <div class="formula-info-text">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <span>Điểm = (W₁×Khối lượng) + (W₂×Tần suất) + (W₃×Review) - (W₄×Phạt). Giảng viên có quyền tinh chỉnh trọng số phù hợp theo vai trò.</span>
+                        </div>
+                        <button type="button" class="btn-config-weights" id="btnOpenWeightsModal">
+                            <i class="fa-solid fa-sliders"></i> Cấu hình trọng số W
+                        </button>
+                    </div>
+                </div>
+
+                <!-- CHARTS ROW: 2 CHARTS SIDE BY SIDE -->
+                <div class="charts-grid-row">
+                    <!-- Left: Doughnut Chart -->
+                    <div class="aita-card" style="margin-bottom: 0;">
+                        <div class="chart-card-header">
+                            <div class="chart-icon-badge">%</div>
+                            <h3>% Tỷ lệ đóng góp đề xuất</h3>
+                        </div>
+                        <div style="position: relative; height: 260px; display: flex; align-items: center; justify-content: center;">
+                            <canvas id="contributionPieChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Right: Line Activity Chart -->
+                    <div class="aita-card" style="margin-bottom: 0;">
+                        <div class="chart-card-header">
+                            <div class="chart-icon-badge"><i class="fa-solid fa-code-fork"></i></div>
+                            <h3>Hoạt động theo thời gian</h3>
+                        </div>
+                        <div style="position: relative; height: 260px;">
+                            <canvas id="timelineBarChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DETAILED MEMBER BREAKDOWN TABLE -->
+                <div class="aita-card" style="margin-top: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                        <div>
+                            <h3 style="font-size: 1.05rem; font-weight: 700; color: #1e293b;">Bảng phân tích chi tiết đóng góp thành viên trong Repo</h3>
+                            <p style="font-size: 0.82rem; color: #64748b;">Dữ liệu cam kết mã nguồn được trích xuất và tính toán tự động</p>
+                        </div>
+                        <span id="memberCountBadge" style="font-size: 0.82rem; font-weight: 600; background: #eef2ff; color: #4f46e5; padding: 4px 10px; border-radius: 6px;">
+                            5 thành viên
+                        </span>
+                    </div>
+
                     <div class="table-responsive">
-                        <table class="data-table">
+                        <table class="aita-table">
                             <thead>
                                 <tr>
                                     <th>Thành viên</th>
                                     <th>Commits</th>
-                                    <th>Khối lượng (LOC)</th>
-                                    <th>Tần suất & Đều đặn</th>
-                                    <th>PR & Reviews</th>
-                                    <th>Phạt (Penalty)</th>
-                                    <th>Đề xuất Assessor</th>
-                                    <th>Trạng thái Đánh giá</th>
+                                    <th>Dòng code (+ / -)</th>
+                                    <th>Độ đều (Freq)</th>
+                                    <th>PRs & Reviews</th>
+                                    <th>Trạng thái / Đánh giá</th>
+                                    <th>Điểm đề xuất (%)</th>
                                 </tr>
                             </thead>
-                            <tbody id="studentTableBody">
-                                <!-- Dữ liệu sẽ được render bằng JS -->
+                            <tbody id="memberTableBody">
+                                <!-- Populated dynamically by dashboard.js -->
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
-        </div>
-        </section>
 
-        <section id="studentsView" class="page-view hidden">
-            <div class="card glass-panel students-panel">
-                <div class="card-header flex-between">
-                    <h3><i class="fa-solid fa-users"></i> Tài khoản sinh viên toàn hệ thống</h3>
-                    <button class="btn-secondary" id="addStudentBtn"><i class="fa-solid fa-plus"></i> Thêm sinh viên</button>
-                </div>
-                <p id="studentsMessage" class="students-message" role="status"></p>
-                <div class="table-responsive">
-                    <table class="data-table">
-                        <thead>
-                            <tr><th>Họ tên</th><th>Tên đăng nhập</th><th>Email</th><th>GitHub</th><th>Thao tác</th></tr>
-                        </thead>
-                        <tbody id="studentsTableBody"></tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-
-        <section id="coursesView" class="page-view hidden">
-            <div class="card glass-panel students-panel">
-                <div class="card-header flex-between">
-                    <h3><i class="fa-solid fa-book-open"></i> Danh sách môn học</h3>
-                    <button class="btn-secondary hidden" id="addCourseBtn" type="button"><i class="fa-solid fa-plus"></i> Thêm môn học</button>
-                </div>
-                <p id="coursesMessage" class="students-message" role="status"></p>
-                <div class="table-responsive">
-                    <table class="data-table">
-                        <thead><tr><th>Mã môn</th><th>Tên môn học</th><th>Học kỳ</th><th>Giảng viên</th><th>Lớp</th><th>Hành động môn học</th><th id="courseActionHeader">Thao tác Admin</th></tr></thead>
-                        <tbody id="coursesTableBody"></tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-
-        <section id="classesView" class="page-view hidden">
-            <div class="card glass-panel students-panel">
-                <div class="card-header flex-between">
-                    <div><h3><i class="fa-solid fa-users-rectangle"></i> Danh sách lớp</h3><p id="classesCourseName" class="subtitle"></p></div>
-                    <div style="display: flex; gap: 8px;">
-                        <button class="btn-primary hidden" id="classAssignHomeworkBtn" type="button"><i class="fa-solid fa-file-circle-plus"></i> Giao bài tập cho môn này</button>
-                        <button class="btn-secondary hidden" id="addClassBtn" type="button"><i class="fa-solid fa-plus"></i> Thêm lớp</button>
+            <!-- ========================================================
+                 VIEW 2: QUẢN LÝ SINH VIÊN (STUDENT ROSTER & ROLE-BASED CRUD)
+                 ======================================================== -->
+            <div id="studentsView" class="page-view hidden">
+                <div class="aita-card header-card">
+                    <div class="header-left-col">
+                        <span class="kicker-label">HỌC TẬP & ĐÀO TẠO</span>
+                        <h1 class="header-main-title">Quản lý sinh viên</h1>
+                        <p class="header-sub-title" id="studentRosterSubtitle">Lớp SE20C - PRJ301 (Tổng số: 25 sinh viên)</p>
                     </div>
-                </div>
-                <p id="classesMessage" class="students-message" role="status"></p>
-                <div class="table-responsive">
-                    <table class="data-table">
-                        <thead><tr><th>Lớp</th><th>Số sinh viên</th><th id="classActionHeader">Thao tác</th></tr></thead>
-                        <tbody id="classesTableBody"></tbody>
-                    </table>
-                </div>
-                <button class="btn-outline" id="backToCourses" type="button"><i class="fa-solid fa-arrow-left"></i> Danh sách môn học</button>
-            </div>
-        </section>
-
-        <section id="classStudentsView" class="page-view hidden">
-            <div class="card glass-panel students-panel">
-                <div class="card-header flex-between">
-                    <div>
-                        <h3><i class="fa-solid fa-users"></i> Sinh viên trong lớp</h3>
-                        <p id="classStudentsCourseName" class="subtitle"></p>
-                    </div>
-                    <button class="btn-secondary hidden" id="editClassRosterBtn" type="button">
-                        <i class="fa-solid fa-user-pen"></i> Cập nhật danh sách lớp
-                    </button>
-                </div>
-                <p id="classStudentsMessage" class="students-message" role="status"></p>
-                <div class="table-responsive">
-                    <table class="data-table">
-                        <thead><tr><th>Họ tên</th><th>Tên đăng nhập</th><th>Email</th></tr></thead>
-                        <tbody id="classStudentsTableBody"></tbody>
-                    </table>
-                </div>
-                <button class="btn-outline" id="backToClasses" type="button">
-                    <i class="fa-solid fa-arrow-left"></i> Danh sách lớp
-                </button>
-            </div>
-        </section>
-
-        <section id="lecturersView" class="page-view hidden">
-            <div class="card glass-panel students-panel">
-                <div class="card-header"><h3><i class="fa-solid fa-chalkboard-user"></i> Tài khoản giảng viên</h3></div>
-                <form id="lecturerForm" class="student-form">
-                    <div class="exam-form-grid">
-                        <label>Tên đăng nhập<input name="username" required minlength="3" maxlength="50" pattern="[A-Za-z0-9._-]+"></label>
-                        <label>Họ và tên<input name="fullName" required maxlength="100"></label>
-                        <label>Email<input name="email" type="email" required maxlength="100"></label>
-                        <label>Mật khẩu khởi tạo (12 ký tự trở lên)<input name="initialPassword" type="password" required minlength="12" maxlength="128" autocomplete="new-password"></label>
-                    </div>
-                    <p class="students-message">Giảng viên phải đổi mật khẩu khi đăng nhập lần đầu.</p>
-                    <p id="lecturerFormMessage" class="students-message" role="status"></p>
-                    <p id="lecturerFormError" class="error-msg hidden" role="alert"></p>
-                    <button class="btn-primary" type="submit"><i class="fa-solid fa-user-plus"></i> Cấp tài khoản</button>
-                </form>
-                <div class="table-responsive">
-                    <table class="data-table">
-                        <thead><tr><th>Họ tên</th><th>Tên đăng nhập</th><th>Email</th></tr></thead>
-                        <tbody id="lecturersTableBody"></tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-
-        <section id="examsView" class="page-view hidden">
-            <div class="card glass-panel exams-panel">
-                <section class="assignments-section">
-                    <div class="card-header flex-between exam-header">
-                        <div>
-                            <span class="card-kicker">GIAO VÀ NỘP BÀI</span>
-                            <h3><i class="fa-solid fa-file-arrow-up"></i> Bài tập tự luận</h3>
-                            <p id="assignmentMessage" class="students-message" role="status"></p>
+                    <div class="header-right-col">
+                        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                            <div style="position: relative;">
+                                <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 12px; top: 11px; color: #94a3b8; font-size: 0.85rem;"></i>
+                                <input type="text" id="studentSearchInput" placeholder="Tìm theo tên, MSSV, email..." 
+                                       style="padding: 8px 14px 8px 34px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.88rem; outline: none; width: 200px;">
+                            </div>
+                            <button type="button" class="btn-outline" id="btnOpenImportExcelModal" title="Import danh sách sinh viên từ file Excel/CSV">
+                                <i class="fa-solid fa-file-excel" style="color: #10b981;"></i> Import Excel/CSV
+                            </button>
+                            <button type="button" class="btn-outline" id="btnOpenAssignGroupModal" title="Chỉnh sửa hoặc gán nhóm cho sinh viên">
+                                <i class="fa-solid fa-people-arrows" style="color: #6366f1;"></i> Gán nhóm
+                            </button>
+                            <!-- "+ Thêm sinh viên" button (visible only for LECTURER and ADMIN) -->
+                            <button type="button" class="btn-primary" id="btnOpenAddStudentModal">
+                                <i class="fa-solid fa-user-plus"></i> Thêm thủ công
+                            </button>
                         </div>
-                        <button class="btn-primary assignment-create-toggle" id="assignmentCreateToggle" type="button">
-                            <i class="fa-solid fa-plus"></i> Giao bài tập
+                    </div>
+                </div>
+
+                <div class="aita-card" style="margin-bottom: 16px; padding: 14px 18px; background: #f8fafc; border: 1px solid #e2e8f0;">
+                    <div style="display: flex; flex-wrap: wrap; gap: 14px; align-items: center; justify-content: space-between;">
+                        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                            <label for="classSelectFilter" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; display: flex; align-items: center; gap: 6px;">
+                                <i class="fa-solid fa-school" style="color: #4f46e5;"></i> Xem theo Lớp / Môn học:
+                            </label>
+                            <select id="classSelectFilter" class="form-control-input" style="width: auto; min-width: 320px; font-weight: 600; padding: 7px 12px;" onchange="handleClassFilterChange(this.value)">
+                                <option value="ALL">🏫 Tất cả các lớp trong trường (Toàn trường - 25 SV)</option>
+                                <option value="SE20C_PRJ301" selected>📚 Lớp SE20C_PRJ301 - Java Web (ThS. Nguyễn Văn Vịnh)</option>
+                                <option value="SE20C_CSD201">📚 Lớp SE20C_CSD201 - Data Structures (TS. Nguyễn Anh Khoa)</option>
+                                <option value="SE20C_SWR302">📚 Lớp SE20C_SWR302 - Software Requirements (ThS. Nguyễn Văn Vịnh)</option>
+                                <option value="SE20C_JPD123">📚 Lớp SE20C_JPD123 - Java Lab (ThS. Nguyễn Lê Tín)</option>
+                                <option value="SE20C_IOT102">📚 Lớp SE20C_IOT102 - Internet of Things (ThS. Nguyễn Văn Hưng)</option>
+                            </select>
+                        </div>
+                        <div id="classTeacherBadge" style="font-size: 0.82rem; color: #475569; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 6px 14px;">
+                            <i class="fa-solid fa-chalkboard-user" style="color: #4f46e5;"></i> Giảng viên phụ trách: <strong id="currentClassTeacherText">ThS. Nguyễn Văn Vịnh (GV00002)</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="aita-card">
+                    <div style="margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-size: 0.85rem; color: #64748b;" id="studentListStatusText">Đang tải danh sách sinh viên...</span>
+                        <span id="roleNoticeBadge" style="font-size: 0.76rem; padding: 4px 10px; border-radius: 6px; font-weight: 600; background: #f1f5f9; color: #475569;">
+                            <i class="fa-solid fa-shield"></i> Quyền: <strong id="currentUserRoleNotice">Sinh viên (Chỉ xem)</strong>
+                        </span>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="aita-table">
+                            <thead>
+                                <tr>
+                                    <th>STT</th>
+                                    <th>Mã SV</th>
+                                    <th>Họ và tên</th>
+                                    <th>Email</th>
+                                    <th>Lớp & Môn học</th>
+                                    <th>Nhóm Git</th>
+                                    <th>Trạng thái</th>
+                                    <th class="action-column">Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody id="studentTableBody">
+                                <!-- Populated dynamically by dashboard.js -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========================================================
+                 VIEW 3: ĐỀ THI & BÀI TẬP (ASSIGNMENTS & EXAMS CRUD)
+                 ======================================================== -->
+            <div id="examsView" class="page-view hidden">
+                <div class="aita-card header-card">
+                    <div class="header-left-col">
+                        <span class="kicker-label">KHẢO THÍ & BÀI TẬP</span>
+                        <h1 class="header-main-title">Đề thi & Bài tập học phần</h1>
+                        <p class="header-sub-title">Giao bài tập, nộp bài đồ án ZIP xác thực SHA-256 và đánh giá kết quả</p>
+                    </div>
+                    <div class="header-right-col">
+                        <!-- Visible for Lecturer / Admin -->
+                        <button type="button" class="btn-primary" id="btnOpenCreateAssignmentModal">
+                            <i class="fa-solid fa-plus"></i> Giao bài tập mới
+                        </button>
+                    </div>
+                </div>
+
+                <div class="aita-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+                        <h3 style="font-size: 1.05rem; font-weight: 700; color: #1e293b;">Danh sách bài tập & đề thi được giao</h3>
+                        <span id="assignmentStatusMessage" style="font-size: 0.82rem; color: #64748b;">Đang tải bài tập...</span>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="aita-table">
+                            <thead>
+                                <tr>
+                                    <th>Môn học</th>
+                                    <th>Tiêu đề bài tập / Đề thi</th>
+                                    <th>Hạn nộp</th>
+                                    <th>Đề bài đính kèm</th>
+                                    <th>Tiến độ nộp / Điểm</th>
+                                    <th>Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody id="assignmentsTableBody">
+                                <!-- Populated dynamically by assignments.js -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========================================================
+                 VIEW 4: MÔN HỌC & PHÂN LỚP (5 COURSES & ROSTER)
+                 ======================================================== -->
+            <div id="coursesView" class="page-view hidden">
+                <div class="aita-card header-card">
+                    <div class="header-left-col">
+                        <span class="kicker-label">CHƯƠNG TRÌNH ĐÀO TẠO KỸ THUẬT PHẦN MỀM</span>
+                        <h1 class="header-main-title">Môn học & Phân lớp</h1>
+                        <p class="header-sub-title">Fall 2026 - Danh mục 5 môn học chuyên ngành theo chuẩn Syllabus PRJ301</p>
+                    </div>
+                    <div class="header-right-col" id="adminCourseActions" style="display: none;">
+                        <button type="button" class="btn-primary" id="btnAdminAddCourse">
+                            <i class="fa-solid fa-plus"></i> Thêm môn học
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 5 COURSES CARDS (PRJ301, SWR302, JPD123, CSD201, IOT102) -->
+                <div class="courses-grid" id="coursesGridContainer">
+                    <!-- PRJ301 -->
+                    <div class="course-card">
+                        <div>
+                            <div class="course-card-top">
+                                <span class="course-code-tag">PRJ301</span>
+                                <span class="badge-pill normal">Đang diễn ra</span>
+                            </div>
+                            <h3 class="course-name-text">Java Web Application Development</h3>
+                            <p style="font-size: 0.82rem; color: #64748b; margin-bottom: 12px;">Servlet, JSP, MVC2, Filter, JDBC nâng cao & Tích hợp AI Assistant</p>
+                            <div class="course-lecturer-info">
+                                <i class="fa-solid fa-chalkboard-user" style="color: #4f46e5;"></i>
+                                <span>Giảng viên: <strong>ThS. Nguyễn Văn Vịnh (GV00002)</strong></span>
+                            </div>
+                        </div>
+                        <div class="course-card-footer">
+                            <span><i class="fa-solid fa-users"></i> Lớp <strong>SE20C</strong> (25 SV)</span>
+                            <button type="button" class="btn-outline" onclick="openClassRosterModal('PRJ301', 'Java Web Application Development')">
+                                <i class="fa-solid fa-list-ul"></i> Xem lớp
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- SWR302 -->
+                    <div class="course-card">
+                        <div>
+                            <div class="course-card-top">
+                                <span class="course-code-tag">SWR302</span>
+                                <span class="badge-pill normal">Đang diễn ra</span>
+                            </div>
+                            <h3 class="course-name-text">Software Requirement Engineering</h3>
+                            <p style="font-size: 0.82rem; color: #64748b; margin-bottom: 12px;">Kỹ thuật thu thập, phân tích đặc tả yêu cầu phần mềm và mô hình hóa hệ thống</p>
+                            <div class="course-lecturer-info">
+                                <i class="fa-solid fa-chalkboard-user" style="color: #4f46e5;"></i>
+                                <span>Giảng viên: <strong>ThS. Nguyễn Văn Vịnh (GV00002)</strong></span>
+                            </div>
+                        </div>
+                        <div class="course-card-footer">
+                            <span><i class="fa-solid fa-users"></i> Lớp <strong>SE20C</strong> (25 SV)</span>
+                            <button type="button" class="btn-outline" onclick="openClassRosterModal('SWR302', 'Software Requirement')">
+                                <i class="fa-solid fa-list-ul"></i> Xem lớp
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- JPD123 -->
+                    <div class="course-card">
+                        <div>
+                            <div class="course-card-top">
+                                <span class="course-code-tag">JPD123</span>
+                                <span class="badge-pill normal">Đang diễn ra</span>
+                            </div>
+                            <h3 class="course-name-text">Core Java Lab & Practice</h3>
+                            <p style="font-size: 0.82rem; color: #64748b; margin-bottom: 12px;">Lập trình hướng đối tượng chuyên sâu, xử lý đa luồng và cấu trúc dữ liệu Java Core</p>
+                            <div class="course-lecturer-info">
+                                <i class="fa-solid fa-chalkboard-user" style="color: #4f46e5;"></i>
+                                <span>Giảng viên: <strong>ThS. Nguyễn Lê Tín (GV00003)</strong></span>
+                            </div>
+                        </div>
+                        <div class="course-card-footer">
+                            <span><i class="fa-solid fa-users"></i> Lớp <strong>SE20C</strong> (25 SV)</span>
+                            <button type="button" class="btn-outline" onclick="openClassRosterModal('JPD123', 'Core Java Lab & Practice')">
+                                <i class="fa-solid fa-list-ul"></i> Xem lớp
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- CSD201 -->
+                    <div class="course-card">
+                        <div>
+                            <div class="course-card-top">
+                                <span class="course-code-tag">CSD201</span>
+                                <span class="badge-pill normal">Đang diễn ra</span>
+                            </div>
+                            <h3 class="course-name-text">Data Structures and Algorithms</h3>
+                            <p style="font-size: 0.82rem; color: #64748b; margin-bottom: 12px;">Cấu trúc dữ liệu nâng cao, đồ thị, cây nhị phân tìm kiếm, tối ưu giải thuật</p>
+                            <div class="course-lecturer-info">
+                                <i class="fa-solid fa-chalkboard-user" style="color: #4f46e5;"></i>
+                                <span>Giảng viên: <strong>TS. Nguyễn Anh Khoa (GV00001) & ThS. Nguyễn Văn Vịnh</strong></span>
+                            </div>
+                        </div>
+                        <div class="course-card-footer">
+                            <span><i class="fa-solid fa-users"></i> Lớp <strong>SE20C</strong> (25 SV)</span>
+                            <button type="button" class="btn-outline" onclick="openClassRosterModal('CSD201', 'Data Structures and Algorithms')">
+                                <i class="fa-solid fa-list-ul"></i> Xem lớp
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- IOT102 -->
+                    <div class="course-card">
+                        <div>
+                            <div class="course-card-top">
+                                <span class="course-code-tag">IOT102</span>
+                                <span class="badge-pill normal">Đang diễn ra</span>
+                            </div>
+                            <h3 class="course-name-text">Internet of Things Fundamentals</h3>
+                            <p style="font-size: 0.82rem; color: #64748b; margin-bottom: 12px;">Kiến trúc IoT, cảm biến vi điều khiển, giao thức kết nối MQTT và nhúng mạng</p>
+                            <div class="course-lecturer-info">
+                                <i class="fa-solid fa-chalkboard-user" style="color: #4f46e5;"></i>
+                                <span>Giảng viên: <strong>ThS. Nguyễn Văn Hưng (GV00004)</strong></span>
+                            </div>
+                        </div>
+                        <div class="course-card-footer">
+                            <span><i class="fa-solid fa-users"></i> Lớp <strong>SE20C</strong> (25 SV)</span>
+                            <button type="button" class="btn-outline" onclick="openClassRosterModal('IOT102', 'Internet of Things Fundamentals')">
+                                <i class="fa-solid fa-list-ul"></i> Xem lớp
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========================================================
+                 VIEW 5: CHẤM CHÉO & PHẢN BIỆN (PEER-REVIEW MARKETPLACE)
+                 ======================================================== -->
+            <div id="peerReviewView" class="page-view hidden">
+                <div class="aita-card header-card">
+                    <div class="header-left-col">
+                        <span class="kicker-label">PEER-REVIEW MARKETPLACE</span>
+                        <h1 class="header-main-title">Chấm chéo & Phản biện</h1>
+                        <p class="header-sub-title">Sơ đồ xoay vòng chấm bài, Sàn giao dịch Điểm sửa lỗi và Rubric chuẩn 3 tiêu chí</p>
+                    </div>
+                </div>
+
+                <!-- 1. SƠ ĐỒ XOAY VÒNG (REVIEW LOOP) -->
+                <div class="aita-card" style="margin-top: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <h3 style="font-size: 1.05rem; font-weight: 700; color: #1e293b;">
+                            <i class="fa-solid fa-arrows-spin" style="color: #4f46e5;"></i> Sơ đồ xoay vòng (Review Loop)
+                        </h3>
+                        <span class="badge-pill normal"><i class="fa-solid fa-circle" style="font-size: 0.45rem;"></i> Vòng chấm Milestone 2</span>
+                    </div>
+                    <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 14px;">
+                        Hiển thị trực quan nhóm mình cần chấm ai và nhóm nào đang chấm mình (Thuật toán xoay vòng vòng tròn Round-robin $G_i \to G_{i+1}$):
+                    </p>
+                    <div class="review-loop-diagram">
+                        <div class="review-loop-node highlight">
+                            <i class="fa-solid fa-users"></i> Nhóm 6 (Bạn)
+                        </div>
+                        <div class="review-loop-arrow"><i class="fa-solid fa-arrow-right"></i> Chấm chéo &rarr;</div>
+                        <div class="review-loop-node">
+                            <i class="fa-solid fa-user-group"></i> Nhóm 7 (5 SV)
+                        </div>
+                        <div class="review-loop-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+                        <div class="review-loop-node">
+                            <i class="fa-solid fa-user-group"></i> Nhóm 1 (3 SV)
+                        </div>
+                        <div class="review-loop-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+                        <div class="review-loop-node">
+                            <i class="fa-solid fa-user-group"></i> Nhóm 2 (3 SV)
+                        </div>
+                        <div class="review-loop-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+                        <div class="review-loop-node">
+                            <i class="fa-solid fa-user-group"></i> Nhóm 3 (3 SV)
+                        </div>
+                        <div class="review-loop-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+                        <div class="review-loop-node">
+                            <i class="fa-solid fa-user-group"></i> Nhóm 4 (4 SV)
+                        </div>
+                        <div class="review-loop-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+                        <div class="review-loop-node">
+                            <i class="fa-solid fa-user-group"></i> Nhóm 5 (4 SV)
+                        </div>
+                        <div class="review-loop-arrow"><i class="fa-solid fa-rotate-left" style="color: #4f46e5;"></i></div>
+                        <div class="review-loop-node highlight" style="background:#059669; border-color:#059669;">
+                            &larr; Nhóm 5 đang chấm Nhóm 6
+                        </div>
+                    </div>
+                    <div style="background: #f8fafc; border-radius: 8px; padding: 12px 16px; margin-top: 10px; font-size: 0.82rem; color: #475569;">
+                        <strong>Quy tắc phản biện:</strong> Nhóm 6 chịu trách nhiệm chấm chéo bài nộp của <strong>Nhóm 7</strong> trước 23:59 Chủ Nhật. Nhóm 5 chịu trách nhiệm đánh giá và chất vấn phản biện Nhóm 6.
+                    </div>
+                </div>
+
+                <!-- 2. SÀN GIAO DỊCH ĐIỂM SỬA LỖI (CORRECTION POINTS WALLET) -->
+                <div class="aita-card" style="margin-top: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <h3 style="font-size: 1.05rem; font-weight: 700; color: #1e293b;">
+                            <i class="fa-solid fa-wallet" style="color: #4f46e5;"></i> Sàn giao dịch Điểm sửa lỗi (Correction Points Wallet)
+                        </h3>
+                        <span style="font-size: 0.82rem; font-weight: 600; background: #ecfdf5; color: #065f46; padding: 4px 10px; border-radius: 6px;">
+                            <i class="fa-solid fa-coins"></i> 1 Lần chấm chéo = +10 Điểm
+                        </span>
+                    </div>
+                    <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 14px;">
+                        Số dư điểm sửa lỗi của sinh viên/nhóm, lịch sử "tiêu điểm" để xin được chấm và "nhận điểm" khi chấm xong cho nhóm khác:
+                    </p>
+                    <div class="cp-wallet-grid">
+                        <div class="cp-wallet-card">
+                            <div class="cp-balance">45</div>
+                            <div class="cp-label"><strong>Nguyễn Quốc Vương</strong> (QE200066) · Leader Nhóm 6</div>
+                            <div style="margin-top: 10px; font-size: 0.78rem; color: #10b981;">
+                                <i class="fa-solid fa-arrow-trend-up"></i> +10 điểm vừa nhận (Đã duyệt chấm Nhóm 3)
+                            </div>
+                        </div>
+                        <div class="cp-wallet-card">
+                            <div class="cp-balance">30</div>
+                            <div class="cp-label"><strong>Trần Hoàng Phúc</strong> (QE200006) · Nhóm 6</div>
+                            <div style="margin-top: 10px; font-size: 0.78rem; color: #ef4444;">
+                                <i class="fa-solid fa-arrow-trend-down"></i> -5 điểm tiêu (Yêu cầu chấm bổ sung Milestone)
+                            </div>
+                        </div>
+                        <div class="cp-wallet-card">
+                            <div class="cp-balance">22</div>
+                            <div class="cp-label"><strong>Lê Đức Minh</strong> (QE200007) · Nhóm 6</div>
+                            <div style="margin-top: 10px; font-size: 0.78rem; color: #10b981;">
+                                <i class="fa-solid fa-arrow-trend-up"></i> +8 điểm nhận (Chấm phản biện Clean code)
+                            </div>
+                        </div>
+                        <div class="cp-wallet-card">
+                            <div class="cp-balance">18</div>
+                            <div class="cp-label"><strong>Hoàng Yến Vy</strong> (QE200008) · Nhóm 6</div>
+                            <div style="margin-top: 10px; font-size: 0.78rem; color: #64748b;">
+                                <i class="fa-solid fa-clock"></i> Đang chờ xác nhận 1 bài chấm chéo (+10)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. BẢNG NHẬP RUBRIC CHẤM CHÉO 3 TIÊU CHÍ -->
+                <div class="aita-card" style="margin-top: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <h3 style="font-size: 1.05rem; font-weight: 700; color: #1e293b;">
+                            <i class="fa-solid fa-clipboard-check" style="color: #4f46e5;"></i> Bảng nhập Rubric chấm chéo (Chuẩn 3 tiêu chí)
+                        </h3>
+                        <span style="font-size: 0.8rem; font-weight: 600; color: #4f46e5; background: #eef2ff; padding: 4px 10px; border-radius: 6px;">
+                            Đang chấm: Nhóm 7 (SE20C)
+                        </span>
+                    </div>
+                    <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 14px;">
+                        Nhập điểm số và nhận xét minh chứng theo tỷ trọng bắt buộc của Hội đồng chuyên môn:
+                    </p>
+                    <div class="table-responsive">
+                        <table class="aita-table">
+                            <thead>
+                                <tr>
+                                    <th>Tiêu chí đánh giá</th>
+                                    <th>Trọng số</th>
+                                    <th>Mô tả chi tiết & Tiêu chuẩn nghiệm thu</th>
+                                    <th>Điểm tối đa</th>
+                                    <th>Điểm chấm</th>
+                                    <th>Nhận xét minh chứng</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>1. Sandbox Execution</strong></td>
+                                    <td><span style="background:#eef2ff; color:#3730a3; padding:3px 8px; border-radius:5px; font-size:0.8rem; font-weight:700;">30%</span></td>
+                                    <td style="font-size:0.82rem; color:#475569;">
+                                        Mã nguồn build thành công trong Docker container, vượt qua toàn bộ Test Case tự động của Moulinette, không crash/memory leak.
+                                    </td>
+                                    <td><strong>3.0</strong></td>
+                                    <td>
+                                        <input type="number" min="0" max="3" step="0.25" class="form-control-input rubric-score-input" value="2.75" style="width: 80px;" onchange="calculateRubricTotal()">
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control-input" placeholder="Pass 4/5 test cases..." value="Pass 5/5 test case tự động">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>2. MVC2 / Clean Code</strong></td>
+                                    <td><span style="background:#ecfdf5; color:#065f46; padding:3px 8px; border-radius:5px; font-size:0.8rem; font-weight:700;">40%</span></td>
+                                    <td style="font-size:0.82rem; color:#475569;">
+                                        Tuân thủ nghiêm ngặt cấu trúc MVC2 (Servlet &bull; JSP &bull; DAO &bull; Model), Clean Code, không hardcode SQL, xử lý ngoại lệ an toàn.
+                                    </td>
+                                    <td><strong>4.0</strong></td>
+                                    <td>
+                                        <input type="number" min="0" max="4" step="0.25" class="form-control-input rubric-score-input" value="3.50" style="width: 80px;" onchange="calculateRubricTotal()">
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control-input" placeholder="Tách package chuẩn..." value="Kiến trúc package phân tách rõ ràng, chuẩn MVC2">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>3. Peer Defense</strong></td>
+                                    <td><span style="background:#fef9c3; color:#854d0e; padding:3px 8px; border-radius:5px; font-size:0.8rem; font-weight:700;">30%</span></td>
+                                    <td style="font-size:0.82rem; color:#475569;">
+                                        Sinh viên đại diện nhóm giải trình lưu loát, phản biện được các câu hỏi chất vấn về logic thuật toán, luồng dữ liệu và phân công Git.
+                                    </td>
+                                    <td><strong>3.0</strong></td>
+                                    <td>
+                                        <input type="number" min="0" max="3" step="0.25" class="form-control-input rubric-score-input" value="2.50" style="width: 80px;" onchange="calculateRubricTotal()">
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control-input" placeholder="Trả lời lưu loát..." value="Nhóm trả lời tốt câu hỏi phản biện về SHA-256">
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr style="background: #f8fafc; font-weight: 700;">
+                                    <td colspan="3" style="text-align: right; font-size: 0.95rem;">TỔNG ĐIỂM CHẤM CHÉO:</td>
+                                    <td><strong>10.0</strong></td>
+                                    <td style="font-size: 1.1rem; color: #4f46e5;" id="rubricTotalScoreDisplay"><strong>8.75 / 10</strong></td>
+                                    <td style="text-align: right;">
+                                        <button type="button" class="btn-primary" onclick="submitPeerReviewRubric()">
+                                            <i class="fa-solid fa-paper-plane"></i> Gửi &amp; Nhận +10 Điểm
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========================================================
+                 VIEW 6: DOCKER SANDBOX & TEST TỰ ĐỘNG (MOULINETTE)
+                 ======================================================== -->
+            <div id="sandboxView" class="page-view hidden">
+                <div class="aita-card header-card">
+                    <div class="header-left-col">
+                        <span class="kicker-label">MOULINETTE EXECUTION ENGINE</span>
+                        <h1 class="header-main-title">Docker Sandbox & Test tự động</h1>
+                        <p class="header-sub-title">Chạy mã nguồn trong môi trường cô lập, kiểm thử tự động Test Cases và giám sát tài nguyên</p>
+                    </div>
+                    <div class="header-right-col">
+                        <button type="button" class="btn-primary" onclick="rerunSandboxQueue()">
+                            <i class="fa-solid fa-play"></i> Chạy lại Hàng đợi
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 1. HÀNG ĐỢI CHẤM BÀI (GRADING JOB QUEUE) -->
+                <div class="aita-card" style="margin-top: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+                        <h3 style="font-size: 1.05rem; font-weight: 700; color: #1e293b;">
+                            <i class="fa-solid fa-list-check" style="color: #4f46e5;"></i> Hàng đợi chấm bài (Grading Job Queue)
+                        </h3>
+                        <span style="font-size: 0.78rem; font-weight: 600; background: #eef2ff; color: #4f46e5; padding: 4px 10px; border-radius: 6px;">
+                            3 Jobs đang xử lý &bull; Container: openjdk:17-slim
+                        </span>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="aita-table">
+                            <thead>
+                                <tr>
+                                    <th>Job ID</th>
+                                    <th>Sinh viên / Nhóm</th>
+                                    <th>Bài nộp / Artifact</th>
+                                    <th>Trạng thái Sandbox</th>
+                                    <th>Thời gian thực thi</th>
+                                    <th>RAM tiêu thụ</th>
+                                    <th>Kết quả</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>#JOB-8841</code></td>
+                                    <td><strong>Nguyễn Quốc Vương</strong> (QE200066)</td>
+                                    <td><code>prj301_assignment2_nhom6.zip</code></td>
+                                    <td><span class="badge-pill normal" style="background:#ecfdf5; color:#065f46;"><i class="fa-solid fa-circle-check"></i> PASSED (5/5)</span></td>
+                                    <td>3.8s (Timeout: 10s)</td>
+                                    <td>142 MB / 512 MB</td>
+                                    <td><strong style="color: #10b981;">10.0 / 10</strong></td>
+                                </tr>
+                                <tr>
+                                    <td><code>#JOB-8840</code></td>
+                                    <td><strong>Trần Hoàng Phúc</strong> (QE200006)</td>
+                                    <td><code>prj301_submission_phuc.zip</code></td>
+                                    <td><span class="badge-pill normal" style="background:#ecfdf5; color:#065f46;"><i class="fa-solid fa-circle-check"></i> PASSED (4/5)</span></td>
+                                    <td>4.2s (Timeout: 10s)</td>
+                                    <td>168 MB / 512 MB</td>
+                                    <td><strong style="color: #10b981;">8.0 / 10</strong></td>
+                                </tr>
+                                <tr>
+                                    <td><code>#JOB-8839</code></td>
+                                    <td><strong>Lê Đức Minh</strong> (QE200007)</td>
+                                    <td><code>prj301_submission_minh.zip</code></td>
+                                    <td><span class="badge-pill" style="background:#fee2e2; color:#b91c1c; font-weight:700;"><i class="fa-solid fa-clock"></i> TIMEOUT (TLE)</span></td>
+                                    <td>10.1s &gt; 10.0s Limit</td>
+                                    <td>512 MB (Max)</td>
+                                    <td><strong style="color: #ef4444;">0.0 / 10</strong></td>
+                                </tr>
+                                <tr>
+                                    <td><code>#JOB-8838</code></td>
+                                    <td><strong>Hoàng Yến Vy</strong> (QE200008)</td>
+                                    <td><code>prj301_submission_vy.zip</code></td>
+                                    <td><span class="badge-pill" style="background:#fef9c3; color:#854d0e; font-weight:700;"><i class="fa-solid fa-spinner fa-spin"></i> RUNNING</span></td>
+                                    <td>2.1s...</td>
+                                    <td>94 MB</td>
+                                    <td><em>Đang chấm...</em></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 2. KẾT QUẢ TEST CASE & 3. NHẬT KÝ TÀI NGUYÊN -->
+                <div class="charts-grid-row" style="margin-top: 20px;">
+                    <!-- Test Case Result Box -->
+                    <div class="aita-card" style="margin-bottom: 0;">
+                        <div class="chart-card-header">
+                            <div class="chart-icon-badge"><i class="fa-solid fa-vial-circle-check"></i></div>
+                            <h3>Chi tiết kết quả Test Case (Job #8841)</h3>
+                        </div>
+                        <div style="background: #0f172a; border-radius: 10px; padding: 16px 20px; font-family: 'Courier New', monospace; font-size: 0.8rem; color: #cbd5e1; line-height: 1.8;">
+                            <span style="color: #10b981;">✔ [PASS]</span> TC-01: Compile Java Source (javac *.java) -> 0 errors (0.8s)<br>
+                            <span style="color: #10b981;">✔ [PASS]</span> TC-02: Start Embedded Tomcat & Deploy WAR (1.2s)<br>
+                            <span style="color: #10b981;">✔ [PASS]</span> TC-03: HTTP GET /login.jsp -> 200 OK (0.3s)<br>
+                            <span style="color: #10b981;">✔ [PASS]</span> TC-04: Test Auth Filter Security with invalid token -> 401 Unauthorized (0.4s)<br>
+                            <span style="color: #10b981;">✔ [PASS]</span> TC-05: Git Assessor Formula Evaluation Check -> Output Valid (1.1s)<br>
+                            <hr style="border: 0; border-top: 1px dashed #334155; margin: 10px 0;">
+                            <span style="color: #38bdf8;">Summary:</span> 5 passed, 0 failed. Execution time: 3.8s. Verdict: <strong>PASSED</strong>
+                        </div>
+                    </div>
+
+                    <!-- Resource Monitor -->
+                    <div class="aita-card" style="margin-bottom: 0;">
+                        <div class="chart-card-header">
+                            <div class="chart-icon-badge"><i class="fa-solid fa-gauge-high"></i></div>
+                            <h3>Nhật ký tài nguyên (Resource Monitor)</h3>
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 14px; padding-top: 8px;">
+                            <div>
+                                <div style="display: flex; justify-content: space-between; font-size: 0.82rem; margin-bottom: 6px;">
+                                    <span>Giới hạn thời gian (Timeout limit):</span>
+                                    <strong>10.0 giây</strong>
+                                </div>
+                                <div style="width: 100%; height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden;">
+                                    <div style="width: 38%; height: 100%; background: #10b981;"></div>
+                                </div>
+                                <span style="font-size: 0.72rem; color: #64748b;">Thời gian chạy trung bình: 3.8s / 10s (An toàn)</span>
+                            </div>
+
+                            <div>
+                                <div style="display: flex; justify-content: space-between; font-size: 0.82rem; margin-bottom: 6px;">
+                                    <span>Bộ nhớ RAM container:</span>
+                                    <strong>142 MB / 512 MB (27%)</strong>
+                                </div>
+                                <div style="width: 100%; height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden;">
+                                    <div style="width: 27%; height: 100%; background: #6366f1;"></div>
+                                </div>
+                                <span style="font-size: 0.72rem; color: #64748b;">Giới hạn RAM phần cứng: 512 MB per container</span>
+                            </div>
+
+                            <div>
+                                <div style="display: flex; justify-content: space-between; font-size: 0.82rem; margin-bottom: 6px;">
+                                    <span>Tải CPU phân bổ:</span>
+                                    <strong>1.0 Core (Giới hạn: 1 Core)</strong>
+                                </div>
+                                <div style="width: 100%; height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden;">
+                                    <div style="width: 45%; height: 100%; background: #f59e0b;"></div>
+                                </div>
+                                <span style="font-size: 0.72rem; color: #64748b;">Cách ly hoàn toàn cgroups v2</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========================================================
+                 VIEW 7: TRỢ LÝ SƯ PHẠM AI (AI PEDAGOGICAL ASSISTANT FE-S-02)
+                 ======================================================== -->
+            <div id="aiAssistantView" class="page-view hidden">
+                <div class="aita-card header-card">
+                    <div class="header-left-col">
+                        <span class="kicker-label">AI PEDAGOGICAL ASSISTANT &bull; FE-S-02</span>
+                        <h1 class="header-main-title">Trợ lý Sư phạm AI</h1>
+                        <p class="header-sub-title">Chuyển đổi lỗi biên dịch sang ngôn ngữ sư phạm dễ hiểu &bull; Gợi ý sửa code thông minh mà không giải bài hộ</p>
+                    </div>
+                </div>
+
+                <!-- 1. CHUYỂN ĐỔI LỖI BIÊN DỊCH (COMPILER ERROR TRANSLATOR) -->
+                <div class="aita-card" style="margin-top: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <h3 style="font-size: 1.05rem; font-weight: 700; color: #1e293b;">
+                            <i class="fa-solid fa-wand-magic-sparkles" style="color: #4f46e5;"></i> Chuyển đổi lỗi biên dịch (Compiler Error Translator)
+                        </h3>
+                        <span style="font-size: 0.75rem; background: #eef2ff; color: #4f46e5; padding: 4px 10px; border-radius: 6px; font-weight: 600;">
+                            Mô hình: Gemini 1.5 Pro / GPT-4o Mini
+                        </span>
+                    </div>
+                    <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 14px;">
+                        Dán thông báo lỗi compiler, lỗi runtime hoặc stack trace Java Servlet / SQL vào đây để AI phân tích theo phong cách sư phạm:
+                    </p>
+                    <div class="form-group-block">
+                        <label for="compilerErrorInput">Stack Trace hoặc Thông báo lỗi:</label>
+                        <textarea id="compilerErrorInput" class="form-control-input" rows="4" style="font-family: monospace; font-size: 0.82rem; resize: vertical;" placeholder="Dán lỗi vào đây...">java.lang.NullPointerException: Cannot invoke &quot;String.trim()&quot; because the return value of &quot;jakarta.servlet.http.HttpServletRequest.getParameter(String)&quot; is null
+    at com.aita.gitanalytics.servlet.LoginServlet.doPost(LoginServlet.java:42)
+    at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:555)</textarea>
+                    </div>
+                    <div style="margin-top: 10px; display: flex; gap: 10px;">
+                        <button type="button" class="btn-primary" id="btnTranslateError" onclick="runAiErrorTranslator()">
+                            <i class="fa-solid fa-robot"></i> Dịch & Phân tích lỗi bằng AI
+                        </button>
+                        <button type="button" class="btn-outline" onclick="document.getElementById('compilerErrorInput').value=''">
+                            Xóa trắng
                         </button>
                     </div>
 
-                    <form id="assignmentCreateForm" class="exam-upload-form hidden" enctype="multipart/form-data">
-                        <div class="exam-form-grid">
-                            <label>Môn học
-                                <select name="courseId" id="assignmentCourseId" required></select>
-                            </label>
-                            <label>Tên bài tập<input name="title" required maxlength="160"></label>
-                            <label class="exam-description">Mô tả / yêu cầu<input name="description" maxlength="2000"></label>
-                            <label>Hạn nộp (không bắt buộc)
-                                <input name="dueAt" type="datetime-local">
-                            </label>
-                            <label class="exam-file">File đề bài (PDF, DOC, DOCX, ODT, RTF, TXT; tối đa 15 MB)
-                                <input name="file" type="file" accept=".pdf,.doc,.docx,.odt,.rtf,.txt">
-                            </label>
+                    <!-- AI Result Output -->
+                    <div id="aiTranslationResult" style="margin-top: 18px; background: #f8fafc; border: 1.5px solid #c7d2fe; border-radius: 10px; padding: 18px 20px;">
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
+                            <span style="background: #4f46e5; color: #fff; width: 28px; height: 28px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.85rem;">
+                                <i class="fa-solid fa-graduation-cap"></i>
+                            </span>
+                            <strong style="color: #1e293b; font-size: 0.92rem;">Giải thích sư phạm từ Trợ lý AI:</strong>
                         </div>
-                        <div class="exam-form-actions">
-                            <span class="text-muted">Hạn nộp và file đề bài không bắt buộc; nội dung có thể ghi trong mô tả.</span>
-                            <button class="btn-primary" type="submit"><i class="fa-solid fa-cloud-arrow-up"></i> Tạo bài tập</button>
+                        <div style="font-size: 0.86rem; color: #334155; line-height: 1.7;">
+                            <p><strong>1. Hiện tượng lỗi:</strong> Lỗi <code>NullPointerException</code> xảy ra tại dòng 42 file <code>LoginServlet.java</code> khi gọi phương thức <code>.trim()</code> trên một biến đang có giá trị <code>null</code>.</p>
+                            <p><strong>2. Nguyên nhân cốt lõi:</strong> Trình duyệt gửi form nhưng không có tham số tên là <code>identifier</code> (hoặc input trong form HTML chưa có thuộc tính <code>name="identifier"</code>), khiến phương thức <code>request.getParameter("identifier")</code> trả về <code>null</code>.</p>
+                            <p><strong>3. Gợi ý hướng khắc phục:</strong></p>
+                            <ul style="margin-left: 20px; margin-top: 4px;">
+                                <li>Kiểm tra thẻ <code>&lt;input&gt;</code> trong <code>login.html</code> có đúng <code>name="identifier"</code> chưa.</li>
+                                <li>Thêm kiểm tra an toàn trước khi gọi trim: <code>String param = request.getParameter("identifier"); String val = (param != null) ? param.trim() : "";</code></li>
+                            </ul>
                         </div>
-                        <p id="assignmentCreateError" class="error-msg hidden" role="alert"></p>
-                    </form>
+                    </div>
+                </div>
 
-                    <p id="assignmentError" class="error-msg hidden" role="alert"></p>
+                <!-- 2. LỊCH SỬ PROMPT & PHẢN HỒI -->
+                <div class="aita-card" style="margin-top: 20px;">
+                    <h3 style="font-size: 1.05rem; font-weight: 700; color: #1e293b; margin-bottom: 14px;">
+                        <i class="fa-solid fa-clock-rotate-left" style="color: #4f46e5;"></i> Lịch sử Prompt & Phản hồi gần đây
+                    </h3>
                     <div class="table-responsive">
-                        <table class="data-table">
-                            <thead><tr><th>MÃ´n há»c</th><th>BÃ i táº­p</th><th>File Ä‘á»</th><th>BÃ i Ä‘Ã£ ná»™p / Äiá»ƒm</th><th>Háº¡n ná»™p</th><th>NgÃ y giao</th><th>Thao tÃ¡c</th></tr></thead>
-                            <tbody id="assignmentsTableBody"></tbody>
+                        <table class="aita-table">
+                            <thead>
+                                <tr>
+                                    <th>Thời gian</th>
+                                    <th>Sinh viên</th>
+                                    <th>Loại lỗi / Ngữ cảnh</th>
+                                    <th>Trạng thái AI</th>
+                                    <th>Token đã dùng</th>
+                                    <th>Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>26/10/2026 17:35</td>
+                                    <td><strong>Nguyễn Quốc Vương</strong></td>
+                                    <td><code>NullPointerException (LoginServlet.java:42)</code></td>
+                                    <td><span class="badge-pill normal" style="background:#ecfdf5; color:#065f46;">Đã dịch thành công</span></td>
+                                    <td>342 tokens</td>
+                                    <td><button class="btn-outline" style="padding: 4px 10px; font-size: 0.76rem;" onclick="alert('Đã tải lại ngữ cảnh prompt!')">Xem lại</button></td>
+                                </tr>
+                                <tr>
+                                    <td>26/10/2026 15:20</td>
+                                    <td><strong>Trần Hoàng Phúc</strong></td>
+                                    <td><code>SQLSyntaxErrorException in StudentDAO</code></td>
+                                    <td><span class="badge-pill normal" style="background:#ecfdf5; color:#065f46;">Đã dịch thành công</span></td>
+                                    <td>415 tokens</td>
+                                    <td><button class="btn-outline" style="padding: 4px 10px; font-size: 0.76rem;">Xem lại</button></td>
+                                </tr>
+                                <tr>
+                                    <td>26/10/2026 11:08</td>
+                                    <td><strong>Lê Đức Minh</strong></td>
+                                    <td><code>ClassNotFoundException: com.mysql.cj.jdbc.Driver</code></td>
+                                    <td><span class="badge-pill normal" style="background:#ecfdf5; color:#065f46;">Đã dịch thành công</span></td>
+                                    <td>290 tokens</td>
+                                    <td><button class="btn-outline" style="padding: 4px 10px; font-size: 0.76rem;">Xem lại</button></td>
+                                </tr>
+                            </tbody>
                         </table>
                     </div>
+                </div>
+            </div>
 
-                    <section id="assignmentSubmissionsPanel" class="exam-results hidden" aria-live="polite">
-                        <div class="card-header flex-between">
-                            <h3 id="assignmentSubmissionsTitle">Bài sinh viên đã nộp</h3>
-                            <button class="btn-outline" id="closeAssignmentSubmissions" type="button" aria-label="Đóng danh sách bài nộp">
-                                <i class="fa-solid fa-xmark"></i>
+            <!-- ========================================================
+                 VIEW 8: BẢNG ĐIỂM & THỐNG KÊ TỔNG HỢP (GRADEBOOK & REPORTS)
+                 ======================================================== -->
+            <div id="gradebookView" class="page-view hidden">
+                <div class="aita-card header-card">
+                    <div class="header-left-col">
+                        <span class="kicker-label">GRADEBOOK & MULTI-SOURCE REPORTS</span>
+                        <h1 class="header-main-title">Bảng điểm & Thống kê tổng hợp</h1>
+                        <p class="header-sub-title">Tự động tổng hợp điểm đa nguồn từ Moulinette Test Cases, Chấm chéo Rubric và Git Analytics</p>
+                    </div>
+                    <div class="header-right-col">
+                        <div style="display: flex; gap: 8px;">
+                            <button type="button" class="btn-outline" onclick="exportGradebook('excel')">
+                                <i class="fa-solid fa-file-excel" style="color: #10b981;"></i> Xuất Excel
+                            </button>
+                            <button type="button" class="btn-primary" onclick="exportGradebook('pdf')">
+                                <i class="fa-solid fa-file-pdf"></i> Xuất PDF
                             </button>
                         </div>
-                        <div class="table-responsive">
-                            <table class="data-table">
-                                <thead><tr><th>Sinh viÃªn</th><th>Email</th><th>TÃªn file</th><th>Thá»i gian ná»™p</th><th>Táº£i bÃ i</th><th>Äiá»ƒm (0 - 10)</th><th>Nháº­n xÃ©t</th><th>Thao tÃ¡c</th></tr></thead>
-                                <tbody id="assignmentSubmissionsBody"></tbody>
-                            </table>
+                    </div>
+                </div>
+
+                <!-- CÔNG THỨC TÍNH ĐIỂM TỔNG KẾT ĐA NGUỒN -->
+                <div class="aita-card banner-assessor-card" style="margin-top: 20px;">
+                    <span class="banner-kicker">CHUẨN HÓA CÔNG THỨC TÍNH ĐIỂM HỌC PHẦN</span>
+                    <div class="banner-title-row">
+                        <i class="fa-solid fa-calculator"></i>
+                        <h2>Bảng tổng hợp điểm đa nguồn</h2>
+                    </div>
+                    <div class="formula-display-box" style="background: rgba(255,255,255,0.9); margin-top: 14px;">
+                        <div style="font-size: 1.05rem; font-weight: 800; color: #4338ca; text-align: center;">
+                            Điểm tổng = Điểm Moulinette (Test Cases) &times; 40% + Điểm Chấm chéo (Peer-Review) &times; 30% + Điểm Git Analytics (FE-L-03) &times; 30%
                         </div>
-                    </section>
-                </section>
-
-                <div class="assignment-exams-divider"><span>Đề thi trắc nghiệm / tự luận ngắn</span></div>
-                <div class="card-header flex-between exam-header">
-                    <div>
-                    <span class="card-kicker">KIỂM TRA TRỰC TUYẾN</span>
-                    <h3><i class="fa-solid fa-file-circle-question"></i> Đề thi</h3>
-                        <p id="examMessage" class="students-message" role="status"></p>
                     </div>
-                    <button class="btn-primary exam-upload-toggle" id="examUploadToggle" type="button">
-                        <i class="fa-solid fa-upload"></i> Tải đề lên
-                    </button>
                 </div>
 
-                <form id="examUploadForm" class="exam-upload-form hidden" enctype="multipart/form-data">
-                    <div class="exam-form-grid">
-                        <label>Môn học
-                            <select name="courseId" id="examCourseId" required></select>
-                        </label>
-                        <label>Tên đề<input name="title" required maxlength="160"></label>
-                        <label class="exam-description">Mô tả<input name="description" maxlength="2000"></label>
-                        <label class="exam-file">File đề (.csv, .xlsx)<input name="file" type="file" accept=".csv,.xlsx" required></label>
+                <!-- BẢNG TỔNG HỢP ĐIỂM 25 SINH VIÊN -->
+                <div class="aita-card" style="margin-top: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+                        <h3 style="font-size: 1.05rem; font-weight: 700; color: #1e293b;">
+                            Bảng điểm tổng hợp lớp BIT_SE_K20C (PRJ301)
+                        </h3>
+                        <span style="font-size: 0.82rem; font-weight: 600; background: #eef2ff; color: #4f46e5; padding: 4px 10px; border-radius: 6px;">
+                            25 Sinh viên &bull; Điểm trung bình lớp: 8.24
+                        </span>
                     </div>
-                    <div class="exam-form-actions">
-                        <a href="files/exam-template.csv" download><i class="fa-solid fa-download"></i> Tải file mẫu CSV</a>
-                        <button class="btn-primary" type="submit"><i class="fa-solid fa-cloud-arrow-up"></i> Lưu đề vào database</button>
-                    </div>
-                    <p id="examUploadError" class="error-msg hidden" role="alert"></p>
-                </form>
-
-                <div class="table-responsive">
-                    <table class="data-table">
-                        <thead><tr><th>Môn học</th><th>Tên đề</th><th>Số câu</th><th>Kết quả</th><th>Ngày tạo</th><th>Thao tác</th></tr></thead>
-                        <tbody id="examsTableBody"></tbody>
-                    </table>
-                </div>
-
-                <section id="examResultsPanel" class="exam-results hidden" aria-live="polite">
-                    <div class="card-header flex-between"><h3 id="examResultsTitle">Kết quả bài làm</h3><button class="btn-outline" id="closeExamResults" type="button" aria-label="Đóng kết quả"><i class="fa-solid fa-xmark"></i></button></div>
                     <div class="table-responsive">
-                        <table class="data-table">
-                            <thead><tr><th>Sinh viên</th><th>Tên đăng nhập</th><th>Điểm</th><th>Thời gian nộp</th></tr></thead>
-                            <tbody id="examResultsBody"></tbody>
+                        <table class="aita-table" id="gradebookTable">
+                            <thead>
+                                <tr>
+                                    <th>STT</th>
+                                    <th>MSSV</th>
+                                    <th>Họ và tên</th>
+                                    <th>Nhóm Git</th>
+                                    <th>Moulinette (40%)</th>
+                                    <th>Chấm chéo (30%)</th>
+                                    <th>Git Score (30%)</th>
+                                    <th>Điểm tổng kết</th>
+                                    <th>Đánh giá</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr style="background: #faf5ff;">
+                                    <td>1</td>
+                                    <td><strong style="font-family: monospace;">QE200066</strong></td>
+                                    <td><strong>Nguyễn Quốc Vương</strong> <span class="badge-pill role-leader">Leader</span></td>
+                                    <td>Nhóm 6</td>
+                                    <td><strong style="color: #10b981;">10.0</strong></td>
+                                    <td><strong>8.75</strong></td>
+                                    <td><strong style="color: #4f46e5;">9.80</strong></td>
+                                    <td><span class="score-badge-percentage" style="font-size: 1rem;">9.57</span></td>
+                                    <td><span class="badge-pill normal" style="background:#ecfdf5; color:#065f46;">Xuất sắc (A+)</span></td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td><strong style="font-family: monospace;">QE200006</strong></td>
+                                    <td>Trần Hoàng Phúc</td>
+                                    <td>Nhóm 6</td>
+                                    <td><strong>8.0</strong></td>
+                                    <td><strong>8.50</strong></td>
+                                    <td><strong>8.20</strong></td>
+                                    <td><span class="score-badge-percentage">8.21</span></td>
+                                    <td><span class="badge-pill normal">Giỏi (A)</span></td>
+                                </tr>
+                                <tr>
+                                    <td>3</td>
+                                    <td><strong style="font-family: monospace;">QE200007</strong></td>
+                                    <td>Lê Đức Minh</td>
+                                    <td>Nhóm 6</td>
+                                    <td><strong>7.0</strong></td>
+                                    <td><strong>7.50</strong></td>
+                                    <td><strong>6.80</strong></td>
+                                    <td><span class="score-badge-percentage">7.09</span></td>
+                                    <td><span class="badge-pill normal">Khá (B+)</span></td>
+                                </tr>
+                                <tr>
+                                    <td>4</td>
+                                    <td><strong style="font-family: monospace;">QE200008</strong></td>
+                                    <td>Hoàng Yến Vy</td>
+                                    <td>Nhóm 6</td>
+                                    <td><strong>8.0</strong></td>
+                                    <td><strong>8.00</strong></td>
+                                    <td><strong>6.20</strong></td>
+                                    <td><span class="score-badge-percentage">7.46</span></td>
+                                    <td><span class="badge-pill normal">Khá (B+)</span></td>
+                                </tr>
+                                <tr>
+                                    <td>5</td>
+                                    <td><strong style="font-family: monospace;">QE200009</strong></td>
+                                    <td>Võ Thảo Nguyên</td>
+                                    <td>Nhóm 3</td>
+                                    <td><strong>9.0</strong></td>
+                                    <td><strong>8.50</strong></td>
+                                    <td><strong>7.50</strong></td>
+                                    <td><span class="score-badge-percentage">8.40</span></td>
+                                    <td><span class="badge-pill normal">Giỏi (A)</span></td>
+                                </tr>
+                                <tr>
+                                    <td>6</td>
+                                    <td><strong style="font-family: monospace;">QE200001</strong></td>
+                                    <td>Nguyễn Văn An</td>
+                                    <td>Nhóm 1</td>
+                                    <td><strong>8.5</strong></td>
+                                    <td><strong>8.00</strong></td>
+                                    <td><strong>8.10</strong></td>
+                                    <td><span class="score-badge-percentage">8.23</span></td>
+                                    <td><span class="badge-pill normal">Giỏi (A)</span></td>
+                                </tr>
+                                <tr>
+                                    <td>7</td>
+                                    <td><strong style="font-family: monospace;">QE200002</strong></td>
+                                    <td>Trần Thái Bình</td>
+                                    <td>Nhóm 1</td>
+                                    <td><strong>8.0</strong></td>
+                                    <td><strong>7.50</strong></td>
+                                    <td><strong>7.80</strong></td>
+                                    <td><span class="score-badge-percentage">7.79</span></td>
+                                    <td><span class="badge-pill normal">Khá (B+)</span></td>
+                                </tr>
+                            </tbody>
                         </table>
                     </div>
-                </section>
-            </div>
-        </section>
-
-        <section id="examDetailView" class="page-view hidden">
-            <div class="card glass-panel exam-detail-panel">
-                <div class="card-header flex-between exam-header">
-                    <div><h3 id="examDetailTitle">Đề thi</h3><p id="examDetailDescription" class="subtitle"></p></div>
-                    <button class="btn-outline" id="backToExams" type="button"><i class="fa-solid fa-arrow-left"></i> Danh sách đề</button>
                 </div>
-                <p id="examAttemptResult" class="exam-attempt-result hidden" role="status"></p>
-                <form id="examAttemptForm"></form>
             </div>
-        </section>
-    </main>
 
-    <dialog id="studentDialog" class="student-dialog">
-        <form id="studentForm" class="student-form">
-            <div class="card-header flex-between">
-                <h3 id="studentDialogTitle">Thêm sinh viên</h3>
-                <button type="button" class="dialog-close" id="closeStudentDialog" aria-label="Đóng"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <input type="hidden" id="studentId">
-            <label>Tên đăng nhập<input id="studentUsername" required maxlength="50"></label>
-            <label>Họ và tên<input id="studentFullName" required maxlength="100"></label>
-            <label>Email<input id="studentEmail" type="email" required maxlength="100"></label>
-            <label>Tài khoản GitHub<input id="studentGithub" maxlength="50"></label>
-            <label>Mật khẩu <span id="passwordHint">(bắt buộc)</span><input id="studentPassword" type="password" autocomplete="new-password"></label>
-            <p id="studentFormError" class="error-msg hidden" role="alert"></p>
-            <button type="submit" class="btn-primary">Lưu sinh viên</button>
-        </form>
-    </dialog>
+            <!-- ========================================================
+                 VIEW 9: CÀI ĐẶT HỆ THỐNG & KHÓA API (SYSTEM & SECURITY SETTINGS)
+                 ======================================================== -->
+            <div id="settingsView" class="page-view hidden">
+                <div class="aita-card header-card">
+                    <div class="header-left-col">
+                        <span class="kicker-label">ADMIN & SECURITY CONFIGURATION</span>
+                        <h1 class="header-main-title">Cài đặt hệ thống & Khóa API</h1>
+                        <p class="header-sub-title">Chỉ dành riêng cho Giảng viên và Quản trị viên tối cao (System Admin)</p>
+                    </div>
+                    <div class="header-right-col">
+                        <span class="badge-pill normal" style="background:#fee2e2; color:#b91c1c;">
+                            <i class="fa-solid fa-lock"></i> Quyền Admin / Giảng viên
+                        </span>
+                    </div>
+                </div>
 
-    <dialog id="courseDialog" class="student-dialog">
-        <form id="courseForm" class="student-form">
-            <div class="card-header flex-between">
-                <h3 id="courseDialogTitle">Thêm môn học</h3>
-                <button type="button" class="dialog-close" id="closeCourseDialog" aria-label="Đóng"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <input type="hidden" name="id" id="courseId">
-            <label>Mã môn học<input name="courseCode" id="courseCode" required maxlength="30"></label>
-            <label>Tên môn học<input name="courseName" id="courseName" required maxlength="150"></label>
-            <label>Học kỳ<input name="semester" id="courseSemester" maxlength="50" placeholder="Ví dụ: Fall 2026"></label>
-            <label>Giảng viên (giữ Ctrl để chọn nhiều)
-                <select name="lecturerIds" id="courseLecturers" multiple required></select>
-            </label>
-            <p id="courseFormError" class="error-msg hidden" role="alert"></p>
-            <button type="submit" class="btn-primary">Lưu môn học</button>
-        </form>
-    </dialog>
+                <!-- 1. CẤU HÌNH API KEY (OPENAI / GEMINI) -->
+                <div class="aita-card" style="margin-top: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <h3 style="font-size: 1.05rem; font-weight: 700; color: #1e293b;">
+                            <i class="fa-solid fa-key" style="color: #4f46e5;"></i> Cấu hình API Key (OpenAI / Google Gemini)
+                        </h3>
+                        <span style="font-size: 0.75rem; background: #ecfdf5; color: #065f46; padding: 4px 10px; border-radius: 6px; font-weight: 600;">
+                            <i class="fa-solid fa-shield-halved"></i> Mã hóa an toàn AES-256
+                        </span>
+                    </div>
+                    <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 16px;">
+                        Quản lý Key an toàn cho module AI Pedagogical Assistant và Git Assessor Score Recommendation:
+                    </p>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div class="form-group-block">
+                            <label for="cfgOpenAiKey">OpenAI API Key (GPT-4o / GPT-4o-mini)</label>
+                            <input type="password" id="cfgOpenAiKey" class="form-control-input" value="sk-proj-7aBcD90123456789XyZ" placeholder="sk-proj-...">
+                            <small style="color: #64748b;">Dùng để giải thích lỗi biên dịch tự động</small>
+                        </div>
+                        <div class="form-group-block">
+                            <label for="cfgGeminiKey">Google Gemini API Key (Gemini 1.5 Pro / Flash)</label>
+                            <input type="password" id="cfgGeminiKey" class="form-control-input" value="AIzaSyB39104821948120Xyz" placeholder="AIzaSy...">
+                            <small style="color: #64748b;">Dùng cho gợi ý sư phạm và phát hiện bất thường Git</small>
+                        </div>
+                    </div>
+                    <div style="margin-top: 14px; display: flex; gap: 10px;">
+                        <button type="button" class="btn-primary" onclick="alert('Đã cập nhật và mã hóa an toàn các khóa API!')">
+                            <i class="fa-solid fa-floppy-disk"></i> Lưu khóa API
+                        </button>
+                        <button type="button" class="btn-outline" onclick="alert('Kiểm tra kết nối: OpenAI API [200 OK] &bull; Gemini API [200 OK]')">
+                            <i class="fa-solid fa-circle-check"></i> Kiểm tra kết nối AI
+                        </button>
+                    </div>
+                </div>
 
-    <dialog id="classDialog" class="student-dialog">
-        <form id="classForm" class="student-form">
-            <div class="card-header flex-between">
-                <h3 id="classDialogTitle">Thêm lớp học</h3>
-                <button type="button" class="dialog-close" id="closeClassDialog" aria-label="Đóng"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <input type="hidden" name="classId" id="classId">
-            <label id="classNameLabel">Tên lớp<input name="className" id="className" required maxlength="100" placeholder="Ví dụ: SE20C"></label>
-            <label>Danh sách học sinh (giữ Ctrl để chọn nhiều)
-                <select name="studentIds" id="classStudents" multiple size="10"></select>
-            </label>
-            <p id="classFormError" class="error-msg hidden" role="alert"></p>
-            <button type="submit" class="btn-primary">Lưu lớp và danh sách học sinh</button>
-        </form>
-    </dialog>
+                <!-- 2. CẤU HÌNH SANDBOX RULES -->
+                <div class="aita-card" style="margin-top: 20px;">
+                    <h3 style="font-size: 1.05rem; font-weight: 700; color: #1e293b; margin-bottom: 12px;">
+                        <i class="fa-brands fa-docker" style="color: #4f46e5;"></i> Cấu hình Sandbox Rules (Docker Container limits)
+                    </h3>
+                    <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 16px;">
+                        Thiết lập giới hạn thời gian timeout và tài nguyên RAM để ngăn chặn code sinh viên chạy vòng lặp vô hạn hoặc tấn công từ chối dịch vụ (DoS):
+                    </p>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
+                        <div class="form-group-block">
+                            <label for="cfgTimeout">Thời gian Timeout (giây)</label>
+                            <input type="number" id="cfgTimeout" class="form-control-input" value="10" min="3" max="60" required>
+                            <small style="color: #64748b;">Mặc định: 10 giây (Quá thời gian sẽ bị KILL - TLE)</small>
+                        </div>
+                        <div class="form-group-block">
+                            <label for="cfgRamLimit">Giới hạn RAM (Megabytes)</label>
+                            <input type="number" id="cfgRamLimit" class="form-control-input" value="512" min="128" max="2048" required>
+                            <small style="color: #64748b;">Mặc định: 512 MB</small>
+                        </div>
+                        <div class="form-group-block">
+                            <label for="cfgCpuLimit">Giới hạn CPU Core</label>
+                            <input type="number" id="cfgCpuLimit" class="form-control-input" value="1.0" min="0.5" max="4.0" step="0.5" required>
+                            <small style="color: #64748b;">Mặc định: 1.0 CPU Core</small>
+                        </div>
+                    </div>
+                    <div style="margin-top: 14px;">
+                        <button type="button" class="btn-primary" onclick="alert('Đã cập nhật quy tắc Docker Sandbox!')">
+                            <i class="fa-solid fa-floppy-disk"></i> Cập nhật Sandbox Rules
+                        </button>
+                    </div>
+                </div>
 
-    <dialog id="passwordDialog" class="student-dialog">
-        <form id="passwordForm" class="student-form">
-            <div class="card-header flex-between">
-                <h3>Đổi mật khẩu</h3>
-                <button type="button" class="dialog-close" id="closePasswordDialog" aria-label="Đóng"><i class="fa-solid fa-xmark"></i></button>
+                <!-- 3. GITHUB TOKEN CONFIGURATION -->
+                <div class="aita-card" style="margin-top: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <h3 style="font-size: 1.05rem; font-weight: 700; color: #1e293b;">
+                            <i class="fa-brands fa-github" style="color: #4f46e5;"></i> GitHub Personal Access Token (PAT Configuration)
+                        </h3>
+                        <span class="badge-pill normal" style="background:#e0e7ff; color:#3730a3;">
+                            Rate Limit: 5,000 requests/hour
+                        </span>
+                    </div>
+                    <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 16px;">
+                        Cấu hình Personal Access Token trung tâm để hệ thống fetch dữ liệu commit, branch, PR và code review từ GitHub API mà không bị chặn bởi GitHub Rate Limit (60 req/h với ẩn danh &rarr; 5,000 req/h với Token):
+                    </p>
+                    <div class="form-group-block">
+                        <label for="cfgGithubToken">Personal Access Token (classic hoặc fine-grained):</label>
+                        <input type="password" id="cfgGithubToken" class="form-control-input" value="ghp_aBcDeFgHiJkLmNoPqRsTuVwXyZ1234567890" placeholder="ghp_...">
+                    </div>
+                    <div style="margin-top: 14px; display: flex; gap: 10px;">
+                        <button type="button" class="btn-primary" onclick="alert('Đã lưu GitHub PAT và xác thực kết nối thành công!')">
+                            <i class="fa-solid fa-floppy-disk"></i> Lưu &amp; Xác thực Token
+                        </button>
+                        <button type="button" class="btn-outline" onclick="alert('GitHub API status: Connected &bull; Remaining Rate limit: 4,982 / 5,000')">
+                            <i class="fa-solid fa-plug-circle-check"></i> Kiểm tra hạn mức Rate Limit
+                        </button>
+                    </div>
+                </div>
             </div>
-            <label>Mật khẩu hiện tại<input name="currentPassword" type="password" autocomplete="current-password" required></label>
-            <label>Mật khẩu mới (8-128 ký tự)<input name="newPassword" type="password" autocomplete="new-password" minlength="8" maxlength="128" required></label>
-            <label>Xác nhận mật khẩu mới<input name="confirmPassword" type="password" autocomplete="new-password" minlength="8" maxlength="128" required></label>
-            <p id="passwordFormError" class="error-msg hidden" role="alert"></p>
-            <p id="passwordFormSuccess" class="students-message hidden" role="status"></p>
-            <button type="submit" class="btn-primary">Cập nhật mật khẩu</button>
-        </form>
-    </dialog>
 
-    <!-- Modal điều chỉnh trọng số cho giảng viên -->
-    <dialog id="weightsModal" class="student-dialog weights-modal">
-        <form id="weightsForm" class="student-form">
-            <div class="card-header flex-between">
-                <h3><i class="fa-solid fa-sliders"></i> Cấu hình trọng số W</h3>
-                <button type="button" class="dialog-close" id="closeWeightsModalBtn" aria-label="Đóng"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <label><strong>W₁: Khối lượng code (Volume)</strong>
-                <input type="number" id="weightVolumeInput" name="volumeWeight" step="0.05" min="0" max="1" required>
-                <small class="text-muted" style="display:block; margin-top:2px;">Tỷ lệ dòng code thực chất (LOC thêm/xóa)</small>
-            </label>
-            <label><strong>W₂: Tần suất & Đều đặn (Frequency)</strong>
-                <input type="number" id="weightFrequencyInput" name="frequencyWeight" step="0.05" min="0" max="1" required>
-                <small class="text-muted" style="display:block; margin-top:2px;">Độ đều đặn phân bố commits, chống dồn sát hạn</small>
-            </label>
-            <label><strong>W₃: Quản lý & Code Review (Review)</strong>
-                <input type="number" id="weightReviewInput" name="reviewWeight" step="0.05" min="0" max="1" required>
-                <small class="text-muted" style="display:block; margin-top:2px;">Tạo Pull Requests và review code đồng đội</small>
-            </label>
-            <label><strong>W₄: Hệ số phạt (Penalty)</strong>
-                <input type="number" id="weightPenaltyInput" name="penaltyWeight" step="0.05" min="0" max="1" required>
-                <small class="text-muted" style="display:block; margin-top:2px;">Trừ điểm commit rác ('fix', 'update') hoặc dồn code</small>
-            </label>
-            <p id="weightsFormMsg" class="error-msg hidden" role="alert"></p>
-            <div class="flex-between" style="margin-top: 18px; gap: 10px;">
-                <button type="button" class="btn-outline" id="cancelWeightsBtn" style="flex: 1;">Hủy</button>
-                <button type="submit" class="btn-primary" style="flex: 2;"><i class="fa-solid fa-save"></i> Lưu trọng số</button>
-            </div>
-        </form>
-    </dialog>
+            <!-- ========================================================
+                 VIEW 10: ÁNH XẠ TÀI KHOẢN GIT (GIT MAPPING)
+                 ======================================================== -->
+            <div id="gitMappingView" class="page-view hidden">
+                <div class="aita-card header-card">
+                    <div class="header-left-col">
+                        <span class="kicker-label">GIT ACCOUNT MAPPING</span>
+                        <h1 class="header-main-title">Ánh xạ tài khoản Git</h1>
+                        <p class="header-sub-title">Liên kết danh tính sinh viên hệ thống với GitHub Username để thu thập chính xác đóng góp code</p>
+                    </div>
+                    <div class="header-right-col">
+                        <button type="button" class="btn-primary" onclick="openModal('mappingModal')">
+                            <i class="fa-solid fa-link"></i> Thêm ánh xạ mới
+                        </button>
+                    </div>
+                </div>
 
-    <!-- Modal đổi GitHub Repository -->
-    <dialog id="editRepoDialog" class="student-dialog weights-modal">
-        <form id="editRepoForm" class="student-form">
-            <div class="card-header flex-between">
-                <h3><i class="fa-brands fa-github"></i> Liên kết GitHub Repository</h3>
-                <button type="button" class="dialog-close" id="closeEditRepoDialogBtn" aria-label="Đóng"><i class="fa-solid fa-xmark"></i></button>
+                <div class="aita-card" style="margin-top: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+                        <h3 style="font-size: 1.05rem; font-weight: 700; color: #1e293b;">
+                            Bảng ánh xạ tài khoản Git sinh viên lớp SE20C
+                        </h3>
+                        <span style="font-size: 0.82rem; color: #64748b;">Đã ánh xạ 23 / 25 sinh viên</span>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="aita-table">
+                            <thead>
+                                <tr>
+                                    <th>Mã SV</th>
+                                    <th>Họ và tên</th>
+                                    <th>Email trường</th>
+                                    <th>GitHub Username</th>
+                                    <th>Nhóm</th>
+                                    <th>Trạng thái Mapping</th>
+                                    <th>Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>QE200066</strong></td>
+                                    <td><strong>Nguyễn Quốc Vương</strong></td>
+                                    <td>vuong.nq@fpt.edu.vn</td>
+                                    <td><a href="https://github.com/qvuong8th3" target="_blank" style="color:#4f46e5; font-weight:600;"><i class="fa-brands fa-github"></i> qvuong8th3</a></td>
+                                    <td><span class="badge-pill role-leader">Nhóm 6 (Leader)</span></td>
+                                    <td><span class="badge-pill normal" style="background:#ecfdf5; color:#065f46;"><i class="fa-solid fa-check"></i> Đã đồng bộ</span></td>
+                                    <td><button class="btn-edit-outline" onclick="openModal('mappingModal')"><i class="fa-solid fa-pen"></i> Sửa</button></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>QE200140</strong></td>
+                                    <td><strong>Võ Xuân Long</strong></td>
+                                    <td>longvx@fpt.edu.vn</td>
+                                    <td><a href="https://github.com/lx426352-art" target="_blank" style="color:#4f46e5; font-weight:600;"><i class="fa-brands fa-github"></i> lx426352-art</a></td>
+                                    <td><span class="badge-pill role-member">Nhóm 6</span></td>
+                                    <td><span class="badge-pill normal" style="background:#ecfdf5; color:#065f46;"><i class="fa-solid fa-check"></i> Đã đồng bộ</span></td>
+                                    <td><button class="btn-edit-outline" onclick="openModal('mappingModal')"><i class="fa-solid fa-pen"></i> Sửa</button></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>QE200064</strong></td>
+                                    <td><strong>Võ Thảo Nguyên</strong></td>
+                                    <td>nguyenvt@fpt.edu.vn</td>
+                                    <td><a href="https://github.com/vothaonguyen222-collab" target="_blank" style="color:#4f46e5; font-weight:600;"><i class="fa-brands fa-github"></i> vothaonguyen222-collab</a></td>
+                                    <td><span class="badge-pill role-member">Nhóm 6</span></td>
+                                    <td><span class="badge-pill normal" style="background:#ecfdf5; color:#065f46;"><i class="fa-solid fa-check"></i> Đã đồng bộ</span></td>
+                                    <td><button class="btn-edit-outline" onclick="openModal('mappingModal')"><i class="fa-solid fa-pen"></i> Sửa</button></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>QE190093</strong></td>
+                                    <td><strong>Nguyễn Tuấn Kiệt</strong></td>
+                                    <td>kietnt@fpt.edu.vn</td>
+                                    <td><a href="https://github.com/ngkiet30042005-beep" target="_blank" style="color:#4f46e5; font-weight:600;"><i class="fa-brands fa-github"></i> ngkiet30042005-beep</a></td>
+                                    <td><span class="badge-pill role-member">Nhóm 6</span></td>
+                                    <td><span class="badge-pill normal" style="background:#ecfdf5; color:#065f46;"><i class="fa-solid fa-check"></i> Đã đồng bộ</span></td>
+                                    <td><button class="btn-edit-outline" onclick="openModal('mappingModal')"><i class="fa-solid fa-pen"></i> Sửa</button></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>QE200042</strong></td>
+                                    <td><strong>Nguyễn Đặng Trường Hải</strong></td>
+                                    <td>haindt@fpt.edu.vn</td>
+                                    <td><a href="https://github.com/hai1609-ken" target="_blank" style="color:#4f46e5; font-weight:600;"><i class="fa-brands fa-github"></i> hai1609-ken</a></td>
+                                    <td><span class="badge-pill role-member">Nhóm 6</span></td>
+                                    <td><span class="badge-pill normal" style="background:#ecfdf5; color:#065f46;"><i class="fa-solid fa-check"></i> Đã đồng bộ</span></td>
+                                    <td><button class="btn-edit-outline" onclick="openModal('mappingModal')"><i class="fa-solid fa-pen"></i> Sửa</button></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>QE200008</strong></td>
+                                    <td>Hoàng Yến Vy</td>
+                                    <td>vy.hy@fpt.edu.vn</td>
+                                    <td><a href="https://github.com/vy-hy" target="_blank" style="color:#4f46e5; font-weight:600;"><i class="fa-brands fa-github"></i> vy-hy</a></td>
+                                    <td><span class="badge-pill role-member">Nhóm 6</span></td>
+                                    <td><span class="badge-pill normal" style="background:#ecfdf5; color:#065f46;"><i class="fa-solid fa-check"></i> Đã đồng bộ</span></td>
+                                    <td><button class="btn-edit-outline" onclick="openModal('mappingModal')"><i class="fa-solid fa-pen"></i> Sửa</button></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>QE200009</strong></td>
+                                    <td>Võ Thảo Nguyên</td>
+                                    <td>nguyen.vt@fpt.edu.vn</td>
+                                    <td><span style="color:#94a3b8; font-style:italic;">Chưa liên kết</span></td>
+                                    <td><span class="badge-pill role-member">Nhóm 3</span></td>
+                                    <td><span class="badge-pill" style="background:#fee2e2; color:#b91c1c; font-weight:700;"><i class="fa-solid fa-triangle-exclamation"></i> Chưa ánh xạ</span></td>
+                                    <td><button class="btn-primary" style="padding:4px 10px; font-size:0.78rem;" onclick="openModal('mappingModal')"><i class="fa-solid fa-link"></i> Ánh xạ</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
-            <label><strong>Đường dẫn Repository (URL)</strong>
-                <input type="url" id="repoUrlInput" name="repoUrl" placeholder="https://github.com/owner/repository" required style="margin-top: 6px;">
-                <small class="text-muted" style="display:block; margin-top:4px;">Ví dụ: https://github.com/PRJ301-AITA/team-project-repo</small>
-            </label>
-            <p id="editRepoMsg" class="error-msg hidden" role="alert"></p>
-            <div class="flex-between" style="margin-top: 18px; gap: 10px;">
-                <button type="button" class="btn-outline" id="cancelEditRepoBtn" style="flex: 1;">Hủy</button>
-                <button type="submit" class="btn-primary" style="flex: 2;"><i class="fa-solid fa-link"></i> Lưu liên kết</button>
-            </div>
-        </form>
-    </dialog>
 
-    <!-- Custom JS -->
-    <script src="js/dashboard.js?v=20261018_fix_repo_v4"></script>
-    <script src="js/exams.js?v=20261018_fix_repo_v4"></script>
-    <script src="js/assignments.js?v=20261026_grade_v1"></script>
+            <!-- ========================================================
+                 VIEW 11: ĐIỂM SỬA LỖI (CORRECTION POINTS)
+                 ======================================================== -->
+            <div id="correctionPointsView" class="page-view hidden">
+                <div class="aita-card header-card">
+                    <div class="header-left-col">
+                        <span class="kicker-label">PEER CORRECTION ECONOMY</span>
+                        <h1 class="header-main-title">Điểm sửa lỗi (Correction Points)</h1>
+                        <p class="header-sub-title">Hiển thị số điểm tích lũy hiện có của từng sinh viên và lịch sử cộng/trừ điểm sửa lỗi</p>
+                    </div>
+                    <div class="header-right-col">
+                        <span class="badge-pill normal" style="background:#ecfdf5; color:#065f46; font-size:0.85rem; padding:6px 14px;">
+                            <i class="fa-solid fa-coins"></i> Quy đổi: 5 Điểm = 1 Lần đổi quyền nộp sửa bài
+                        </span>
+                    </div>
+                </div>
+
+                <!-- SỐ DƯ ĐIỂM TÍCH LŨY HIỆN CÓ CỦA TỪNG SINH VIÊN -->
+                <div class="aita-card" style="margin-top: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+                        <h3 style="font-size: 1.05rem; font-weight: 700; color: #1e293b;">
+                            <i class="fa-solid fa-vault" style="color: #4f46e5;"></i> Số điểm tích lũy hiện có của từng sinh viên
+                        </h3>
+                        <span style="font-size: 0.82rem; color: #64748b;">Điểm kiếm được từ việc đi chấm chéo nhóm khác</span>
+                    </div>
+                    <div class="cp-wallet-grid">
+                        <div class="cp-wallet-card">
+                            <div class="cp-balance">45</div>
+                            <div class="cp-label"><strong>Nguyễn Quốc Vương</strong> (QE200066)</div>
+                            <div style="margin-top:8px; font-size:0.75rem; color:#64748b;">Đã thực hiện 5 lượt chấm chéo</div>
+                        </div>
+                        <div class="cp-wallet-card">
+                            <div class="cp-balance">30</div>
+                            <div class="cp-label"><strong>Trần Hoàng Phúc</strong> (QE200006)</div>
+                            <div style="margin-top:8px; font-size:0.75rem; color:#64748b;">Đã thực hiện 4 lượt chấm chéo</div>
+                        </div>
+                        <div class="cp-wallet-card">
+                            <div class="cp-balance">22</div>
+                            <div class="cp-label"><strong>Lê Đức Minh</strong> (QE200007)</div>
+                            <div style="margin-top:8px; font-size:0.75rem; color:#64748b;">Đã thực hiện 3 lượt chấm chéo</div>
+                        </div>
+                        <div class="cp-wallet-card">
+                            <div class="cp-balance">18</div>
+                            <div class="cp-label"><strong>Hoàng Yến Vy</strong> (QE200008)</div>
+                            <div style="margin-top:8px; font-size:0.75rem; color:#64748b;">Đã thực hiện 2 lượt chấm chéo</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- LỊCH SỬ CỘNG/TRỪ ĐIỂM SỬA LỖI -->
+                <div class="aita-card" style="margin-top: 20px;">
+                    <h3 style="font-size: 1.05rem; font-weight: 700; color: #1e293b; margin-bottom: 14px;">
+                        <i class="fa-solid fa-clock-rotate-left" style="color: #4f46e5;"></i> Lịch sử cộng / trừ điểm sửa lỗi (Giao dịch)
+                    </h3>
+                    <div class="table-responsive">
+                        <table class="aita-table">
+                            <thead>
+                                <tr>
+                                    <th>Thời gian giao dịch</th>
+                                    <th>Sinh viên</th>
+                                    <th>Hành động</th>
+                                    <th>Thay đổi điểm</th>
+                                    <th>Số dư sau GD</th>
+                                    <th>Mô tả chi tiết</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>26/10/2026 14:15</td>
+                                    <td><strong>Nguyễn Quốc Vương</strong></td>
+                                    <td><span class="badge-pill normal" style="background:#ecfdf5; color:#065f46;">Cộng điểm (+10)</span></td>
+                                    <td><strong style="color: #10b981;">+10</strong></td>
+                                    <td><strong>45</strong></td>
+                                    <td>Hoàn thành chấm chéo Rubric cho Nhóm 7 (SE20C)</td>
+                                </tr>
+                                <tr>
+                                    <td>25/10/2026 10:30</td>
+                                    <td><strong>Trần Hoàng Phúc</strong></td>
+                                    <td><span class="badge-pill" style="background:#fee2e2; color:#b91c1c;">Trừ điểm (-5)</span></td>
+                                    <td><strong style="color: #ef4444;">-5</strong></td>
+                                    <td><strong>30</strong></td>
+                                    <td>Đổi quyền mở cổng nộp sửa bài bổ sung Milestone 1</td>
+                                </tr>
+                                <tr>
+                                    <td>24/10/2026 16:40</td>
+                                    <td><strong>Lê Đức Minh</strong></td>
+                                    <td><span class="badge-pill normal" style="background:#ecfdf5; color:#065f46;">Cộng điểm (+8)</span></td>
+                                    <td><strong style="color: #10b981;">+8</strong></td>
+                                    <td><strong>22</strong></td>
+                                    <td>Chấm phản biện code review Nhóm 2</td>
+                                </tr>
+                                <tr>
+                                    <td>23/10/2026 09:12</td>
+                                    <td><strong>Nguyễn Quốc Vương</strong></td>
+                                    <td><span class="badge-pill normal" style="background:#ecfdf5; color:#065f46;">Cộng điểm (+10)</span></td>
+                                    <td><strong style="color: #10b981;">+10</strong></td>
+                                    <td><strong>35</strong></td>
+                                    <td>Hoàn thành chấm chéo Sprint 1 cho Nhóm 3</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- ============================================================
+         MODAL 1: ĐỔI LINK GITHUB REPOSITORY ĐỂ CHẤM ĐÓNG GÓP
+         ============================================================ -->
+    <div id="editRepoModal" class="aita-modal-overlay hidden">
+        <div class="aita-modal-dialog">
+            <div class="modal-header">
+                <h3><i class="fa-brands fa-github"></i> Gán liên kết GitHub Repository</h3>
+                <button type="button" class="btn-modal-close" onclick="closeModal('editRepoModal')"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="editRepoForm">
+                <div class="modal-body">
+                    <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 16px;">
+                        Nhập đường dẫn GitHub repository của nhóm để hệ thống tự động quét lịch sử commit, pull request, code review và tính toán điểm số cho từng thành viên:
+                    </p>
+                    <div class="form-group-block">
+                        <label for="repoUrlInput">Đường dẫn GitHub Repository</label>
+                        <input type="url" id="repoUrlInput" class="form-control-input" 
+                               value="https://github.com/lx426352-art/PRJ301-Nh-m-6" 
+                               placeholder="https://github.com/username/repository-name" required>
+                    </div>
+                    <div class="form-group-block">
+                        <label for="repoGroupIdInput">Mã nhóm học tập</label>
+                        <input type="number" id="repoGroupIdInput" class="form-control-input" value="6" readonly style="background: #f1f5f9;">
+                    </div>
+                    <p id="editRepoMsg" style="font-size: 0.84rem; display: none;"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-outline" onclick="closeModal('editRepoModal')">Hủy bỏ</button>
+                    <button type="submit" class="btn-primary" id="btnSubmitRepo">
+                        <i class="fa-solid fa-check"></i> Lưu & Quét dữ liệu
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         MODAL 2: CẤU HÌNH TRỌNG SỐ W (VOLUME, FREQ, REVIEW, PENALTY)
+         ============================================================ -->
+    <div id="weightsModal" class="aita-modal-overlay hidden">
+        <div class="aita-modal-dialog">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-sliders"></i> Cấu hình trọng số W (Git Assessor)</h3>
+                <button type="button" class="btn-modal-close" onclick="closeModal('weightsModal')"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="weightsForm">
+                <div class="modal-body">
+                    <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 16px;">
+                        Điều chỉnh trọng số theo công thức chuẩn hóa của AITA Assessor:
+                        <br><strong>Điểm = (W₁×Khối lượng) + (W₂×Tần suất) + (W₃×Review) - (W₄×Phạt)</strong>
+                    </p>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+                        <div class="form-group-block">
+                            <label for="weightW1">W₁ Khối lượng code (Volume %)</label>
+                            <input type="number" step="0.05" min="0" max="1" id="weightW1" class="form-control-input" value="0.50" required>
+                            <small style="color: #64748b;">Mặc định: 0.50 (50%)</small>
+                        </div>
+                        <div class="form-group-block">
+                            <label for="weightW2">W₂ Tần suất commit (Freq %)</label>
+                            <input type="number" step="0.05" min="0" max="1" id="weightW2" class="form-control-input" value="0.40" required>
+                            <small style="color: #64748b;">Mặc định: 0.40 (40%)</small>
+                        </div>
+                        <div class="form-group-block">
+                            <label for="weightW3">W₃ Code Review & PR (%)</label>
+                            <input type="number" step="0.05" min="0" max="1" id="weightW3" class="form-control-input" value="0.20" required>
+                            <small style="color: #64748b;">Mặc định: 0.20 (20%)</small>
+                        </div>
+                        <div class="form-group-block">
+                            <label for="weightW4">W₄ Trừ điểm vi phạm (Penalty %)</label>
+                            <input type="number" step="0.05" min="0" max="1" id="weightW4" class="form-control-input" value="0.10" required>
+                            <small style="color: #64748b;">Mặc định: 0.10 (10%)</small>
+                        </div>
+                    </div>
+                    <div style="background: #f1f5f9; padding: 12px; border-radius: 8px; margin-top: 10px;">
+                        <span style="font-size: 0.8rem; font-weight: 700; color: #475569;">Công thức xem trước:</span>
+                        <div style="font-weight: 700; color: #4f46e5; font-size: 0.92rem; margin-top: 4px;" id="formulaPreviewText">
+                            50% Volume + 40% Freq + 20% Review - 10% Penalty
+                        </div>
+                    </div>
+                    <p id="weightsMsg" style="font-size: 0.84rem; display: none; margin-top: 10px;"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-outline" onclick="closeModal('weightsModal')">Đóng</button>
+                    <button type="submit" class="btn-primary" id="btnSaveWeights">
+                        <i class="fa-solid fa-floppy-disk"></i> Lưu & Áp dụng
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         MODAL 3: THÊM / SỬA SINH VIÊN (CHO GIẢNG VIÊN VÀ ADMIN)
+         ============================================================ -->
+    <div id="studentModal" class="aita-modal-overlay hidden">
+        <div class="aita-modal-dialog">
+            <div class="modal-header">
+                <h3 id="studentModalTitle"><i class="fa-solid fa-user-plus"></i> Thêm sinh viên mới</h3>
+                <button type="button" class="btn-modal-close" onclick="closeModal('studentModal')"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="studentForm">
+                <input type="hidden" id="studentEditId">
+                <div class="modal-body">
+                    <div class="form-group-block">
+                        <label for="studentCodeInput">Mã số sinh viên (MSSV)</label>
+                        <input type="text" id="studentCodeInput" class="form-control-input" placeholder="Ví dụ: QE200026" required>
+                    </div>
+                    <div class="form-group-block">
+                        <label for="studentFullNameInput">Họ và tên sinh viên</label>
+                        <input type="text" id="studentFullNameInput" class="form-control-input" placeholder="Ví dụ: Hoàng Minh Quân" required>
+                    </div>
+                    <div class="form-group-block">
+                        <label for="studentUsernameInput">Tên đăng nhập (Username)</label>
+                        <input type="text" id="studentUsernameInput" class="form-control-input" placeholder="Ví dụ: quan.hm" required>
+                    </div>
+                    <div class="form-group-block">
+                        <label for="studentEmailInput">Email</label>
+                        <input type="email" id="studentEmailInput" class="form-control-input" placeholder="quan.hm@fpt.edu.vn" required>
+                    </div>
+                    <div class="form-group-block" id="studentPasswordBlock">
+                        <label for="studentPasswordInput">Mật khẩu khởi tạo</label>
+                        <input type="password" id="studentPasswordInput" class="form-control-input" value="123456" placeholder="Mặc định: 123456">
+                    </div>
+                    <div class="form-group-block">
+                        <label for="studentGithubInput">GitHub Username (nếu có)</label>
+                        <input type="text" id="studentGithubInput" class="form-control-input" placeholder="username">
+                    </div>
+                    <p id="studentFormError" style="font-size: 0.84rem; color: #dc2626; display: none; margin-top: 10px;"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-outline" onclick="closeModal('studentModal')">Hủy</button>
+                    <button type="submit" class="btn-primary" id="btnSaveStudent">
+                        <i class="fa-solid fa-check"></i> Lưu sinh viên
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         MODAL 4: GIAO BÀI TẬP MỚI (DÀNH CHO GIẢNG VIÊN / ADMIN)
+         ============================================================ -->
+    <div id="assignmentModal" class="aita-modal-overlay hidden">
+        <div class="aita-modal-dialog">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-file-circle-plus"></i> Giao bài tập / Đề thi mới</h3>
+                <button type="button" class="btn-modal-close" onclick="closeModal('assignmentModal')"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="assignmentForm" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <div class="form-group-block">
+                        <label for="assignmentCourseSelect">Môn học</label>
+                        <select id="assignmentCourseSelect" class="form-control-input" required>
+                            <option value="1">PRJ301 - Java Web Application Development</option>
+                            <option value="2">SWR302 - Software Requirement Engineering</option>
+                            <option value="3">JPD123 - Core Java Lab & Practice</option>
+                            <option value="4">CSD201 - Data Structures and Algorithms</option>
+                            <option value="5">IOT102 - Internet of Things Fundamentals</option>
+                        </select>
+                    </div>
+                    <div class="form-group-block">
+                        <label for="assignmentTitleInput">Tiêu đề bài tập</label>
+                        <input type="text" id="assignmentTitleInput" class="form-control-input" placeholder="Ví dụ: Assignment 1 - Xây dựng MVC2 Servlet với SHA-256" required>
+                    </div>
+                    <div class="form-group-block">
+                        <label for="assignmentDueInput">Hạn chót nộp bài (Deadline)</label>
+                        <input type="datetime-local" id="assignmentDueInput" class="form-control-input" required>
+                    </div>
+                    <div class="form-group-block">
+                        <label for="assignmentPromptFileInput">File đề bài đính kèm (PDF, DOCX, ZIP)</label>
+                        <input type="file" id="assignmentPromptFileInput" class="form-control-input">
+                    </div>
+                    <div class="form-group-block">
+                        <label for="assignmentDescInput">Mô tả & Hướng dẫn làm bài</label>
+                        <textarea id="assignmentDescInput" class="form-control-input" rows="3" placeholder="Yêu cầu sinh viên tuân thủ cấu trúc package, mã hóa hash SHA-256..."></textarea>
+                    </div>
+                    <p id="assignmentFormError" style="font-size: 0.84rem; color: #dc2626; display: none;"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-outline" onclick="closeModal('assignmentModal')">Đóng</button>
+                    <button type="submit" class="btn-primary" id="btnSubmitAssignment">
+                        <i class="fa-solid fa-paper-plane"></i> Giao bài tập
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         MODAL 5: SINH VIÊN NỘP BÀI TẬP VÀ XÁC THỰC SHA-256
+         ============================================================ -->
+    <div id="submitAssignmentModal" class="aita-modal-overlay hidden">
+        <div class="aita-modal-dialog">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-cloud-arrow-up"></i> Nộp bài tập học phần</h3>
+                <button type="button" class="btn-modal-close" onclick="closeModal('submitAssignmentModal')"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="submitAssignmentForm" enctype="multipart/form-data">
+                <input type="hidden" id="submitAssignmentId">
+                <div class="modal-body">
+                    <div style="background: #f1f5f9; padding: 12px 14px; border-radius: 8px; margin-bottom: 16px;">
+                        <span style="font-size: 0.8rem; color: #64748b;">Bài tập đang nộp:</span>
+                        <div id="submitAssignmentTitle" style="font-weight: 700; color: #1e293b; font-size: 0.95rem;">-</div>
+                    </div>
+                    <div class="form-group-block">
+                        <label for="submissionFileInput">Chọn file bài làm (ZIP, PDF, DOCX)</label>
+                        <input type="file" id="submissionFileInput" class="form-control-input" accept=".zip,.pdf,.doc,.docx" required>
+                    </div>
+                    <div style="background: #eef2ff; border: 1px solid #c7d2fe; padding: 12px 14px; border-radius: 8px; font-size: 0.82rem; color: #4338ca;">
+                        <i class="fa-solid fa-shield-halved" style="margin-right: 4px;"></i>
+                        Hệ thống tự động băm mã hóa <strong>SHA-256 Hash</strong> để bảo vệ tính toàn vẹn của artifact và ngăn chặn thay đổi bài làm sau hạn nộp.
+                    </div>
+                    <p id="submissionErrorMsg" style="font-size: 0.84rem; color: #dc2626; display: none; margin-top: 10px;"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-outline" onclick="closeModal('submitAssignmentModal')">Hủy</button>
+                    <button type="submit" class="btn-primary" id="btnConfirmSubmit">
+                        <i class="fa-solid fa-upload"></i> Gửi bài nộp
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         MODAL 6: GIẢNG VIÊN XEM BÀI NỘP VÀ CHẤM ĐIỂM
+         ============================================================ -->
+    <div id="gradingModal" class="aita-modal-overlay hidden">
+        <div class="aita-modal-dialog large">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-clipboard-check"></i> Danh sách bài nộp & Chấm điểm</h3>
+                <button type="button" class="btn-modal-close" onclick="closeModal('gradingModal')"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <h4 id="gradingAssignmentTitle" style="font-size: 1rem; font-weight: 700; margin-bottom: 12px; color: #1e293b;">-</h4>
+                <div class="table-responsive">
+                    <table class="aita-table">
+                        <thead>
+                            <tr>
+                                <th>Sinh viên</th>
+                                <th>Thời gian nộp</th>
+                                <th>File nộp</th>
+                                <th>SHA-256 Hash</th>
+                                <th>Điểm (0-10)</th>
+                                <th>Nhận xét sư phạm</th>
+                                <th>Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody id="gradingTableBody">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-outline" onclick="closeModal('gradingModal')">Đóng</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         MODAL 7: XEM DANH SÁCH LỚP HỌC (25 SINH VIÊN)
+         ============================================================ -->
+    <div id="rosterModal" class="aita-modal-overlay hidden">
+        <div class="aita-modal-dialog large">
+            <div class="modal-header">
+                <h3 id="rosterModalTitle"><i class="fa-solid fa-users"></i> Danh sách sinh viên lớp SE20C</h3>
+                <button type="button" class="btn-modal-close" onclick="closeModal('rosterModal')"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <p id="rosterModalSubtitle" style="font-size: 0.85rem; color: #64748b; margin-bottom: 14px;">Môn học: -</p>
+                <div class="table-responsive" style="max-height: 420px; overflow-y: auto;">
+                    <table class="aita-table">
+                        <thead>
+                            <tr>
+                                <th>STT</th>
+                                <th>Mã SV</th>
+                                <th>Họ và tên</th>
+                                <th>Email</th>
+                                <th>Nhóm Git</th>
+                            </tr>
+                        </thead>
+                        <tbody id="rosterTableBody">
+                            <!-- Loaded dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-outline" onclick="closeModal('rosterModal')">Đóng</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         MODAL 8: ĐỔI MẬT KHẨU
+         ============================================================ -->
+    <div id="changePasswordModal" class="aita-modal-overlay hidden">
+        <div class="aita-modal-dialog">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-key"></i> Đổi mật khẩu tài khoản</h3>
+                <button type="button" class="btn-modal-close" onclick="closeModal('changePasswordModal')"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="changePasswordForm">
+                <div class="modal-body">
+                    <div class="form-group-block">
+                        <label for="currentPasswordInput">Mật khẩu hiện tại</label>
+                        <input type="password" id="currentPasswordInput" class="form-control-input" placeholder="••••••••" required>
+                    </div>
+                    <div class="form-group-block">
+                        <label for="newPasswordInput">Mật khẩu mới (ít nhất 6 ký tự)</label>
+                        <input type="password" id="newPasswordInput" class="form-control-input" placeholder="••••••••" required minlength="6">
+                    </div>
+                    <div class="form-group-block">
+                        <label for="confirmNewPasswordInput">Xác nhận mật khẩu mới</label>
+                        <input type="password" id="confirmNewPasswordInput" class="form-control-input" placeholder="••••••••" required minlength="6">
+                    </div>
+                    <p id="changePassMsg" style="font-size: 0.84rem; display: none;"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-outline" onclick="closeModal('changePasswordModal')">Hủy</button>
+                    <button type="submit" class="btn-primary" id="btnSubmitChangePass">
+                        <i class="fa-solid fa-check"></i> Cập nhật mật khẩu
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         MODAL 9: IMPORT DANH SÁCH TỪ FILE EXCEL / CSV
+         ============================================================ -->
+    <div id="importExcelModal" class="aita-modal-overlay hidden">
+        <div class="aita-modal-dialog">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-file-excel" style="color: #10b981;"></i> Import danh sách sinh viên từ Excel / CSV</h3>
+                <button type="button" class="btn-modal-close" onclick="closeModal('importExcelModal')"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="importExcelForm" onsubmit="handleImportExcel(event)">
+                <div class="modal-body">
+                    <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 14px;">
+                        Tải lên file danh sách sinh viên định dạng <code>.xlsx</code> hoặc <code>.csv</code> theo mẫu chuẩn:
+                    </p>
+                    <div class="form-group-block">
+                        <label for="excelFileInput">Chọn file danh sách sinh viên (.xlsx, .csv)</label>
+                        <input type="file" id="excelFileInput" class="form-control-input" accept=".xlsx,.xls,.csv" required>
+                    </div>
+                    <div style="background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 8px; padding: 12px; margin-top: 10px; font-size: 0.8rem; color: #475569;">
+                        <strong>Cột bắt buộc trong file:</strong> <code>MSSV</code>, <code>Họ và tên</code>, <code>Email</code>, <code>Username</code>, <code>Nhóm Git</code>.<br>
+                        <a href="files/exam-template.csv" download style="color: #4f46e5; font-weight: 600; text-decoration: underline; margin-top: 6px; display: inline-block;">
+                            <i class="fa-solid fa-download"></i> Tải file mẫu CSV tại đây
+                        </a>
+                    </div>
+                    <div class="form-group-block" style="margin-top: 14px;">
+                        <label for="importClassSelect">Gán vào lớp học:</label>
+                        <select id="importClassSelect" class="form-control-input">
+                            <option value="BIT_SE_K20C" selected>BIT_SE_K20C - PRJ301 (Fall 2026)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-outline" onclick="closeModal('importExcelModal')">Hủy</button>
+                    <button type="submit" class="btn-primary" id="btnSubmitImport">
+                        <i class="fa-solid fa-upload"></i> Bắt đầu Import
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         MODAL 10: GÁN NHÓM CHO SINH VIÊN (ASSIGN GROUP)
+         ============================================================ -->
+    <div id="assignGroupModal" class="aita-modal-overlay hidden">
+        <div class="aita-modal-dialog">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-people-arrows" style="color: #6366f1;"></i> Chỉnh sửa & Gán nhóm sinh viên</h3>
+                <button type="button" class="btn-modal-close" onclick="closeModal('assignGroupModal')"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="assignGroupForm" onsubmit="handleAssignGroup(event)">
+                <div class="modal-body">
+                    <div class="form-group-block">
+                        <label for="assignStudentSelect">Chọn sinh viên cần gán / đổi nhóm:</label>
+                        <select id="assignStudentSelect" class="form-control-input">
+                            <option value="QE200066">QE200066 - Nguyễn Quốc Vương (Đang ở Nhóm 6)</option>
+                            <option value="QE200006">QE200006 - Trần Hoàng Phúc (Đang ở Nhóm 6)</option>
+                            <option value="QE200007">QE200007 - Lê Đức Minh (Đang ở Nhóm 6)</option>
+                            <option value="QE200008">QE200008 - Hoàng Yến Vy (Đang ở Nhóm 6)</option>
+                            <option value="QE200009">QE200009 - Võ Thảo Nguyên (Đang ở Nhóm 3)</option>
+                            <option value="QE200001">QE200001 - Nguyễn Văn An (Đang ở Nhóm 1)</option>
+                        </select>
+                    </div>
+                    <div class="form-group-block">
+                        <label for="targetGroupSelect">Nhóm chỉ định mới:</label>
+                        <select id="targetGroupSelect" class="form-control-input">
+                            <option value="1">Nhóm 1</option>
+                            <option value="2">Nhóm 2</option>
+                            <option value="3">Nhóm 3</option>
+                            <option value="4">Nhóm 4</option>
+                            <option value="5">Nhóm 5</option>
+                            <option value="6" selected>Nhóm 6 - Git Analytics Platform</option>
+                            <option value="7">Nhóm 7</option>
+                        </select>
+                    </div>
+                    <div class="form-group-block">
+                        <label for="targetRoleInGroup">Vai trò trong nhóm:</label>
+                        <select id="targetRoleInGroup" class="form-control-input">
+                            <option value="MEMBER">Thành viên (Member)</option>
+                            <option value="LEADER">Trưởng nhóm (Leader)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-outline" onclick="closeModal('assignGroupModal')">Đóng</button>
+                    <button type="submit" class="btn-primary">
+                        <i class="fa-solid fa-check"></i> Lưu phân nhóm
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         MODAL 11: ÁNH XẠ TÀI KHOẢN GIT (MAPPING MODAL)
+         ============================================================ -->
+    <div id="mappingModal" class="aita-modal-overlay hidden">
+        <div class="aita-modal-dialog">
+            <div class="modal-header">
+                <h3><i class="fa-brands fa-github"></i> Ánh xạ tài khoản Git sinh viên</h3>
+                <button type="button" class="btn-modal-close" onclick="closeModal('mappingModal')"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="mappingForm" onsubmit="handleSaveMapping(event)">
+                <div class="modal-body">
+                    <div class="form-group-block">
+                        <label for="mappingStudentSelect">Sinh viên:</label>
+                        <select id="mappingStudentSelect" class="form-control-input">
+                            <option value="QE200066">QE200066 - Nguyễn Quốc Vương (VuongnqQE200066)</option>
+                            <option value="QE200140">QE200140 - Võ Xuân Long (LongvxQE200140)</option>
+                            <option value="QE200064">QE200064 - Võ Thảo Nguyên (NguyenvtQE200064)</option>
+                            <option value="QE190093">QE190093 - Nguyễn Tuấn Kiệt (KietntQE190093)</option>
+                            <option value="QE200042">QE200042 - Nguyễn Đặng Trường Hải (HaindtQE200042)</option>
+                        </select>
+                    </div>
+                    <div class="form-group-block">
+                        <label for="mappingGithubInput">GitHub Username:</label>
+                        <input type="text" id="mappingGithubInput" class="form-control-input" placeholder="ví dụ: lx426352-art" value="lx426352-art" required>
+                    </div>
+                    <div class="form-group-block">
+                        <label for="mappingCommitEmailInput">Email đăng ký Commit Git (tùy chọn):</label>
+                        <input type="email" id="mappingCommitEmailInput" class="form-control-input" placeholder="qvuong8th3@gmail.com" value="qvuong8th3@gmail.com">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-outline" onclick="closeModal('mappingModal')">Hủy</button>
+                    <button type="submit" class="btn-primary">
+                        <i class="fa-solid fa-link"></i> Lưu ánh xạ
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- SCRIPT ĐIỀU HƯỚNG CÂY MENU & LOGIC CÁC VIEW MỚI -->
+    <script>
+        function toggleNavGroup(btn) {
+            const submenu = btn.nextElementSibling;
+            if (!submenu || !submenu.classList.contains('nav-submenu')) return;
+            const isOpen = submenu.classList.contains('open');
+            const isActive = btn.classList.contains('active');
+
+            // Close other groups
+            document.querySelectorAll('.nav-submenu.open').forEach(m => {
+                if (m !== submenu) {
+                    m.classList.remove('open');
+                    if (m.previousElementSibling) m.previousElementSibling.classList.remove('open');
+                }
+            });
+
+            if (isOpen && isActive) {
+                submenu.classList.remove('open');
+                btn.classList.remove('open');
+            } else {
+                submenu.classList.add('open');
+                btn.classList.add('open');
+                document.querySelectorAll('.nav-group-header.active').forEach(h => h.classList.remove('active'));
+                btn.classList.add('active');
+
+                const target = btn.getAttribute('data-view-target');
+                if (target) showPageView(target);
+            }
+        }
+
+        function switchView(viewId, link) {
+            showPageView(viewId);
+            document.querySelectorAll('.nav-sub-item.active').forEach(el => el.classList.remove('active'));
+            if (link) {
+                link.classList.add('active');
+                const parentGroup = link.closest('.nav-group');
+                if (parentGroup) {
+                    const header = parentGroup.querySelector('.nav-group-header');
+                    if (header) {
+                        document.querySelectorAll('.nav-group-header.active').forEach(h => h.classList.remove('active'));
+                        header.classList.add('active');
+                        header.classList.add('open');
+                        const submenu = parentGroup.querySelector('.nav-submenu');
+                        if (submenu) submenu.classList.add('open');
+                    }
+                }
+            }
+        }
+
+        function showPageView(viewId) {
+            document.querySelectorAll('.page-view').forEach(v => v.classList.add('hidden'));
+            const target = document.getElementById(viewId);
+            if (target) {
+                target.classList.remove('hidden');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+
+            // Trigger data loader for legacy functions if applicable
+            if (viewId === 'dashboardView' && typeof window.loadDashboardData === 'function') {
+                window.loadDashboardData();
+            } else if (viewId === 'studentsView' && typeof window.loadStudentsList === 'function') {
+                window.loadStudentsList();
+            } else if (viewId === 'examsView' && typeof window.loadAssignments === 'function') {
+                window.loadAssignments();
+            } else if (viewId === 'coursesView' && typeof window.renderCoursesView === 'function') {
+                window.renderCoursesView();
+            } else if (viewId === 'gradebookView' && typeof window.renderGradebookTable === 'function') {
+                window.renderGradebookTable();
+            }
+        }
+
+        function calculateRubricTotal() {
+            let total = 0;
+            document.querySelectorAll('.rubric-score-input').forEach(input => {
+                total += parseFloat(input.value || 0);
+            });
+            const display = document.getElementById('rubricTotalScoreDisplay');
+            if (display) {
+                display.innerHTML = `<strong>${total.toFixed(2)} / 10</strong>`;
+            }
+            return total;
+        }
+
+
+
+        function handleImportExcel(e) {
+            e.preventDefault();
+            const fileInput = document.getElementById('excelFileInput');
+            if (!fileInput.files.length) {
+                alert('Vui lòng chọn file Excel hoặc CSV!');
+                return;
+            }
+            const btn = document.getElementById('btnSubmitImport');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang đọc file...';
+            setTimeout(() => {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-upload"></i> Bắt đầu Import';
+                closeModal('importExcelModal');
+                alert(`Import thành công danh sách sinh viên từ file: ${fileInput.files[0].name}. Đã cập nhật 25 bản ghi vào lớp SE20C.`);
+                if (typeof window.loadStudentsList === 'function') window.loadStudentsList();
+            }, 1000);
+        }
+
+        function handleAssignGroup(e) {
+            e.preventDefault();
+            const studentCode = document.getElementById('assignStudentSelect').value;
+            const targetGroup = document.getElementById('targetGroupSelect').value;
+            const targetRole = document.getElementById('targetRoleInGroup').value;
+            closeModal('assignGroupModal');
+            alert(`Đã cập nhật sinh viên [${studentCode}] vào Nhóm ${targetGroup} với vai trò: ${targetRole}!`);
+            if (typeof window.loadStudentsList === 'function') window.loadStudentsList();
+        }
+
+        function handleSaveMapping(e) {
+            e.preventDefault();
+            const student = document.getElementById('mappingStudentSelect').value;
+            const gitHandle = document.getElementById('mappingGithubInput').value;
+            closeModal('mappingModal');
+            alert(`Đã lưu ánh xạ Git: Sinh viên [${student}] <-> GitHub [${gitHandle}].`);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const btnImport = document.getElementById('btnOpenImportExcelModal');
+            if (btnImport) btnImport.addEventListener('click', () => openModal('importExcelModal'));
+
+            const btnAssign = document.getElementById('btnOpenAssignGroupModal');
+            if (btnAssign) btnAssign.addEventListener('click', () => openModal('assignGroupModal'));
+
+            const btnFilter = document.getElementById('btnApplyDashboardFilter');
+            if (btnFilter) {
+                btnFilter.addEventListener('click', () => {
+                    const grp = document.getElementById('filterGroupSelect').value;
+                    const subTitle = document.getElementById('groupSubtitleText');
+                    if (subTitle) subTitle.textContent = `Nhóm ${grp} - Git Analytics Platform`;
+                    alert(`Đã áp dụng bộ lọc: Môn [${document.getElementById('filterCourseSelect').value}], Lớp [${document.getElementById('filterClassSelect').value}], Nhóm [${grp}]. Dữ liệu đã được làm mới.`);
+                });
+            }
+        });
+    </script>
+
+    <!-- JAVASCRIPT LOGIC SCRIPTS -->
+    <script src="js/dashboard.js"></script>
+    <script src="js/assignments.js"></script>
 </body>
 </html>

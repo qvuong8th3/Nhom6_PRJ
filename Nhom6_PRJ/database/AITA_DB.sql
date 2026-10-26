@@ -422,40 +422,39 @@ VALUES
     -- 1 Quản trị viên
     ('ADMIN001', 'admin', N'System Administrator', 'admin@aita.edu.vn', 'admin-aita', '123456', 'ADMIN', 1, 0),
 
-    -- 5 Giảng viên
-    ('LEC001', 'lecturer.prj301', N'TS. Trần Giảng Viên (PRJ301)', 'lecturer.prj301@aita.edu.vn', 'tran-prj301', '123456', 'LECTURER', 0, 0),
-    ('LEC002', 'lecturer.swr302', N'ThS. Lê Thị Phương (SWR302)', 'lecturer.swr302@aita.edu.vn', 'le-swr302', '123456', 'LECTURER', 0, 0),
-    ('LEC003', 'lecturer.jpd123', N'ThS. Phạm Văn Java (JPD123)', 'lecturer.jpd123@aita.edu.vn', 'pham-jpd123', '123456', 'LECTURER', 0, 0),
-    ('LEC004', 'lecturer.csd201', N'TS. Vũ Thuật Toán (CSD201)', 'lecturer.csd201@aita.edu.vn', 'vu-csd201', '123456', 'LECTURER', 0, 0),
-    ('LEC005', 'lecturer.iot102', N'ThS. Đỗ Vạn Vật (IOT102)', 'lecturer.iot102@aita.edu.vn', 'do-iot102', '123456', 'LECTURER', 0, 0),
+    -- 4 Giảng viên (Username: [Tên][chữ đầu họ đệm][MSGV], MSGV: GV00001 - GV00099)
+    ('GV00001', 'KhoanaGV00001', N'TS. Nguyễn Anh Khoa (CSD201)', 'khoana@aita.edu.vn', 'khoa-csd201', '123456', 'LECTURER', 0, 0),
+    ('GV00002', 'VinhnvGV00002', N'ThS. Nguyễn Văn Vịnh (PRJ301, SWR302)', 'vinhnv@aita.edu.vn', 'vinh-swr302', '123456', 'LECTURER', 0, 0),
+    ('GV00003', 'TinnlGV00003', N'ThS. Nguyễn Lê Tín (JPD123)', 'tinnl@aita.edu.vn', 'tin-jpd123', '123456', 'LECTURER', 0, 0),
+    ('GV00004', 'HungnvGV00004', N'ThS. Nguyễn Văn Hưng (IOT102)', 'hungnv@aita.edu.vn', 'hung-iot102', '123456', 'LECTURER', 0, 0),
 
-    -- 25 Sinh viên (Khóa 20 - BIT_SE_K20C)
-    ('QE200066', 'qvuong8th3', N'Nguyễn Quốc Vương', 'qvuong8th3@gmail.com', 'qvuong8th3', '123456', 'STUDENT', 0, 0),
-    ('QE200001', 'an.nguyen', N'Nguyễn Văn An', 'an.nguyen@fpt.edu.vn', 'an-nguyen', '123456', 'STUDENT', 0, 0),
-    ('QE200002', 'binh.tran', N'Trần Thái Bình', 'binh.tran@fpt.edu.vn', 'binh-tran', '123456', 'STUDENT', 0, 0),
-    ('QE200003', 'chi.le', N'Lê Kim Chi', 'chi.le@fpt.edu.vn', 'chi-le', '123456', 'STUDENT', 0, 0),
-    ('QE200004', 'dung.hoang', N'Hoàng Tiến Dũng', 'dung.hoang@fpt.edu.vn', 'dung-hoang', '123456', 'STUDENT', 0, 0),
-    ('QE200005', 'em.pham', N'Phạm Thị Em', 'em.pham@fpt.edu.vn', 'em-pham', '123456', 'STUDENT', 0, 0),
-    ('QE200006', 'phuc.tran', N'Trần Hoàng Phúc', 'phuc.th@fpt.edu.vn', 'phuc-tran', '123456', 'STUDENT', 0, 0),
-    ('QE200007', 'minh.le', N'Lê Đức Minh', 'minh.ld@fpt.edu.vn', 'minh-le', '123456', 'STUDENT', 0, 0),
-    ('QE200008', 'vy.hoang', N'Hoàng Yến Vy', 'vy.hy@fpt.edu.vn', 'vy-hoang', '123456', 'STUDENT', 0, 0),
-    ('QE200009', 'nguyen.vo', N'Võ Thảo Nguyên', 'nguyen.vt@fpt.edu.vn', 'Vo-Thao-Nguyen', '123456', 'STUDENT', 0, 0),
-    ('QE200010', 'long.vu', N'Vũ Xuân Long', 'long.vx@fpt.edu.vn', 'long-vu', '123456', 'STUDENT', 0, 0),
-    ('QE200011', 'kien.dang', N'Đặng Trung Kiên', 'kien.dt@fpt.edu.vn', 'kien-dang', '123456', 'STUDENT', 0, 0),
-    ('QE200012', 'lan.ngo', N'Ngô Ngọc Lan', 'lan.nt@fpt.edu.vn', 'lan-ngo', '123456', 'STUDENT', 0, 0),
-    ('QE200013', 'mai.duong', N'Dương Tuyết Mai', 'mai.dtt@fpt.edu.vn', 'mai-duong', '123456', 'STUDENT', 0, 0),
-    ('QE200014', 'nam.bui', N'Bùi Hải Nam', 'nam.bh@fpt.edu.vn', 'nam-bui', '123456', 'STUDENT', 0, 0),
-    ('QE200015', 'oanh.dinh', N'Đinh Kim Oanh', 'oanh.dtk@fpt.edu.vn', 'oanh-dinh', '123456', 'STUDENT', 0, 0),
-    ('QE200016', 'quan.do', N'Đỗ Anh Quân', 'quan.da@fpt.edu.vn', 'quan-do', '123456', 'STUDENT', 0, 0),
-    ('QE200017', 'son.ly', N'Lý Hồng Sơn', 'son.lh@fpt.edu.vn', 'son-ly', '123456', 'STUDENT', 0, 0),
-    ('QE200018', 'thao.trinh', N'Trịnh Phương Thảo', 'thao.tpt@fpt.edu.vn', 'thao-trinh', '123456', 'STUDENT', 0, 0),
-    ('QE200019', 'uy.truong', N'Trương Quốc Uy', 'uy.tq@fpt.edu.vn', 'uy-truong', '123456', 'STUDENT', 0, 0),
-    ('QE200020', 'viet.phan', N'Phan Hoàng Việt', 'viet.ph@fpt.edu.vn', 'viet-phan', '123456', 'STUDENT', 0, 0),
-    ('QE200021', 'xuan.luong', N'Lương Thanh Xuân', 'xuan.lth@fpt.edu.vn', 'xuan-luong', '123456', 'STUDENT', 0, 0),
-    ('QE200022', 'yen.ha', N'Hà Bích Yến', 'yen.hb@fpt.edu.vn', 'yen-ha', '123456', 'STUDENT', 0, 0),
-    ('QE200023', 'tri.doan', N'Đoàn Minh Trí', 'tri.dm@fpt.edu.vn', 'tri-doan', '123456', 'STUDENT', 0, 0),
-    ('QE200024', 'dat.cao', N'Cao Thành Đạt', 'dat.ct@fpt.edu.vn', 'dat-cao', '123456', 'STUDENT', 0, 0),
-    ('QE200025', 'phuong.khong', N'Khổng Thu Phương', 'phuong.kt@fpt.edu.vn', 'phuong-khong', '123456', 'STUDENT', 0, 0);
+    -- 25 Sinh viên (Khóa 20 - BIT_SE_K20C, Username: [Tên][chữ đầu họ đệm][MSSV])
+    -- 5 Sinh viên trọng tâm bắt buộc:
+    ('QE200066', 'VuongnqQE200066', N'Nguyễn Quốc Vương', 'vuong.nq@fpt.edu.vn', 'qvuong8th3', '123456', 'STUDENT', 0, 0), -- user_id 6
+    ('QE200001', 'AnnvQE200001', N'Nguyễn Văn An', 'an.nguyen@fpt.edu.vn', 'an-nguyen', '123456', 'STUDENT', 0, 0),
+    ('QE200002', 'BinhttQE200002', N'Trần Thái Bình', 'binh.tran@fpt.edu.vn', 'binh-tran', '123456', 'STUDENT', 0, 0),
+    ('QE200003', 'ChilkQE200003', N'Lê Kim Chi', 'chi.le@fpt.edu.vn', 'chi-le', '123456', 'STUDENT', 0, 0),
+    ('QE200004', 'DunghtQE200004', N'Hoàng Tiến Dũng', 'dung.hoang@fpt.edu.vn', 'dung-hoang', '123456', 'STUDENT', 0, 0),
+    ('QE200005', 'EmptQE200005', N'Phạm Thị Em', 'em.pham@fpt.edu.vn', 'em-pham', '123456', 'STUDENT', 0, 0),
+    ('QE200006', 'PhucthQE200006', N'Trần Hoàng Phúc', 'phuc.th@fpt.edu.vn', 'phuc-tran', '123456', 'STUDENT', 0, 0), -- user_id 12
+    ('QE200007', 'MinhldQE200007', N'Lê Đức Minh', 'minh.ld@fpt.edu.vn', 'minh-le', '123456', 'STUDENT', 0, 0), -- user_id 13
+    ('QE200008', 'VyhyQE200008', N'Hoàng Yến Vy', 'vy.hy@fpt.edu.vn', 'vy-hoang', '123456', 'STUDENT', 0, 0), -- user_id 14
+    ('QE200064', 'NguyenvtQE200064', N'Võ Thảo Nguyên', 'nguyenvt@fpt.edu.vn', 'Vo-Thao-Nguyen', '123456', 'STUDENT', 0, 0), -- user_id 15
+    ('QE200140', 'LongvxQE200140', N'Võ Xuân Long', 'longvx@fpt.edu.vn', 'long-vx', '123456', 'STUDENT', 0, 0), -- user_id 16
+    ('QE200011', 'KiendtQE200011', N'Đặng Trung Kiên', 'kien.dt@fpt.edu.vn', 'kien-dang', '123456', 'STUDENT', 0, 0),
+    ('QE200012', 'LannnQE200012', N'Ngô Ngọc Lan', 'lan.nt@fpt.edu.vn', 'lan-ngo', '123456', 'STUDENT', 0, 0),
+    ('QE200013', 'MaidtQE200013', N'Dương Tuyết Mai', 'mai.dtt@fpt.edu.vn', 'mai-duong', '123456', 'STUDENT', 0, 0),
+    ('QE200014', 'NambhQE200014', N'Bùi Hải Nam', 'nam.bh@fpt.edu.vn', 'nam-bui', '123456', 'STUDENT', 0, 0),
+    ('QE200015', 'OanhdkQE200015', N'Đinh Kim Oanh', 'oanh.dtk@fpt.edu.vn', 'oanh-dinh', '123456', 'STUDENT', 0, 0),
+    ('QE200016', 'QuandaQE200016', N'Đỗ Anh Quân', 'quan.da@fpt.edu.vn', 'quan-do', '123456', 'STUDENT', 0, 0),
+    ('QE200017', 'SonlhQE200017', N'Lý Hồng Sơn', 'son.lh@fpt.edu.vn', 'son-ly', '123456', 'STUDENT', 0, 0),
+    ('QE200018', 'ThaotpQE200018', N'Trịnh Phương Thảo', 'thao.tpt@fpt.edu.vn', 'thao-trinh', '123456', 'STUDENT', 0, 0),
+    ('QE200019', 'UytqQE200019', N'Trương Quốc Uy', 'uy.tq@fpt.edu.vn', 'uy-truong', '123456', 'STUDENT', 0, 0),
+    ('QE200020', 'VietphQE200020', N'Phan Hoàng Việt', 'viet.ph@fpt.edu.vn', 'viet-phan', '123456', 'STUDENT', 0, 0),
+    ('QE200021', 'XuanltQE200021', N'Lương Thanh Xuân', 'xuan.lth@fpt.edu.vn', 'xuan-luong', '123456', 'STUDENT', 0, 0),
+    ('QE200022', 'YenhbQE200022', N'Hà Bích Yến', 'yen.hb@fpt.edu.vn', 'yen-ha', '123456', 'STUDENT', 0, 0),
+    ('QE190093', 'KietntQE190093', N'Nguyễn Tuấn Kiệt', 'kietnt@fpt.edu.vn', 'kiet-nt', '123456', 'STUDENT', 0, 0), -- user_id 29
+    ('QE200042', 'HaindtQE200042', N'Nguyễn Đặng Trường Hải', 'haindt@fpt.edu.vn', 'hai-ndt', '123456', 'STUDENT', 0, 0); -- user_id 30
 GO
 
 -- 9. KHỞI TẠO 5 MÔN HỌC BẮT BUỘC
@@ -468,14 +467,14 @@ VALUES
     ('IOT102', N'Internet of Things Fundamentals (IOT102)', 'Fall 2026', 1);
 GO
 
--- Phân công 5 giảng viên phụ trách 5 môn
+-- Phân công 4 giảng viên phụ trách các môn (ThS. Nguyễn Văn Vịnh phụ trách cả PRJ301 và SWR302)
 INSERT INTO Lecturer_Courses (course_id, lecturer_id)
 VALUES 
-    (1, 2), -- PRJ301 -> TS. Trần Giảng Viên
-    (2, 3), -- SWR302 -> ThS. Lê Thị Phương
-    (3, 4), -- JPD123 -> ThS. Phạm Văn Java
-    (4, 5), -- CSD201 -> TS. Vũ Thuật Toán
-    (5, 6); -- IOT102 -> ThS. Đỗ Vạn Vật
+    (1, 3), -- PRJ301 -> ThS. Nguyễn Văn Vịnh (VinhnvGV00002)
+    (2, 3), -- SWR302 -> ThS. Nguyễn Văn Vịnh (VinhnvGV00002)
+    (3, 4), -- JPD123 -> ThS. Nguyễn Lê Tín (TinnlGV00003)
+    (4, 2), -- CSD201 -> TS. Nguyễn Anh Khoa (KhoanaGV00001)
+    (5, 5); -- IOT102 -> ThS. Nguyễn Văn Hưng (HungnvGV00004)
 GO
 
 -- Tạo Lớp học cho mỗi môn
@@ -488,9 +487,9 @@ VALUES
     (5, 'SE20C_IOT102');
 GO
 
--- Ghi danh 26 sinh viên (từ user_id 7 đến 32) vào lớp và môn học
-DECLARE @uid INT = 7;
-WHILE @uid <= 32
+-- Ghi danh 25 sinh viên (từ user_id 6 đến 30) vào lớp và môn học
+DECLARE @uid INT = 6;
+WHILE @uid <= 30
 BEGIN
     INSERT INTO Class_Students (class_id, student_id) VALUES (1, @uid);
     INSERT INTO Class_Students (class_id, student_id) VALUES (2, @uid);
@@ -514,23 +513,23 @@ GO
 -- 10. NHÓM VÀ LỊCH SỬ GIT CHO MODULE FE-L-03 (NHÓM 6)
 INSERT INTO StudentGroups (group_name, course_code, semester, lecturer_id)
 VALUES 
-    (N'Nhóm 1 - AST Parser Engine (FE-L-01)', 'PRJ301', 'Fall 2026', 2),
-    (N'Nhóm 2 - Moulinette Docker Sandbox (FE-L-02)', 'PRJ301', 'Fall 2026', 2),
-    (N'Nhóm 3 - Circular Peer Auditor (FE-L-04)', 'PRJ301', 'Fall 2026', 2),
-    (N'Nhóm 4 - Submission Integrity SHA256 (FE-L-05)', 'PRJ301', 'Fall 2026', 2),
-    (N'Nhóm 5 - Pedagogical AI Teacher (FE-L-06)', 'PRJ301', 'Fall 2026', 2),
-    (N'Nhóm 6 - Git Analytics Platform', 'PRJ301', 'Fall 2026', 2),
-    (N'Nhóm 7 - Academic Marketplace (FE-L-07)', 'PRJ301', 'Fall 2026', 2);
+    (N'Nhóm 1 - AST Parser Engine (FE-L-01)', 'PRJ301', 'Fall 2026', 3),
+    (N'Nhóm 2 - Moulinette Docker Sandbox (FE-L-02)', 'PRJ301', 'Fall 2026', 3),
+    (N'Nhóm 3 - Circular Peer Auditor (FE-L-04)', 'PRJ301', 'Fall 2026', 3),
+    (N'Nhóm 4 - Submission Integrity SHA256 (FE-L-05)', 'PRJ301', 'Fall 2026', 3),
+    (N'Nhóm 5 - Pedagogical AI Teacher (FE-L-06)', 'PRJ301', 'Fall 2026', 3),
+    (N'Nhóm 6 - Git Analytics Platform', 'PRJ301', 'Fall 2026', 3),
+    (N'Nhóm 7 - Academic Marketplace (FE-L-07)', 'PRJ301', 'Fall 2026', 3);
 GO
 
 -- Gán thành viên Nhóm 6: Nguyễn Quốc Vương, Trần Hoàng Phúc, Lê Đức Minh, Hoàng Yến Vy, Võ Thảo Nguyên
 INSERT INTO GroupMembers (group_id, student_id, role_in_group)
 VALUES 
-    (6, 7, 'LEADER'),  -- Nguyễn Quốc Vương (user_id 7)
-    (6, 13, 'MEMBER'), -- Trần Hoàng Phúc (user_id 13)
-    (6, 14, 'MEMBER'), -- Lê Đức Minh (user_id 14)
-    (6, 15, 'MEMBER'), -- Hoàng Yến Vy (user_id 15)
-    (6, 16, 'MEMBER'); -- Võ Thảo Nguyên (user_id 16)
+    (6, 6,  'LEADER'), -- Nguyễn Quốc Vương (user_id 6)
+    (6, 12, 'MEMBER'), -- Trần Hoàng Phúc (user_id 12)
+    (6, 13, 'MEMBER'), -- Lê Đức Minh (user_id 13)
+    (6, 14, 'MEMBER'), -- Hoàng Yến Vy (user_id 14)
+    (6, 15, 'MEMBER'); -- Võ Thảo Nguyên (user_id 15)
 GO
 
 -- Gán Repository Nhóm 6 (Khớp chính xác với hình ảnh: https://github.com/lx426352-art/PRJ301-Nh-m-6)
@@ -546,27 +545,28 @@ GO
 -- Commits mẫu cho Nhóm 6
 INSERT INTO GitCommits (repo_id, author_user_id, commit_hash, author_email, commit_message, commit_date, lines_added, lines_deleted, files_changed)
 VALUES 
-    (1, 16, 'e1f2a3b4c5d67890123456789abcdef012345671', 'nguyen.vt@fpt.edu.vn', 'feat(core): setup teamwork assessor base formula and engine', DATEADD(day, -14, GETDATE()), 450, 30, 6),
-    (1, 16, 'e1f2a3b4c5d67890123456789abcdef012345672', 'nguyen.vt@fpt.edu.vn', 'feat(ui): build dashboard charts and weekly timeline', DATEADD(day, -10, GETDATE()), 320, 20, 5),
-    (1, 7,  'a1b2c3d4e5f67890123456789abcdef012345673', 'qvuong8th3@gmail.com', 'feat(assessor): implement anti-freerider penalty heuristic', DATEADD(day, -7, GETDATE()), 380, 25, 4),
-    (1, 7,  'a1b2c3d4e5f67890123456789abcdef012345674', 'qvuong8th3@gmail.com', 'refactor(dao): optimize commit querying and connection pool', DATEADD(day, -3, GETDATE()), 290, 15, 3),
-    (1, 13, 'b1c2d3e4f5a67890123456789abcdef012345675', 'phuc.th@fpt.edu.vn', 'feat(service): add GitHub sync service endpoint', DATEADD(day, -5, GETDATE()), 210, 18, 3),
-    (1, 14, 'c1d2e3f4a5b67890123456789abcdef012345676', 'minh.ld@fpt.edu.vn', 'docs: update ERD and system specification', DATEADD(day, -4, GETDATE()), 130, 10, 2),
-    (1, 15, 'd1e2f3a4b5c67890123456789abcdef012345677', 'vy.hy@fpt.edu.vn', 'fix', DATEADD(hour, -2, GETDATE()), 25, 2, 1),
-    (1, 15, 'd1e2f3a4b5c67890123456789abcdef012345678', 'vy.hy@fpt.edu.vn', 'update', DATEADD(hour, -1, GETDATE()), 18, 1, 1);
+    (1, 15, 'e1f2a3b4c5d67890123456789abcdef012345671', 'nguyen.vt@fpt.edu.vn', 'feat(core): setup teamwork assessor base formula and engine', DATEADD(day, -14, GETDATE()), 450, 30, 6),
+    (1, 15, 'e1f2a3b4c5d67890123456789abcdef012345672', 'nguyen.vt@fpt.edu.vn', 'feat(ui): build dashboard charts and weekly timeline', DATEADD(day, -10, GETDATE()), 320, 20, 5),
+    (1, 6,  'a1b2c3d4e5f67890123456789abcdef012345673', 'vuong.nq@fpt.edu.vn', 'feat(assessor): implement anti-freerider penalty heuristic', DATEADD(day, -7, GETDATE()), 380, 25, 4),
+    (1, 6,  'a1b2c3d4e5f67890123456789abcdef012345674', 'vuong.nq@fpt.edu.vn', 'refactor(dao): optimize commit querying and connection pool', DATEADD(day, -3, GETDATE()), 290, 15, 3),
+    (1, 12, 'b1c2d3e4f5a67890123456789abcdef012345675', 'phuc.th@fpt.edu.vn', 'feat(service): add GitHub sync service endpoint', DATEADD(day, -5, GETDATE()), 210, 18, 3),
+    (1, 13, 'c1d2e3f4a5b67890123456789abcdef012345676', 'minh.ld@fpt.edu.vn', 'docs: update ERD and system specification', DATEADD(day, -4, GETDATE()), 130, 10, 2),
+    (1, 14, 'd1e2f3a4b5c67890123456789abcdef012345677', 'vy.hy@fpt.edu.vn', 'fix', DATEADD(hour, -2, GETDATE()), 25, 2, 1),
+    (1, 14, 'd1e2f3a4b5c67890123456789abcdef012345678', 'vy.hy@fpt.edu.vn', 'update', DATEADD(hour, -1, GETDATE()), 18, 1, 1);
 GO
 
 -- Pull Requests & Code Reviews
 INSERT INTO Pull_Requests (group_id, user_id, pr_number, title, status, created_at, merged_at)
 VALUES 
-    (6, 16, 1, 'feat: Setup Core Assessor UI', 'MERGED', DATEADD(day, -12, GETDATE()), DATEADD(day, -11, GETDATE())),
-    (6, 7,  2, 'feat: Anti-freerider Algorithm', 'MERGED', DATEADD(day, -6, GETDATE()), DATEADD(day, -5, GETDATE())),
-    (6, 13, 3, 'feat: GitHub REST Sync', 'MERGED', DATEADD(day, -4, GETDATE()), DATEADD(day, -3, GETDATE()));
+    (6, 15, 1, 'feat: Setup Core Assessor UI', 'MERGED', DATEADD(day, -12, GETDATE()), DATEADD(day, -11, GETDATE())),
+    (6, 6,  2, 'feat: Anti-freerider Algorithm', 'MERGED', DATEADD(day, -6, GETDATE()), DATEADD(day, -5, GETDATE())),
+    (6, 12, 3, 'feat: GitHub REST Sync', 'MERGED', DATEADD(day, -4, GETDATE()), DATEADD(day, -3, GETDATE()));
 GO
 
 INSERT INTO Code_Reviews (group_id, reviewer_id, pr_id, comments_num, reviewed_at)
 VALUES 
-    (6, 7, 1, 3, DATEADD(day, -11, GETDATE())),
+    (6, 6,  1, 3, DATEADD(day, -11, GETDATE())),
+    (6, 15, 2, 2, DATEADD(day, -5, GETDATE()));
     (6, 16, 2, 2, DATEADD(day, -5, GETDATE()));
 GO
 

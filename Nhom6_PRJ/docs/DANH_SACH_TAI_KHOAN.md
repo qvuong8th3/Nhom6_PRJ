@@ -1,69 +1,70 @@
 # DANH SÁCH TÀI KHOẢN HỆ THỐNG AITA LEARNING WORKSPACE
-> **Ghi chú**: Tất cả mật khẩu mặc định khởi tạo là: `123456`  
+> **Quy tắc đặt tên tài khoản**: `[Tên không dấu][Chữ cái đầu họ và tên đệm][Mã số]`  
+> **Ví dụ Sinh viên**: Nguyễn Quốc Vương (MSSV: QE200066) &rarr; Tài khoản: `VuongnqQE200066`  
+> **Ví dụ Giảng viên**: Nguyễn Anh Khoa (MSGV: GV00001) &rarr; Tài khoản: `KhoanaGV00001`  
+> **Mật khẩu mặc định khởi tạo**: `123456`  
 > Người dùng có thể đổi mật khẩu bất kỳ lúc nào từ biểu tượng Chìa Khóa trên hệ thống.  
-> Cổng đăng nhập: `http://localhost:8080/gitanalytics/login.jsp`
+> Cổng đăng nhập: `login.html` (Static / Dev) hoặc `login.jsp` (Tomcat Server)
 
 ---
 
-## 1. TÀI KHOẢN QUẢN TRỊ VIÊN TỐI CAO (ADMINISTRATOR - 1 TÀI KHOẢN DUY NHẤT)
-*Admin là tài khoản duy nhất có quyền cấp, tạo mới, chỉnh sửa và quản lý toàn bộ Giảng viên, Sinh viên, Môn học và Phân lớp.*
+## 1. TÀI KHOẢN QUẢN TRỊ VIÊN TỐI CAO (ADMINISTRATOR - 1 TÀI KHOẢN)
+*Admin là tài khoản có toàn quyền quản trị hệ thống, cấu hình API, quản lý Giảng viên, Sinh viên, Môn học và Phân lớp.*
 
-| Username | Email | Mật khẩu | Họ và tên | Vai trò | Quyền hạn |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **admin** | `admin@aita.edu.vn` | `123456` | System Administrator | **ADMIN** | Quản trị toàn hệ thống, cấp tài khoản Giảng viên & Sinh viên, tạo Môn học & Phân lớp |
+| Username | Email | Mật khẩu | Họ và tên | Mã định danh | Vai trò | Quyền hạn |
+| :--- | :--- | :---: | :--- | :---: | :---: | :--- |
+| **admin** | `admin@aita.edu.vn` | `123456` | System Administrator | ADMIN001 | **ADMIN** | Quản trị toàn hệ thống, cấp tài khoản, cấu hình Sandbox & API |
 
 ---
 
-## 2. TÀI KHOẢN GIẢNG VIÊN (5 MÔN HỌC CHÍNH)
-*Mỗi giảng viên phụ trách môn học chuyên môn, có quyền CRUD sinh viên trong lớp, giao bài tập, tải đề thi, xem bài nộp và chấm điểm.*
+## 2. TÀI KHOẢN GIẢNG VIÊN BỘ MÔN (4 GIẢNG VIÊN)
+*Mỗi giảng viên phụ trách các môn học chuyên môn, có quyền quản lý sinh viên trong lớp, cấu hình đề thi, xem bài nộp và đánh giá chấm điểm. Mã giảng viên bắt đầu bằng `GV` kèm số từ `00001` đến `00099`.*
 
-| STT | Username | Email | Mật khẩu | Họ và tên | Môn học phụ trách |
-| :---: | :--- | :--- | :--- | :--- | :--- |
-| **1** | `lecturer.prj301` | `lecturer.prj301@aita.edu.vn` | `123456` | TS. Trần Giảng Viên | **PRJ301** - Java Web Application Development |
-| **2** | `lecturer.swr302` | `lecturer.swr302@aita.edu.vn` | `123456` | ThS. Lê Thị Phương | **SWR302** - Software Requirement |
-| **3** | `lecturer.jpd123` | `lecturer.jpd123@aita.edu.vn` | `123456` | ThS. Phạm Văn Java | **JPD123** - Core Java Lab & Practice |
-| **4** | `lecturer.csd201` | `lecturer.csd201@aita.edu.vn` | `123456` | TS. Vũ Thuật Toán | **CSD201** - Data Structures and Algorithms |
-| **5** | `lecturer.iot102` | `lecturer.iot102@aita.edu.vn` | `123456` | ThS. Đỗ Vạn Vật | **IOT102** - Internet of Things Fundamentals |
+| STT | Mã GV | Họ và tên | Username (Tài khoản) | Email đăng nhập | Mật khẩu | Môn học phụ trách |
+| :---: | :---: | :--- | :--- | :--- | :---: | :--- |
+| **1** | **GV00001** | **TS. Nguyễn Anh Khoa** | `KhoanaGV00001` | `khoana@aita.edu.vn` | `123456` | **CSD201** - Data Structures & Algorithms |
+| **2** | **GV00002** | **ThS. Nguyễn Văn Vịnh** | `VinhnvGV00002` | `vinhnv@aita.edu.vn` | `123456` | **PRJ301** - Java Web Application Development<br>**SWR302** - Software Requirement Engineering |
+| **3** | **GV00003** | **ThS. Nguyễn Lê Tín** | `TinnlGV00003` | `tinnl@aita.edu.vn` | `123456` | **JPD123** - Core Java Lab & Practice |
+| **4** | **GV00004** | **ThS. Nguyễn Văn Hưng** | `HungnvGV00004` | `hungnv@aita.edu.vn` | `123456` | **IOT102** - Internet of Things Fundamentals |
 
 ---
 
 ## 3. DANH SÁCH 25 SINH VIÊN (LỚP HỌC BIT_SE_K20C)
-*Sinh viên có quyền xem danh sách lớp, xem thống kê Git Assessor, nộp bài tập qua tài khoản Giảng viên, làm đề kiểm tra trực tuyến và xem kết quả chấm điểm.*
+*Gồm 5 sinh viên trọng tâm bắt buộc và 20 sinh viên trong lớp SE20C. Mã sinh viên dạng `QE20xxxx` (4 số cuối từ 0001 đến 0300) và `QE190093`. Tài khoản tuân thủ đúng định dạng `[Tên][chữ đầu họ đệm][MSSV]`.*
 
-| STT | MSSV | Họ và tên | Username | Email đăng nhập | Mật khẩu | Lớp / Khóa | Nhóm Git |
+| STT | MSSV | Họ và tên | Username (Tài khoản) | Email đăng nhập | Mật khẩu | Lớp / Khóa | Nhóm Git |
 | :---: | :---: | :--- | :--- | :--- | :---: | :---: | :---: |
-| **1** | **QE200066** | **Nguyễn Quốc Vương** | `qvuong8th3` | `qvuong8th3@gmail.com` | `123456` | BIT_SE_K20C (K20) | **Nhóm 6 (Leader)** |
-| **2** | **QE200001** | Nguyễn Văn An | `an.nguyen` | `an.nguyen@fpt.edu.vn` | `123456` | BIT_SE_K20C (K20) | Nhóm 1 |
-| **3** | **QE200002** | Trần Thái Bình | `binh.tran` | `binh.tran@fpt.edu.vn` | `123456` | BIT_SE_K20C (K20) | Nhóm 1 |
-| **4** | **QE200003** | Lê Kim Chi | `chi.le` | `chi.le@fpt.edu.vn` | `123456` | BIT_SE_K20C (K20) | Nhóm 2 |
-| **5** | **QE200004** | Hoàng Tiến Dũng | `dung.hoang` | `dung.hoang@fpt.edu.vn` | `123456` | BIT_SE_K20C (K20) | Nhóm 2 |
-| **6** | **QE200005** | Phạm Thị Em | `em.pham` | `em.pham@fpt.edu.vn` | `123456` | BIT_SE_K20C (K20) | Nhóm 3 |
-| **7** | **QE200006** | Trần Hoàng Phúc | `phuc.tran` | `phuc.th@fpt.edu.vn` | `123456` | BIT_SE_K20C (K20) | **Nhóm 6** |
-| **8** | **QE200007** | Lê Đức Minh | `minh.le` | `minh.ld@fpt.edu.vn` | `123456` | BIT_SE_K20C (K20) | **Nhóm 6** |
-| **9** | **QE200008** | Hoàng Yến Vy | `vy.hoang` | `vy.hy@fpt.edu.vn` | `123456` | BIT_SE_K20C (K20) | **Nhóm 6** |
-| **10** | **QE200009** | Võ Thảo Nguyên | `nguyen.vo` | `nguyen.vt@fpt.edu.vn` | `123456` | BIT_SE_K20C (K20) | Nhóm 3 |
-| **11** | **QE200010** | Vũ Xuân Long | `long.vu` | `long.vx@fpt.edu.vn` | `123456` | BIT_SE_K20C (K20) | Nhóm 4 |
-| **12** | **QE200011** | Đặng Trung Kiên | `kien.dang` | `kien.dt@fpt.edu.vn` | `123456` | BIT_SE_K20C (K20) | Nhóm 4 |
-| **13** | **QE200012** | Ngô Ngọc Lan | `lan.ngo` | `lan.nt@fpt.edu.vn` | `123456` | BIT_SE_K20C (K20) | Nhóm 4 |
-| **14** | **QE200013** | Dương Tuyết Mai | `mai.duong` | `mai.dtt@fpt.edu.vn` | `123456` | BIT_SE_K20C (K20) | Nhóm 5 |
-| **15** | **QE200014** | Bùi Hải Nam | `nam.bui` | `nam.bh@fpt.edu.vn` | `123456` | BIT_SE_K20C (K20) | Nhóm 5 |
-| **16** | **QE200015** | Đinh Kim Oanh | `oanh.dinh` | `oanh.dtk@fpt.edu.vn` | `123456` | BIT_SE_K20C (K20) | Nhóm 5 |
-| **17** | **QE200016** | Đỗ Anh Quân | `quan.do` | `quan.da@fpt.edu.vn` | `123456` | BIT_SE_K20C (K20) | Nhóm 7 |
-| **18** | **QE200017** | Lý Hồng Sơn | `son.ly` | `son.lh@fpt.edu.vn` | `123456` | BIT_SE_K20C (K20) | Nhóm 7 |
-| **19** | **QE200018** | Trịnh Phương Thảo | `thao.trinh` | `thao.tpt@fpt.edu.vn` | `123456` | BIT_SE_K20C (K20) | Nhóm 7 |
-| **20** | **QE200019** | Trương Quốc Uy | `uy.truong` | `uy.tq@fpt.edu.vn` | `123456` | BIT_SE_K20C (K20) | Nhóm 1 |
-| **21** | **QE200020** | Phan Hoàng Việt | `viet.phan` | `viet.ph@fpt.edu.vn` | `123456` | BIT_SE_K20C (K20) | Nhóm 2 |
-| **22** | **QE200021** | Lương Thanh Xuân | `xuan.luong` | `xuan.lth@fpt.edu.vn` | `123456` | BIT_SE_K20C (K20) | Nhóm 3 |
-| **23** | **QE200022** | Hà Bích Yến | `yen.ha` | `yen.hb@fpt.edu.vn` | `123456` | BIT_SE_K20C (K20) | Nhóm 4 |
-| **24** | **QE200023** | Đoàn Minh Trí | `tri.doan` | `tri.dm@fpt.edu.vn` | `123456` | BIT_SE_K20C (K20) | Nhóm 5 |
-| **25** | **QE200024** | Cao Thành Đạt | `dat.cao` | `dat.ct@fpt.edu.vn` | `123456` | BIT_SE_K20C (K20) | Nhóm 7 |
-| **26** | **QE200025** | Khổng Thu Phương | `phuong.khong` | `phuong.kt@fpt.edu.vn` | `123456` | BIT_SE_K20C (K20) | Nhóm 7 |
+| **1** | **QE200066** | **Nguyễn Quốc Vương** | `VuongnqQE200066` | `vuong.nq@fpt.edu.vn` | `123456` | BIT_SE_K20C | **Nhóm 6 (Leader)** |
+| **2** | **QE200140** | **Võ Xuân Long** | `LongvxQE200140` | `longvx@fpt.edu.vn` | `123456` | BIT_SE_K20C | Nhóm 4 |
+| **3** | **QE200064** | **Võ Thảo Nguyên** | `NguyenvtQE200064` | `nguyenvt@fpt.edu.vn` | `123456` | BIT_SE_K20C | Nhóm 3 / Nhóm 6 |
+| **4** | **QE190093** | **Nguyễn Tuấn Kiệt** | `KietntQE190093` | `kietnt@fpt.edu.vn` | `123456` | BIT_SE_K19 | Nhóm 2 |
+| **5** | **QE200042** | **Nguyễn Đặng Trường Hải** | `HaindtQE200042` | `haindt@fpt.edu.vn` | `123456` | BIT_SE_K20C | **Nhóm 6** |
+| **6** | **QE200006** | **Trần Hoàng Phúc** | `PhucthQE200006` | `phuc.th@fpt.edu.vn` | `123456` | BIT_SE_K20C | **Nhóm 6** |
+| **7** | **QE200007** | **Lê Đức Minh** | `MinhldQE200007` | `minh.ld@fpt.edu.vn` | `123456` | BIT_SE_K20C | **Nhóm 6** |
+| **8** | **QE200008** | **Hoàng Yến Vy** | `VyhyQE200008` | `vy.hy@fpt.edu.vn` | `123456` | BIT_SE_K20C | **Nhóm 6** |
+| **9** | **QE200001** | Nguyễn Văn An | `AnnvQE200001` | `an.nguyen@fpt.edu.vn` | `123456` | BIT_SE_K20C | Nhóm 1 |
+| **10** | **QE200002** | Trần Thái Bình | `BinhttQE200002` | `binh.tran@fpt.edu.vn` | `123456` | BIT_SE_K20C | Nhóm 1 |
+| **11** | **QE200003** | Lê Kim Chi | `ChilkQE200003` | `chi.le@fpt.edu.vn` | `123456` | BIT_SE_K20C | Nhóm 2 |
+| **12** | **QE200004** | Hoàng Tiến Dũng | `DunghtQE200004` | `dung.hoang@fpt.edu.vn` | `123456` | BIT_SE_K20C | Nhóm 2 |
+| **13** | **QE200005** | Phạm Thị Em | `EmptQE200005` | `em.pham@fpt.edu.vn` | `123456` | BIT_SE_K20C | Nhóm 3 |
+| **14** | **QE200011** | Đặng Trung Kiên | `KiendtQE200011` | `kien.dt@fpt.edu.vn` | `123456` | BIT_SE_K20C | Nhóm 4 |
+| **15** | **QE200012** | Ngô Ngọc Lan | `LannnQE200012` | `lan.nt@fpt.edu.vn` | `123456` | BIT_SE_K20C | Nhóm 4 |
+| **16** | **QE200013** | Dương Tuyết Mai | `MaidtQE200013` | `mai.dtt@fpt.edu.vn` | `123456` | BIT_SE_K20C | Nhóm 5 |
+| **17** | **QE200014** | Bùi Hải Nam | `NambhQE200014` | `nam.bh@fpt.edu.vn` | `123456` | BIT_SE_K20C | Nhóm 5 |
+| **18** | **QE200015** | Đinh Kim Oanh | `OanhdkQE200015` | `oanh.dtk@fpt.edu.vn` | `123456` | BIT_SE_K20C | Nhóm 5 |
+| **19** | **QE200016** | Đỗ Anh Quân | `QuandaQE200016` | `quan.da@fpt.edu.vn` | `123456` | BIT_SE_K20C | Nhóm 7 |
+| **20** | **QE200017** | Lý Hồng Sơn | `SonlhQE200017` | `son.lh@fpt.edu.vn` | `123456` | BIT_SE_K20C | Nhóm 7 |
+| **21** | **QE200018** | Trịnh Phương Thảo | `ThaotpQE200018` | `thao.tpt@fpt.edu.vn` | `123456` | BIT_SE_K20C | Nhóm 7 |
+| **22** | **QE200019** | Trương Quốc Uy | `UytqQE200019` | `uy.tq@fpt.edu.vn` | `123456` | BIT_SE_K20C | Nhóm 1 |
+| **23** | **QE200020** | Phan Hoàng Việt | `VietphQE200020` | `viet.ph@fpt.edu.vn` | `123456` | BIT_SE_K20C | Nhóm 2 |
+| **24** | **QE200021** | Lương Thanh Xuân | `XuanltQE200021` | `xuan.lth@fpt.edu.vn` | `123456` | BIT_SE_K20C | Nhóm 3 |
+| **25** | **QE200022** | Hà Bích Yến | `YenhbQE200022` | `yen.hb@fpt.edu.vn` | `123456` | BIT_SE_K20C | Nhóm 4 |
 
 ---
 
-## 4. DANH SÁCH 5 MÔN HỌC & MÃ MÔN
-1. **PRJ301** - Java Web Application Development
-2. **SWR302** - Software Requirement
-3. **JPD123** - Core Java Lab & Practice
-4. **CSD201** - Data Structures and Algorithms
-5. **IOT102** - Internet of Things Fundamentals
+## 4. DANH SÁCH 5 MÔN HỌC & GIẢNG VIÊN PHỤ TRÁCH
+1. **PRJ301** - Java Web Application Development &rarr; **ThS. Nguyễn Văn Vịnh** (Mã: `GV00002`, TK: `VinhnvGV00002`)
+2. **SWR302** - Software Requirement Engineering &rarr; **ThS. Nguyễn Văn Vịnh** (Mã: `GV00002`, TK: `VinhnvGV00002`)
+3. **JPD123** - Core Java Lab & Practice &rarr; **ThS. Nguyễn Lê Tín** (Mã: `GV00003`, TK: `TinnlGV00003`)
+4. **CSD201** - Data Structures and Algorithms &rarr; **TS. Nguyễn Anh Khoa** (Mã: `GV00001`, TK: `KhoanaGV00001`)
+5. **IOT102** - Internet of Things Fundamentals &rarr; **ThS. Nguyễn Văn Hưng** (Mã: `GV00004`, TK: `HungnvGV00004`)
