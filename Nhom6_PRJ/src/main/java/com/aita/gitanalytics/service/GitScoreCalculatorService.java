@@ -68,6 +68,10 @@ public class GitScoreCalculatorService {
         private List<String> commitMessages;
         private boolean isLastMinuteDumper; // Dồn commit vào phút chót mà không chia đều
 
+        public StudentGitData(String name, int commits, int loc, double regularityScore) {
+            this(0, name, commits, loc, regularityScore, 0, 0, Collections.emptyList(), false);
+        }
+
         public StudentGitData(int userId, String name, int commits, int loc, double regularityScore,
                               int pullRequestsCount, int reviewsCount, List<String> commitMessages,
                               boolean isLastMinuteDumper) {

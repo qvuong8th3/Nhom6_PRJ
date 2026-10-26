@@ -1,4 +1,4 @@
--- =========================================================
+﻿-- =========================================================
 -- DATABASE: AITA_DB - GIT ANALYTICS MODULE - GROUP 6
 -- Hệ quản trị: Microsoft SQL Server
 -- =========================================================
@@ -21,16 +21,6 @@ USE AITA_DB;
 GO
 
 
-<<<<<<< HEAD
-
--- Bảng Groups: Các nhóm sinh viên
-CREATE TABLE IF NOT EXISTS Project_Groups (
-    group_id INT AUTO_INCREMENT PRIMARY KEY,
-    group_name VARCHAR(100) NOT NULL,
-    project_topic VARCHAR(255),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-=======
 -- =========================================================
 -- 2. USERS
 -- Lưu thông tin người dùng:

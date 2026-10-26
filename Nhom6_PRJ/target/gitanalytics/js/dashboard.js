@@ -18,6 +18,12 @@ async function requestJson(path, options) {
         window.location.href = 'login.jsp';
         throw new Error('Phiên đăng nhập đã hết hạn.');
     }
+    const contentType = response.headers.get('content-type') || '';
+    if (!contentType.includes('application/json')) {
+        const text = await response.text();
+        const snippet = text.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 120);
+        throw new Error(`Máy chủ trả về phản hồi không hợp lệ (${response.status}): ${snippet || 'Vui lòng kiểm tra console hoặc Tomcat log.'}`);
+    }
     const result = await response.json();
     if (!response.ok) {
         throw new Error(result.error || 'Yêu cầu không thành công.');
@@ -95,88 +101,316 @@ function setActiveView(viewId) {
     }
 }
 
+let contributionPieChartInstance = null;
+let timelineBarChartInstance = null;
+
 function renderDashboard(data, isLecturer) {
+    if (!data) return;
+
+    // 1. Luôn cập nhật thông tin Nhóm và Repository trên Header ngay lập tức
+    const groupNameEl = document.getElementById('groupName');
+    if (groupNameEl) groupNameEl.textContent = data.groupName || 'Chưa cấu hình nhóm';
+
+    const repoUrlEl = document.getElementById('repoUrl');
+    if (repoUrlEl) {
+        repoUrlEl.textContent = data.repoUrl || 'Chưa cấu hình repository';
+        if (data.repoUrl && data.repoUrl.startsWith('http') && repoUrlEl.tagName === 'A') {
+            repoUrlEl.href = data.repoUrl;
+        }
+    }
+
     const contributions = data.contributions || [];
     const colors = ['#5265e8', '#25a887', '#e7aa46', '#8872de', '#df6570', '#50a5c9'];
     const getSuggestedPercentage = item => {
         const value = Number(item.suggestedPercentage);
         return Number.isFinite(value) ? value : (Number(item.percentage) || 0);
     };
-    new Chart(document.getElementById('contributionPieChart'), {
-        type: 'doughnut',
-        data: {
-            labels: contributions.map(item => item.studentName),
-            datasets: [{
-                data: contributions.map(getSuggestedPercentage),
-                backgroundColor: colors,
-                borderWidth: 0,
-                hoverOffset: 8
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { position: 'bottom', labels: { padding: 20, color: '#59637b' } } },
-            cutout: '70%'
-        }
-    });
 
-    new Chart(document.getElementById('timelineBarChart'), {
-        type: 'line',
-        data: data.timeline || { labels: [], datasets: [] },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { position: 'top', labels: { color: '#59637b' } } },
-            scales: {
-                y: { beginAtZero: true, grid: { color: '#edf0f5' } },
-                x: { grid: { display: false } }
-            }
+    // 2. Vẽ biểu đồ Pie an toàn, hủy instance cũ nếu đã tồn tại
+    const pieCanvas = document.getElementById('contributionPieChart');
+    if (pieCanvas) {
+        if (contributionPieChartInstance) {
+            contributionPieChartInstance.destroy();
+            contributionPieChartInstance = null;
+        } else if (typeof Chart.getChart === 'function') {
+            const existing = Chart.getChart(pieCanvas);
+            if (existing) existing.destroy();
         }
-    });
+        try {
+            contributionPieChartInstance = new Chart(pieCanvas, {
+                type: 'doughnut',
+                data: {
+                    labels: contributions.map(item => item.studentName),
+                    datasets: [{
+                        data: contributions.map(getSuggestedPercentage),
+                        backgroundColor: colors,
+                        borderWidth: 0,
+                        hoverOffset: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom', labels: { padding: 20, color: '#59637b' } } },
+                    cutout: '70%'
+                }
+            });
+        } catch (e) {
+            console.warn('Lỗi vẽ contributionPieChart:', e);
+        }
+    }
+
+    // 3. Vẽ biểu đồ Timeline an toàn, hủy instance cũ nếu đã tồn tại
+    const timelineCanvas = document.getElementById('timelineBarChart');
+    if (timelineCanvas) {
+        if (timelineBarChartInstance) {
+            timelineBarChartInstance.destroy();
+            timelineBarChartInstance = null;
+        } else if (typeof Chart.getChart === 'function') {
+            const existing = Chart.getChart(timelineCanvas);
+            if (existing) existing.destroy();
+        }
+        try {
+            timelineBarChartInstance = new Chart(timelineCanvas, {
+                type: 'line',
+                data: data.timeline || { labels: [], datasets: [] },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'top', labels: { color: '#59637b' } } },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: '#edf0f5' } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+        } catch (e) {
+            console.warn('Lỗi vẽ timelineBarChart:', e);
+        }
+    }
+
+    // Cập nhật nhãn công thức theo trọng số thực tế từ DB
+    if (data.weights) {
+        const w = data.weights;
+        const formulaLabel = document.getElementById('assessorFormulaLabel');
+        if (formulaLabel) {
+            formulaLabel.textContent = `${Math.round(w.wVolume * 100)}% Volume + ${Math.round(w.wFrequency * 100)}% Freq + ${Math.round(w.wReview * 100)}% Review - ${Math.round(w.wPenalty * 100)}% Penalty`;
+        }
+    }
 
     const tableBody = document.getElementById('studentTableBody');
     const alerts = [];
     const averageContribution = contributions.length ? 100 / contributions.length : 0;
-    const lowContributionThreshold = averageContribution * 0.5;
-    const hasGitActivity = contributions.some(item =>
-        Number(item.commits) > 0 || Number(item.loc) > 0 || Number(item.regularity) > 0);
     let lowestSuggestedPercentage = null;
     let highestSuggestedPercentage = null;
-    let lowContributionCount = 0;
+    let suspiciousCount = 0;
+
     tableBody.innerHTML = contributions.map(item => {
         const percentage = getSuggestedPercentage(item);
-        const savedPercentage = Number(item.percentage) || 0;
         lowestSuggestedPercentage = lowestSuggestedPercentage === null
             ? percentage : Math.min(lowestSuggestedPercentage, percentage);
         highestSuggestedPercentage = highestSuggestedPercentage === null
             ? percentage : Math.max(highestSuggestedPercentage, percentage);
-        const needsReview = hasGitActivity && averageContribution > 0 && percentage < lowContributionThreshold;
-        const scoreClass = needsReview ? 'score-low' : percentage < averageContribution ? 'score-medium' : 'score-high';
-        if (needsReview) {
-            lowContributionCount++;
-            alerts.push(`<p class="alert alert-warning"><i class="fa-solid fa-triangle-exclamation"></i> Gợi ý xem xét: <strong>${escapeHtml(item.studentName)}</strong> có điểm đề xuất thấp hơn một nửa mức bình quân nhóm (${percentage.toFixed(2)}%).</p>`);
+
+        const isSuspect = item.isFreeRiderSuspect || percentage < (averageContribution * 0.5) || (item.penaltyScore && item.penaltyScore >= 35);
+        if (isSuspect) {
+            suspiciousCount++;
+            const reasonsText = (item.penaltyReasons && item.penaltyReasons.length > 0)
+                ? item.penaltyReasons.join(', ')
+                : `Điểm đề xuất (${percentage.toFixed(1)}%) thấp hơn 50% mức bình quân nhóm`;
+            alerts.push(`<p class="alert alert-warning" style="margin-bottom: 0.5rem;"><i class="fa-solid fa-triangle-exclamation" style="color: #ef4444;"></i> Cảnh báo: <strong>${escapeHtml(item.studentName)}</strong> - ${escapeHtml(reasonsText)}</p>`);
         }
+
+        const scoreClass = isSuspect ? 'score-low' : percentage < averageContribution ? 'score-medium' : 'score-high';
+        const penaltyBadge = (item.penaltyScore && item.penaltyScore > 0)
+            ? `<span class="score-pill score-low" style="background: rgba(239, 68, 68, 0.15); color: #dc2626;" title="${escapeHtml((item.penaltyReasons || []).join('; '))}">-${item.penaltyScore}% ⚠️</span>`
+            : `<span class="text-muted">0%</span>`;
+
         return `<tr>
-            <td><strong>${escapeHtml(item.studentName)}</strong></td>
-            <td>${item.commits} commits</td>
+            <td>
+                <strong>${escapeHtml(item.studentName)}</strong>
+                ${isSuspect ? '<br><small style="color: #ef4444; font-weight: 600;"><i class="fa-solid fa-flag"></i> Nghi vấn Free-riding</small>' : ''}
+            </td>
+            <td><strong>${item.commits}</strong> commits</td>
             <td>${item.loc} dòng</td>
-            <td>${item.regularity}/100</td>
-            <td><span class="score-pill score-medium">${savedPercentage.toFixed(2)}%</span></td>
-            <td><span class="score-pill ${scoreClass}">${percentage.toFixed(2)}%</span>
-                <small class="assessor-status">${needsReview ? 'Cần xem xét' : 'Tham khảo'}</small></td>
-            ${isLecturer ? '<td><button class="btn-outline" data-open-students>Quản lý <i class="fa-solid fa-chevron-right"></i></button></td>' : ''}
+            <td>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <span>${item.regularity}/100</span>
+                    <div style="background: #e2e8f0; width: 60px; height: 6px; border-radius: 3px; overflow: hidden;">
+                        <div style="background: ${item.regularity > 70 ? '#10b981' : item.regularity > 30 ? '#f59e0b' : '#ef4444'}; width: ${item.regularity}%; height: 100%;"></div>
+                    </div>
+                </div>
+            </td>
+            <td>
+                <span title="${item.pullRequests || 0} PRs, ${item.reviews || 0} Reviews">
+                    <i class="fa-solid fa-code-pull-request" style="color: #6366f1;"></i> ${item.pullRequests || 0} PRs · 
+                    <i class="fa-solid fa-comments" style="color: #10b981;"></i> ${item.reviews || 0} Reviews
+                </span>
+            </td>
+            <td>
+                ${penaltyBadge}
+                ${(item.penaltyReasons && item.penaltyReasons.length > 0) ? `<br><small class="text-muted" style="font-size: 0.75rem;">${escapeHtml(item.penaltyReasons[0])}</small>` : ''}
+            </td>
+            <td><span class="score-pill ${scoreClass}" style="font-size: 1rem; font-weight: 700;">${percentage.toFixed(2)}%</span></td>
+            <td>
+                ${isSuspect 
+                    ? '<span class="status-pill status-danger" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; padding: 4px 8px; border-radius: 6px; font-size: 0.8rem;"><i class="fa-solid fa-triangle-exclamation"></i> Cần rà soát</span>' 
+                    : '<span class="status-pill status-success" style="background: rgba(16, 185, 129, 0.1); color: #10b981; padding: 4px 8px; border-radius: 6px; font-size: 0.8rem;"><i class="fa-solid fa-check"></i> Đạt chuẩn</span>'}
+            </td>
         </tr>`;
     }).join('');
+
     document.getElementById('alertContainer').innerHTML = alerts.join('');
     document.getElementById('contributionSpread').textContent = lowestSuggestedPercentage === null
         ? 'Chưa có dữ liệu' : `${(highestSuggestedPercentage - lowestSuggestedPercentage).toFixed(2)} điểm %`;
-    document.getElementById('lowContributionCount').textContent = `${lowContributionCount} / ${contributions.length} thành viên`;
+    document.getElementById('lowContributionCount').textContent = `${suspiciousCount} / ${contributions.length} thành viên`;
+
     if (!contributions.length) {
-        tableBody.innerHTML = `<tr><td colspan="${isLecturer ? 7 : 6}" class="empty-state">Chưa có dữ liệu đóng góp trong database.</td></tr>`;
+        tableBody.innerHTML = `<tr><td colspan="8" class="empty-state">Chưa có dữ liệu đóng góp trong database.</td></tr>`;
     }
     document.getElementById('groupName').textContent = data.groupName || 'Chưa cấu hình nhóm';
     document.getElementById('repoUrl').textContent = data.repoUrl || 'Chưa cấu hình repository';
+
+    // Xử lý nút điều chỉnh trọng số cho giảng viên
+    const openWeightBtn = document.getElementById('openWeightSettingsBtn');
+    const weightsModal = document.getElementById('weightsModal');
+    if (openWeightBtn) {
+        openWeightBtn.classList.toggle('hidden', !isLecturer);
+        openWeightBtn.onclick = () => {
+            if (data.weights) {
+                document.getElementById('weightVolumeInput').value = data.weights.wVolume;
+                document.getElementById('weightFrequencyInput').value = data.weights.wFrequency;
+                document.getElementById('weightReviewInput').value = data.weights.wReview;
+                document.getElementById('weightPenaltyInput').value = data.weights.wPenalty;
+            }
+            document.getElementById('weightsFormMsg').classList.add('hidden');
+            weightsModal.showModal();
+        };
+    }
+    const closeWeightsModal = () => weightsModal.close();
+    document.getElementById('closeWeightsModalBtn')?.addEventListener('click', closeWeightsModal);
+    document.getElementById('cancelWeightsBtn')?.addEventListener('click', closeWeightsModal);
+
+    const weightsForm = document.getElementById('weightsForm');
+    if (weightsForm) {
+        weightsForm.onsubmit = async (e) => {
+            e.preventDefault();
+            const msgEl = document.getElementById('weightsFormMsg');
+            msgEl.classList.add('hidden');
+            const payload = new URLSearchParams({
+                groupId: '1',
+                volumeWeight: document.getElementById('weightVolumeInput').value,
+                frequencyWeight: document.getElementById('weightFrequencyInput').value,
+                reviewWeight: document.getElementById('weightReviewInput').value,
+                penaltyWeight: document.getElementById('weightPenaltyInput').value
+            });
+            try {
+                const res = await requestJson('api/v1/git-analytics/settings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: payload
+                });
+                msgEl.textContent = res.message || 'Cập nhật thành công!';
+                msgEl.style.color = '#10b981';
+                msgEl.classList.remove('hidden');
+                setTimeout(async () => {
+                    weightsModal.close();
+                    const refreshed = await requestJson('api/v1/git-analytics/dashboard?groupId=1');
+                    renderDashboard(refreshed.data, isLecturer);
+                }, 800);
+            } catch (err) {
+                msgEl.textContent = err.message || 'Lỗi khi cập nhật.';
+                msgEl.style.color = '#ef4444';
+                msgEl.classList.remove('hidden');
+            }
+        };
+    }
+
+    // Xử lý nút Đổi GitHub Repository
+    const openEditRepoBtn = document.getElementById('openEditRepoBtn');
+    const editRepoDialog = document.getElementById('editRepoDialog');
+    const editRepoForm = document.getElementById('editRepoForm');
+    const repoUrlInput = document.getElementById('repoUrlInput');
+    const editRepoMsg = document.getElementById('editRepoMsg');
+
+    if (openEditRepoBtn && editRepoDialog) {
+        // Chỉ hiển thị nút đổi repo cho Giảng viên hoặc Admin
+        openEditRepoBtn.classList.toggle('hidden', !isLecturer);
+        openEditRepoBtn.onclick = () => {
+            if (repoUrlInput) {
+                const currentText = document.getElementById('repoUrl')?.textContent?.trim();
+                repoUrlInput.value = (currentText && currentText.startsWith('http')) 
+                    ? currentText 
+                    : (data.repoUrl || 'https://github.com/');
+            }
+            if (editRepoMsg) editRepoMsg.classList.add('hidden');
+            editRepoDialog.showModal();
+        };
+    }
+
+    const closeEditRepoModal = () => editRepoDialog && editRepoDialog.close();
+    document.getElementById('closeEditRepoDialogBtn')?.addEventListener('click', closeEditRepoModal);
+    document.getElementById('cancelEditRepoBtn')?.addEventListener('click', closeEditRepoModal);
+
+    if (editRepoForm) {
+        editRepoForm.onsubmit = async (e) => {
+            e.preventDefault();
+            if (editRepoMsg) editRepoMsg.classList.add('hidden');
+            const submitBtn = editRepoForm.querySelector('button[type="submit"]');
+            const originalBtnHtml = submitBtn ? submitBtn.innerHTML : '';
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang đồng bộ...';
+            }
+
+            const newRepoUrl = repoUrlInput.value.trim();
+
+            try {
+                const payload = new URLSearchParams({
+                    groupId: '1',
+                    repoUrl: newRepoUrl
+                });
+                const res = await requestJson('api/v1/git-analytics/repository', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: payload
+                });
+                if (editRepoMsg) {
+                    editRepoMsg.textContent = res.message || 'Đổi repository thành công!';
+                    editRepoMsg.style.color = '#10b981';
+                    editRepoMsg.classList.remove('hidden');
+                }
+
+                // Cập nhật ngay tức thì trên header
+                const repoUrlEl = document.getElementById('repoUrl');
+                if (repoUrlEl) {
+                    repoUrlEl.textContent = newRepoUrl;
+                    if (repoUrlEl.tagName === 'A') repoUrlEl.href = newRepoUrl;
+                }
+
+                setTimeout(async () => {
+                    editRepoDialog.close();
+                    try {
+                        const refreshed = await requestJson('api/v1/git-analytics/dashboard?groupId=1');
+                        renderDashboard(refreshed.data, isLecturer);
+                    } catch (fetchErr) {
+                        console.error('Lỗi tải lại dữ liệu sau khi đổi repo:', fetchErr);
+                    }
+                }, 800);
+            } catch (err) {
+                if (editRepoMsg) {
+                    editRepoMsg.textContent = err.message || 'Lỗi khi lưu repository.';
+                    editRepoMsg.style.color = '#ef4444';
+                    editRepoMsg.classList.remove('hidden');
+                }
+            } finally {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalBtnHtml;
+                }
+            }
+        };
+    }
 }
 
 async function loadStudents() {
@@ -708,9 +942,25 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    document.getElementById('syncBtn').addEventListener('click', () => {
-        setActiveView('dashboardView');
-        window.location.reload();
+    document.getElementById('syncBtn').addEventListener('click', async () => {
+        const syncBtn = document.getElementById('syncBtn');
+        const originalHtml = syncBtn.innerHTML;
+        syncBtn.disabled = true;
+        syncBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang đồng bộ...';
+
+        try {
+            const res = await requestJson('api/v1/git-analytics/sync', {
+                method: 'POST'
+            });
+            window.alert(res.message || 'Đồng bộ GitHub thành công!');
+            const result = await requestJson('api/v1/git-analytics/dashboard?groupId=1');
+            renderDashboard(result.data, isLecturer);
+        } catch (err) {
+            window.alert(err.message || 'Lỗi khi đồng bộ GitHub.');
+        } finally {
+            syncBtn.disabled = false;
+            syncBtn.innerHTML = originalHtml;
+        }
     });
     if (passwordChangeRequired) {
         document.getElementById('closePasswordDialog').classList.add('hidden');
