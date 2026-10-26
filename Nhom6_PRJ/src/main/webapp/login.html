@@ -3,122 +3,371 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AITA | Đăng nhập</title>
+    <title>AITA | Đăng nhập hệ thống - Learning workspace</title>
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- FontAwesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f0f4f9 0%, #e2e8f0 100%);
+            padding: 24px;
+            color: #1e293b;
+        }
+
+        .login-card {
+            background-color: #ffffff;
+            border-radius: 18px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+            border: 1px solid #e2e8f0;
+            width: 100%;
+            max-width: 450px;
+            padding: 38px 34px;
+        }
+
+        .login-brand {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            margin-bottom: 26px;
+        }
+
+        .brand-logo-badge {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background-color: #4f46e5;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+            margin-bottom: 12px;
+        }
+
+        .brand-name {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #1e293b;
+            letter-spacing: -0.02em;
+        }
+
+        .brand-sub {
+            font-size: 0.88rem;
+            color: #64748b;
+            margin-top: 2px;
+        }
+
+        .brand-desc {
+            font-size: 0.82rem;
+            color: #475569;
+            margin-top: 8px;
+            background: #f1f5f9;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #475569;
+            margin-bottom: 6px;
+        }
+
+        .input-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-container i {
+            position: absolute;
+            left: 14px;
+            color: #94a3b8;
+            font-size: 0.95rem;
+        }
+
+        .input-container input {
+            width: 100%;
+            padding: 12px 14px 12px 42px;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            font-size: 0.92rem;
+            color: #1e293b;
+            outline: none;
+            transition: all 0.2s;
+            background-color: #f8fafc;
+        }
+
+        .input-container input:focus {
+            background-color: #ffffff;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 13px;
+            background-color: #4f46e5;
+            color: #ffffff;
+            font-size: 0.96rem;
+            font-weight: 700;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 8px;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+        }
+
+        .login-btn:hover {
+            background-color: #4338ca;
+            box-shadow: 0 6px 16px rgba(79, 70, 229, 0.35);
+        }
+
+        .login-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .error-msg {
+            background-color: #fef2f2;
+            color: #ef4444;
+            border: 1px solid #fecaca;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            margin-top: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .demo-account-pills {
+            margin-top: 24px;
+            padding-top: 18px;
+            border-top: 1px dashed #e2e8f0;
+        }
+
+        .demo-title {
+            font-size: 0.76rem;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .demo-pill-btn {
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            padding: 7px 11px;
+            border-radius: 8px;
+            font-size: 0.78rem;
+            cursor: pointer;
+            color: #475569;
+            transition: all 0.15s;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .demo-pill-btn:hover {
+            background: #eef2ff;
+            color: #4f46e5;
+            border-color: #c7d2fe;
+        }
+
+        .role-tag {
+            font-size: 0.68rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 700;
+        }
+
+        .tag-admin { background: #fee2e2; color: #dc2626; }
+        .tag-lecturer { background: #e0e7ff; color: #4338ca; }
+        .tag-student { background: #ecfdf5; color: #047857; }
+
+        .docs-link-note {
+            margin-top: 14px;
+            font-size: 0.76rem;
+            color: #64748b;
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        .docs-link-note code {
+            background: #f1f5f9;
+            padding: 2px 5px;
+            border-radius: 4px;
+            color: #334155;
+            font-family: monospace;
+        }
+    </style>
 </head>
-<body class="login-body">
-    
-    <div class="glass-container login-box">
-        <div class="logo-area">
-            <i class="fa-solid fa-code-branch logo-icon"></i>
-            <h2>AITA</h2>
-            <p>Nền tảng học tập và đánh giá nhóm</p>
+<body>
+
+    <div class="login-card">
+        <div class="login-brand">
+            <div class="brand-logo-badge">
+                <i class="fa-solid fa-code-branch"></i>
+            </div>
+            <h1 class="brand-name">AITA</h1>
+            <div class="brand-sub">Learning workspace</div>
+            <div class="brand-desc">
+                <i class="fa-solid fa-circle-check" style="color: #4f46e5; margin-right: 4px;"></i>
+                Git Analytics Teamwork Assessor (FE-L-03)
+            </div>
         </div>
-        <p class="auth-intro">Đăng nhập để tiếp tục đến không gian lớp học của bạn.</p>
 
-        <form id="loginForm" class="login-form">
-            <div class="input-group">
-                <label for="identifier">Tài khoản (Email hoặc tên đăng nhập)</label>
-                <div class="input-wrapper">
-                    <i class="fa-regular fa-envelope"></i>
-                    <input type="text" id="identifier" placeholder="Email hoặc username" autocomplete="username" required>
+        <!-- FORM ĐĂNG NHẬP -->
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="identifier">Tài khoản (Tên đăng nhập hoặc Email)</label>
+                <div class="input-container">
+                    <i class="fa-regular fa-user"></i>
+                    <input type="text" id="identifier" value="qvuong8th3" placeholder="admin, lecturer.prj301, qvuong8th3..." autocomplete="username" required>
                 </div>
             </div>
 
-            <div class="input-group">
+            <div class="form-group">
                 <label for="password">Mật khẩu</label>
-                <div class="input-wrapper">
+                <div class="input-container">
                     <i class="fa-solid fa-lock"></i>
-                    <input type="password" id="password" placeholder="••••••••" autocomplete="current-password" required>
+                    <input type="password" id="password" value="123456" placeholder="••••••••" autocomplete="current-password" required>
                 </div>
             </div>
 
-            <div class="form-options">
-                <label class="checkbox-container">
-                    <input type="checkbox" id="rememberMe">
-                    <span class="checkmark"></span>
-                    Nhớ đăng nhập
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; font-size: 0.84rem;">
+                <label style="display: flex; align-items: center; gap: 7px; cursor: pointer; color: #475569;">
+                    <input type="checkbox" id="rememberMe" checked> Ghi nhớ đăng nhập
                 </label>
-                <span class="login-help">Đăng ký chỉ dành cho sinh viên</span>
+                <span style="color: #64748b; font-size: 0.78rem;">Khóa Fall 2026</span>
             </div>
 
-            <button type="submit" class="btn-primary">
-                Đăng Nhập
+            <button type="submit" class="login-btn">
+                <span>Đăng nhập hệ thống</span>
                 <i class="fa-solid fa-arrow-right"></i>
             </button>
-            <p id="error-msg" class="error-msg hidden">Sai thông tin đăng nhập!</p>
-        </form>
-        <p id="register-success-msg" class="success-msg hidden" role="status"></p>
-
-        <form id="registerForm" class="login-form hidden">
-            <div class="input-group">
-                <label for="registerFullName">Họ và tên</label>
-                <div class="input-wrapper">
-                    <i class="fa-regular fa-user"></i>
-                    <input type="text" id="registerFullName" name="fullName" maxlength="100"
-                           autocomplete="name" required>
-                </div>
+            <div id="error-msg" class="error-msg hidden">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <span id="error-text">Thông tin đăng nhập không chính xác.</span>
             </div>
-            <div class="input-group">
-                <label for="registerUsername">Tên đăng nhập</label>
-                <div class="input-wrapper">
-                    <i class="fa-solid fa-at"></i>
-                    <input type="text" id="registerUsername" name="username" minlength="3" maxlength="50"
-                           pattern="[A-Za-z0-9._\-]{3,50}" autocomplete="username" required>
-                </div>
-            </div>
-            <div class="input-group">
-                <label for="registerEmail">Email</label>
-                <div class="input-wrapper">
-                    <i class="fa-regular fa-envelope"></i>
-                    <input type="email" id="registerEmail" name="email" maxlength="100"
-                           autocomplete="email" required>
-                </div>
-            </div>
-            <div class="input-group">
-                <label for="registerGithub">GitHub username <span>(không bắt buộc)</span></label>
-                <div class="input-wrapper">
-                    <i class="fa-brands fa-github"></i>
-                    <input type="text" id="registerGithub" name="githubUsername" maxlength="50"
-                           autocomplete="off">
-                </div>
-            </div>
-            <div class="input-group">
-                <label for="registerPassword">Mật khẩu (ít nhất 8 ký tự)</label>
-                <div class="input-wrapper">
-                    <i class="fa-solid fa-lock"></i>
-                    <input type="password" id="registerPassword" name="password" minlength="8" maxlength="128"
-                           autocomplete="new-password" required>
-                </div>
-            </div>
-            <div class="input-group">
-                <label for="confirmPassword">Xác nhận mật khẩu</label>
-                <div class="input-wrapper">
-                    <i class="fa-solid fa-lock"></i>
-                    <input type="password" id="confirmPassword" name="confirmPassword" minlength="8" maxlength="128"
-                           autocomplete="new-password" required>
-                </div>
-            </div>
-            <button type="submit" class="btn-primary">
-                Tạo tài khoản sinh viên
-                <i class="fa-solid fa-user-plus"></i>
-            </button>
-            <p class="registration-note">Tài khoản giảng viên được cấp bởi quản trị viên.</p>
-            <p id="register-error-msg" class="error-msg hidden" role="alert"></p>
         </form>
 
-        <p class="auth-switch">
-            <span id="auth-switch-prompt">Chưa có tài khoản?</span>
-            <button type="button" id="auth-switch-button">Đăng ký sinh viên</button>
-        </p>
+        <!-- TÀI KHOẢN MẪU KHỞI TẠO NHANH -->
+        <div class="demo-account-pills">
+            <div class="demo-title">
+                <span>Khởi tạo nhanh tài khoản mẫu:</span>
+                <span style="font-weight: 500; text-transform: none; color: #94a3b8;">MK: <code>123456</code></span>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr; gap: 8px;">
+                <button type="button" class="demo-pill-btn" onclick="fillLogin('admin', '123456')">
+                    <span class="role-tag tag-admin">ADMIN</span>
+                    <strong>admin</strong> &mdash; System Administrator (Quản trị tối cao)
+                </button>
+                <button type="button" class="demo-pill-btn" onclick="fillLogin('lecturer.prj301', '123456')">
+                    <span class="role-tag tag-lecturer">GV.PRJ301</span>
+                    <strong>lecturer.prj301</strong> &mdash; TS. Trần Giảng Viên
+                </button>
+                <button type="button" class="demo-pill-btn" onclick="fillLogin('lecturer.swr302', '123456')">
+                    <span class="role-tag tag-lecturer">GV.SWR302</span>
+                    <strong>lecturer.swr302</strong> &mdash; ThS. Lê Thị Phương
+                </button>
+                <button type="button" class="demo-pill-btn" onclick="fillLogin('qvuong8th3', '123456')">
+                    <span class="role-tag tag-student">SV.LEADER</span>
+                    <strong>qvuong8th3</strong> &mdash; Nguyễn Quốc Vương (QE200066 · Nhóm 6)
+                </button>
+                <button type="button" class="demo-pill-btn" onclick="fillLogin('phuc.tran', '123456')">
+                    <span class="role-tag tag-student">SINH VIÊN</span>
+                    <strong>phuc.tran</strong> &mdash; Trần Hoàng Phúc (QE200006 · Nhóm 6)
+                </button>
+            </div>
+            <p class="docs-link-note">
+                <i class="fa-solid fa-file-lines" style="color: #4f46e5; margin-right: 4px;"></i>
+                Xem danh sách đầy đủ <strong>1 Admin</strong>, <strong>5 Giảng viên</strong> và <strong>25 Sinh viên</strong> tại: <code>docs/DANH_SACH_TAI_KHOAN.md</code>
+            </p>
+        </div>
     </div>
 
-    <!-- Custom JS -->
-    <script src="js/login.js?v=2"></script>
+    <script>
+        function fillLogin(ident, pass) {
+            document.getElementById('identifier').value = ident;
+            document.getElementById('password').value = pass;
+        }
+
+        const loginForm = document.getElementById('loginForm');
+        const errorMsg = document.getElementById('error-msg');
+        const errorText = document.getElementById('error-text');
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const identifier = document.getElementById('identifier').value.trim();
+            const password = document.getElementById('password').value;
+            const rememberMe = document.getElementById('rememberMe').checked;
+            const submitBtn = loginForm.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            
+            errorMsg.classList.add('hidden');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang xác thực...';
+
+            try {
+                const response = await fetch(new URL('api/v1/auth/login', window.location.href), {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({ identifier, password, rememberMe })
+                });
+                const result = await response.json();
+                if (response.ok) {
+                    localStorage.setItem('aita_user', JSON.stringify(result.user));
+                    window.location.href = 'index.jsp';
+                } else {
+                    errorText.textContent = result.error || 'Email hoặc mật khẩu không đúng.';
+                    errorMsg.classList.remove('hidden');
+                }
+            } catch (error) {
+                errorText.textContent = 'Không kết nối được máy chủ. Hãy kiểm tra dịch vụ backend và cơ sở dữ liệu.';
+                errorMsg.classList.remove('hidden');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            }
+        });
+    </script>
 </body>
 </html>

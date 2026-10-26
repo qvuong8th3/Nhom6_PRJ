@@ -29,7 +29,7 @@ import javax.servlet.http.Part;
 public class AssignmentServlet extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
-    private static final String ALLOWED_EXTENSIONS = ".pdf,.doc,.docx,.odt,.rtf,.txt";
+    private static final String ALLOWED_EXTENSIONS = ".pdf,.doc,.docx,.odt,.rtf,.txt,.zip";
     private final Gson gson = new Gson();
     private final AssignmentDAO assignmentDAO = new AssignmentDAO();
 

@@ -4,10 +4,16 @@
          xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd"
          version="4.0">
 
-    <display-name>AITA Git Analytics Web App</display-name>
+    <display-name>AITA Learning Workspace - Git Analytics Platform</display-name>
 
+    <!-- Entry point is always login page -->
     <welcome-file-list>
         <welcome-file>login.jsp</welcome-file>
     </welcome-file-list>
+
+    <!-- Session timeout: 60 minutes -->
+    <session-config>
+        <session-timeout>60</session-timeout>
+    </session-config>
 
 </web-app>

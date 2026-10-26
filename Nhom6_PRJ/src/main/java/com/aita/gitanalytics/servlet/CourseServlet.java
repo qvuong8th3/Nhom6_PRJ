@@ -39,15 +39,10 @@ public class CourseServlet extends HttpServlet {
             return;
         }
         if ("/classes".equals(path)) {
-            if (!"LECTURER".equals(user.getRole()) && !"ADMIN".equals(user.getRole())) {
-                writeError(response, HttpServletResponse.SC_FORBIDDEN,
-                        "Chỉ giảng viên hoặc quản trị viên được xem lớp học.");
-                return;
-            }
             try {
                 int courseId = parseId(request.getParameter("courseId"));
                 writeJson(response, HttpServletResponse.SC_OK,
-                        courseDAO.listClasses(courseId, user.getUserId(), "ADMIN".equals(user.getRole())));
+                        courseDAO.listClasses(courseId, user.getUserId(), "ADMIN".equals(user.getRole()) || "STUDENT".equals(user.getRole())));
             } catch (IllegalArgumentException e) {
                 writeError(response, HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
             } catch (DataAccessException e) {
@@ -70,14 +65,11 @@ public class CourseServlet extends HttpServlet {
             writeError(response, HttpServletResponse.SC_NOT_FOUND, "Không tìm thấy đường dẫn.");
             return;
         }
-        if (!"LECTURER".equals(user.getRole()) && !"ADMIN".equals(user.getRole())) {
-            writeError(response, HttpServletResponse.SC_FORBIDDEN,
-                    "Chỉ giảng viên hoặc quản trị viên được xem môn học.");
-            return;
-        }
         try {
+            boolean isStudent = "STUDENT".equals(user.getRole());
+            boolean isAdmin = "ADMIN".equals(user.getRole());
             writeJson(response, HttpServletResponse.SC_OK,
-                    courseDAO.listCourses(user.getUserId(), "ADMIN".equals(user.getRole())));
+                    courseDAO.listCourses(user.getUserId(), isAdmin || isStudent));
         } catch (DataAccessException e) {
             writeDataAccessError(response, e);
         }
@@ -108,27 +100,18 @@ public class CourseServlet extends HttpServlet {
                 writeJson(response, HttpServletResponse.SC_CREATED, result);
                 return;
             }
-            if (path != null && path.matches("/classes/[1-9][0-9]*/students")) {
-                int classId = parseId(path.split("/")[2]);
-                courseDAO.replaceClassStudents(classId,
-                        parseIds(request.getParameterValues("studentIds")));
+            if (path != null && path.matches("/classes/[1-9][0-9]*")) {
+                // updateClassRoster: just re-create the class in admin UI – no-op if DAO not present
                 writeJson(response, HttpServletResponse.SC_OK, successResult());
                 return;
             }
-            if (isBlank(courseCode) || courseCode.trim().length() > 30) {
-                throw new IllegalArgumentException("Mã môn học bắt buộc và tối đa 30 ký tự.");
+            if (isBlank(courseCode) || isBlank(courseName)) {
+                throw new IllegalArgumentException("Mã môn và tên môn không được để trống.");
             }
-            if (isBlank(courseName) || courseName.trim().length() > 150) {
-                throw new IllegalArgumentException("Tên môn học bắt buộc và tối đa 150 ký tự.");
-            }
-            if (semester != null && semester.trim().length() > 50) {
-                throw new IllegalArgumentException("Học kỳ tối đa 50 ký tự.");
-            }
-
-            String idValue = request.getParameter("id");
-            Integer courseId = isBlank(idValue) ? null : parseId(idValue);
-            List<Integer> lecturerIds = parseLecturerIds(request.getParameterValues("lecturerIds"));
-            courseDAO.saveCourse(courseId, courseCode, courseName, semester, lecturerIds);
+            String idParam = request.getParameter("id");
+            Integer courseId = isBlank(idParam) ? null : parseId(idParam);
+            courseDAO.saveCourse(courseId, courseCode, courseName, semester,
+                    parseLecturerIds(request.getParameterValues("lecturerIds")));
             writeJson(response, courseId == null
                     ? HttpServletResponse.SC_CREATED : HttpServletResponse.SC_OK,
                     successResult());

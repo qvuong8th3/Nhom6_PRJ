@@ -20,7 +20,8 @@ public class StudentServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        if (!requireAdministrator(request, response)) {
+        UserAccount user = requireUser(request, response);
+        if (user == null) {
             return;
         }
         try {
@@ -33,7 +34,13 @@ public class StudentServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         request.setCharacterEncoding("UTF-8");
-        if (!requireAdministrator(request, response)) {
+        UserAccount user = requireUser(request, response);
+        if (user == null) {
+            return;
+        }
+        if (!"ADMIN".equals(user.getRole()) && !"LECTURER".equals(user.getRole())) {
+            writeError(response, HttpServletResponse.SC_FORBIDDEN,
+                    "Sinh viên chỉ có quyền xem danh sách; chỉ Giảng viên hoặc Quản trị viên mới được Thêm/Sửa sinh viên.");
             return;
         }
 
@@ -60,7 +67,13 @@ public class StudentServlet extends HttpServlet {
 
     @Override
     protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        if (!requireAdministrator(request, response)) {
+        UserAccount user = requireUser(request, response);
+        if (user == null) {
+            return;
+        }
+        if (!"ADMIN".equals(user.getRole()) && !"LECTURER".equals(user.getRole())) {
+            writeError(response, HttpServletResponse.SC_FORBIDDEN,
+                    "Sinh viên chỉ có quyền xem danh sách; chỉ Giảng viên hoặc Quản trị viên mới được Xóa sinh viên.");
             return;
         }
 
@@ -78,19 +91,14 @@ public class StudentServlet extends HttpServlet {
         }
     }
 
-    private boolean requireAdministrator(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    private UserAccount requireUser(HttpServletRequest request, HttpServletResponse response) throws IOException {
         Object value = request.getSession(false) == null
                 ? null : request.getSession(false).getAttribute("authenticatedUser");
         if (!(value instanceof UserAccount)) {
             writeError(response, HttpServletResponse.SC_UNAUTHORIZED, "Vui lòng đăng nhập lại.");
-            return false;
+            return null;
         }
-        if (!"ADMIN".equals(((UserAccount) value).getRole())) {
-            writeError(response, HttpServletResponse.SC_FORBIDDEN,
-                    "Chỉ quản trị viên được quản lý tài khoản sinh viên toàn hệ thống.");
-            return false;
-        }
-        return true;
+        return (UserAccount) value;
     }
 
     private void writeError(HttpServletResponse response, int status, String message) throws IOException {

@@ -1,564 +1,766 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AITA | Không gian học tập</title>
+    <title>AITA - Learning workspace | Git Analytics Platform</title>
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- FontAwesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Custom CSS -->
     <link rel="stylesheet" href="css/styles.css">
-    <script>
-        (function() {
-            try {
-                var u = JSON.parse(localStorage.getItem('aita_user') || 'null');
-                if (u && u.role === 'ADMIN') {
-                    document.documentElement.classList.add('role-admin');
-                }
-            } catch(e) {}
-        })();
-    </script>
-    <style>
-        .role-admin #dashboardNavItem,
-        .role-admin #examsNavItem {
-            display: none !important;
-        }
-        .role-admin #coursesNavItem,
-        .role-admin #lecturersNavItem,
-        .role-admin #studentsNavItem {
-            display: list-item !important;
-        }
-        .role-admin #addCourseBtn,
-        .role-admin #addClassBtn,
-        .role-admin #addStudentBtn {
-            display: inline-flex !important;
-        }
-    </style>
 </head>
-<body class="dashboard-body">
+<body>
 
-    <!-- Sidebar -->
-    <aside class="sidebar glass-panel">
-        <div class="sidebar-logo">
-            <i class="fa-solid fa-code-branch"></i>
-            <div><span>AITA</span><small>Learning workspace</small></div>
-        </div>
-        <nav class="sidebar-nav">
-            <ul>
-                <li id="dashboardNavItem" class="active"><a href="#dashboardView" data-view-target="dashboardView"><i class="fa-solid fa-chart-pie"></i> Tổng quan nhóm</a></li>
-                <li id="studentsNavItem"><a href="#studentsView" data-view-target="studentsView"><i class="fa-solid fa-users"></i> Quản lý sinh viên</a></li>
-                <li id="examsNavItem"><a href="#examsView" data-view-target="examsView"><i class="fa-solid fa-file-circle-question"></i> Đề thi & bài tập</a></li>
-                <li id="coursesNavItem" class="hidden"><a href="#coursesView" data-view-target="coursesView"><i class="fa-solid fa-book-open"></i> Môn học & Phân lớp</a></li>
-                <li id="lecturersNavItem" class="hidden"><a href="#lecturersView" data-view-target="lecturersView"><i class="fa-solid fa-chalkboard-user"></i> Tài khoản giảng viên</a></li>
-            </ul>
-        </nav>
-        <div class="sidebar-footer">
-            <div class="user-info">
-                <div class="avatar user-avatar" aria-hidden="true"><i class="fa-solid fa-user"></i></div>
-                <div class="details">
-                    <strong id="currentUserName">Tài khoản</strong>
-                    <span id="currentUserRole">...</span>
+    <div class="app-layout">
+        <!-- ============================================================
+             SIDEBAR (EXACT MATCH TO MEDIA SCREENSHOT)
+             ============================================================ -->
+        <aside class="aita-sidebar">
+            <div class="sidebar-header">
+                <div class="brand-badge-container">
+                    <div class="brand-icon-box">
+                        <i class="fa-solid fa-code-branch"></i>
+                    </div>
+                    <div class="brand-text-block">
+                        <span class="brand-title">AITA</span>
+                        <span class="brand-sub">Learning workspace</span>
+                    </div>
                 </div>
             </div>
-            <button id="changePasswordBtn" class="btn-logout" title="Đổi mật khẩu" aria-label="Đổi mật khẩu"><i class="fa-solid fa-key"></i></button>
-            <button id="logoutBtn" class="btn-logout" title="Đăng xuất" aria-label="Đăng xuất"><i class="fa-solid fa-sign-out-alt"></i></button>
-        </div>
-    </aside>
 
-    <!-- Main Content -->
-    <main class="main-content">
-        <header class="top-header glass-panel">
-            <div class="header-left">
-                <p class="eyebrow" id="headerEyebrow">KHÔNG GIAN GIẢNG DẠY</p>
-                <h1 id="pageTitle">Tổng quan lớp học</h1>
-                <p class="subtitle" id="groupName">Theo dõi tiến độ và hoạt động học tập</p>
-            </div>
-            <div class="header-right">
-                <div class="repo-info">
-                    <i class="fa-brands fa-github"></i>
-                    <a id="repoUrl" href="#" target="_blank" style="color: inherit; text-decoration: none;">Chưa cấu hình repository</a>
-                    <span class="status badge-success">Đang hoạt động</span>
-                    <button class="btn-sm btn-outline hidden" id="openEditRepoBtn" type="button" title="Đổi GitHub Repository" style="padding: 2px 8px; margin-left: 6px; font-size: 0.78rem;">
-                        <i class="fa-solid fa-pen"></i> Đổi
+            <!-- SIDEBAR NAVIGATION MENU (4 CORE TABS) -->
+            <nav class="sidebar-nav">
+                <a href="#dashboardView" class="sidebar-nav-item active" data-view-target="dashboardView">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    <span>Tổng quan nhóm</span>
+                </a>
+                <a href="#studentsView" class="sidebar-nav-item" data-view-target="studentsView">
+                    <i class="fa-solid fa-user-group"></i>
+                    <span>Quản lý sinh viên</span>
+                </a>
+                <a href="#examsView" class="sidebar-nav-item" data-view-target="examsView">
+                    <i class="fa-regular fa-file-lines"></i>
+                    <span>Đề thi & bài tập</span>
+                </a>
+                <a href="#coursesView" class="sidebar-nav-item" data-view-target="coursesView">
+                    <i class="fa-solid fa-book-open"></i>
+                    <span>Môn học & Phân lớp</span>
+                </a>
+            </nav>
+
+            <!-- SIDEBAR FOOTER (USER INFO & ACTIONS) -->
+            <div class="sidebar-footer">
+                <div class="sidebar-user-avatar" id="sidebarUserAvatar">NV</div>
+                <div class="sidebar-user-info">
+                    <div class="sidebar-user-name" id="sidebarUserName">Nguyễn Quốc Vương</div>
+                    <div class="sidebar-user-role" id="sidebarUserRole">Sinh viên · QE200066</div>
+                </div>
+                <div class="sidebar-footer-actions">
+                    <button class="btn-sidebar-action" id="openChangePassBtn" title="Đổi mật khẩu" type="button">
+                        <i class="fa-solid fa-key"></i>
+                    </button>
+                    <button class="btn-sidebar-action logout" id="logoutBtn" title="Đăng xuất" type="button">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i>
                     </button>
                 </div>
-                <button class="btn-secondary" id="syncBtn" type="button">
-                    <i class="fa-solid fa-rotate"></i> Làm mới
-                </button>
             </div>
-        </header>
+        </aside>
 
-        <section id="studentHomeView" class="page-view hidden">
-            <div class="student-welcome">
-                <div>
-                    <span class="welcome-kicker"><i class="fa-regular fa-sun"></i> KHÔNG GIAN HỌC TẬP CỦA BẠN</span>
-                    <h2>Chào bạn, <span id="studentWelcomeName">sinh viên</span>!</h2>
-                    <p>Theo dõi bài tập, hoàn thành đề thi và xem tiến độ học tập tại một nơi.</p>
-                </div>
-                <div class="welcome-illustration" aria-hidden="true"><i class="fa-solid fa-book-open-reader"></i></div>
-            </div>
-            <div class="student-stat-grid">
-                <article class="student-stat-card"><span class="stat-icon stat-purple"><i class="fa-solid fa-list-check"></i></span><div><p>Bài tập cần chú ý</p><strong id="studentAssignmentCount">—</strong></div><span class="stat-caption">bài đang được giao</span></article>
-                <article class="student-stat-card"><span class="stat-icon stat-blue"><i class="fa-solid fa-file-circle-question"></i></span><div><p>Đề thi của bạn</p><strong id="studentExamCount">—</strong></div><span class="stat-caption">đề chưa hoàn thành</span></article>
-                <article class="student-stat-card"><span class="stat-icon stat-green"><i class="fa-solid fa-people-group"></i></span><div><p>Nhóm học tập</p><strong id="studentGroupName">Đang tải</strong></div><span class="stat-caption">tiến độ được cập nhật</span></article>
-            </div>
-            <div class="student-home-grid">
-                <article class="card glass-panel student-action-card">
-                    <div class="action-card-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
-                    <span class="card-kicker">BÀI TẬP</span>
-                    <h3>Nộp bài đúng hạn</h3>
-                    <p>Xem yêu cầu, tải tài liệu và gửi bài làm cho giảng viên.</p>
-                    <button class="text-action" type="button" data-open-view="examsView">Đi đến bài tập <i class="fa-solid fa-arrow-right"></i></button>
-                </article>
-                <article class="card glass-panel student-action-card">
-                    <div class="action-card-icon action-blue"><i class="fa-solid fa-pen-to-square"></i></div>
-                    <span class="card-kicker">ĐỀ THI</span>
-                    <h3>Làm bài trực tuyến</h3>
-                    <p>Hoàn thành bài kiểm tra và xem điểm ngay sau khi nộp.</p>
-                    <button class="text-action" type="button" data-open-view="examsView">Xem đề thi <i class="fa-solid fa-arrow-right"></i></button>
-                </article>
-                <article class="card glass-panel student-progress-card">
-                    <div class="card-header">
-                        <div><span class="card-kicker">BẮT ĐẦU TẠI ĐÂY</span><h3>Tiến độ học tập</h3></div>
-                        <i class="fa-solid fa-chart-line progress-icon"></i>
+        <!-- ============================================================
+             MAIN CONTENT WORKSPACE
+             ============================================================ -->
+        <main class="aita-main-content">
+
+            <!-- ========================================================
+                 VIEW 1: TỔNG QUAN NHÓM (DASHBOARD & GIT EVALUATION)
+                 ======================================================== -->
+            <div id="dashboardView" class="page-view">
+                
+                <!-- TOP HEADER CARD (MATCHING SCREENSHOT) -->
+                <div class="aita-card header-card">
+                    <div class="header-left-col">
+                        <span class="kicker-label">KHÔNG GIAN GIẢNG DẠY</span>
+                        <h1 class="header-main-title" id="pageMainHeading">Tổng quan lớp học</h1>
+                        <p class="header-sub-title" id="groupSubtitleText">Nhóm 6 - Git Analytics Platform</p>
                     </div>
-                    <p>Hoàn thành bài tập và bài kiểm tra để theo dõi kết quả của bạn. Các bài đã nộp sẽ được lưu trong tài khoản.</p>
-                    <button class="btn-primary" type="button" data-open-view="examsView">Mở bài tập & đề thi <i class="fa-solid fa-arrow-right"></i></button>
-                </article>
-            </div>
-        </section>
-
-        <section id="dashboardView" class="page-view">
-        <section class="assessor-banner glass-panel" aria-labelledby="assessorTitle">
-            <div class="assessor-intro">
-                <span class="assessor-kicker">AITA · GIT ANALYTICS TEAMWORK ASSESSOR</span>
-                <h2 id="assessorTitle"><i class="fa-solid fa-scale-balanced"></i> Đánh giá công bằng đóng góp nhóm</h2>
-                <p>Hệ thống tự động hóa định lượng đóng góp cá nhân từ lịch sử Git, triệt tiêu free-riding và phát hiện commit spam/dồn phút chót.</p>
-            </div>
-            <div class="assessor-facts">
-                <div class="assessor-fact">
-                    <span>Mô hình đề xuất</span>
-                    <strong id="assessorFormulaLabel">W₁·Volume + W₂·Freq + W₃·Review - W₄·Penalty</strong>
-                </div>
-                <div class="assessor-fact">
-                    <span>Chênh lệch đóng góp</span>
-                    <strong id="contributionSpread">—</strong>
-                </div>
-                <div class="assessor-fact">
-                    <span>Nghi vấn Free-rider / Spam</span>
-                    <strong id="lowContributionCount" style="color: #ef4444;">—</strong>
-                </div>
-            </div>
-            <div class="flex-between" style="margin-top: 1rem;">
-                <p class="assessor-note" style="margin: 0;"><i class="fa-solid fa-shield-halved"></i> Điểm = (W₁×Khối lượng) + (W₂×Tần suất) + (W₃×Review) - (W₄×Phạt). Giảng viên có quyền tinh chỉnh trọng số phù hợp theo vai trò.</p>
-                <button id="openWeightSettingsBtn" class="btn-outline hidden" type="button"><i class="fa-solid fa-sliders"></i> Cấu hình trọng số W</button>
-            </div>
-        </section>
-
-        <div class="dashboard-grid">
-            <!-- Pie Chart Card: Contribution % -->
-            <div class="card glass-panel col-span-1">
-                <div class="card-header">
-                    <h3><i class="fa-solid fa-percent"></i> Tỷ lệ đóng góp đề xuất</h3>
-                </div>
-                <div class="card-body chart-container">
-                    <canvas id="contributionPieChart"></canvas>
-                </div>
-                <div class="card-footer" id="alertContainer">
-                    <!-- Cảnh báo đóng góp thấp được hiển thị từ dữ liệu Git -->
-                </div>
-            </div>
-
-            <!-- Bar Chart Card: Timeline -->
-            <div class="card glass-panel col-span-2">
-                <div class="card-header">
-                    <h3><i class="fa-solid fa-timeline"></i> Hoạt động theo thời gian</h3>
-                </div>
-                <div class="card-body chart-container">
-                    <canvas id="timelineBarChart"></canvas>
-                </div>
-                <div class="card-footer">
-                    <p class="text-muted">Lịch sử commit theo tuần được dùng để đánh giá độ đều đặn trong đề xuất.</p>
-                </div>
-            </div>
-
-            <!-- Data Table Card -->
-            <div class="card glass-panel col-span-full">
-                <div class="card-header flex-between">
-                    <div>
-                        <h3><i class="fa-solid fa-table"></i> Bảng phân tích chỉ số đóng góp Git chi tiết</h3>
-                        <p class="text-muted" style="margin: 0; font-size: 0.85rem;">Nhận diện tự động tình trạng free-riding và chất lượng hoạt động mã nguồn</p>
+                    <div class="header-right-col">
+                        <div class="repo-pill-badge" id="repoBadgeContainer">
+                            <i class="fa-brands fa-github"></i>
+                            <span class="repo-link-text" id="displayRepoUrl" title="https://github.com/lx426352-art/PRJ301-Nh-m-6">https://github.com/lx426352-art/PRJ301-Nh-m-6</span>
+                            <span class="status-badge-active"><i class="fa-solid fa-circle" style="font-size: 0.45rem;"></i> Đang hoạt động</span>
+                            <button type="button" class="btn-pill-action" id="btnEditRepo" title="Gán link GitHub khác để chấm bài cho toàn bộ sinh viên">
+                                <i class="fa-solid fa-pen"></i> Đổi
+                            </button>
+                        </div>
+                        <button type="button" class="btn-refresh-pill" id="btnRefreshDashboard" title="Làm mới dữ liệu từ Git">
+                            <i class="fa-solid fa-rotate-right"></i> Làm mới
+                        </button>
                     </div>
-                    <button class="btn-outline" type="button" onclick="window.print()"><i class="fa-solid fa-download"></i> Xuất Báo Cáo</button>
                 </div>
-                <div class="card-body">
+
+                <!-- BANNER CARD: GIT ANALYTICS TEAMWORK ASSESSOR (MATCHING SCREENSHOT) -->
+                <div class="aita-card banner-assessor-card">
+                    <span class="banner-kicker">AITA · GIT ANALYTICS TEAMWORK ASSESSOR</span>
+                    <div class="banner-title-row">
+                        <i class="fa-solid fa-scale-balanced"></i>
+                        <h2>Đánh giá công bằng đóng góp nhóm</h2>
+                    </div>
+                    <p class="banner-desc-text">
+                        Hệ thống tự động hóa định lượng đóng góp cá nhân từ lịch sử Git, triệt tiêu free-riding và phát hiện commit spam/dồn phút chót.
+                    </p>
+
+                    <!-- 3 FACT CARDS (EXACT VALUES AS SCREENSHOT) -->
+                    <div class="banner-facts-grid">
+                        <div class="fact-box">
+                            <div class="fact-box-label">Mô hình đề xuất</div>
+                            <div class="fact-box-val" id="modelFormulaDisplay">50% Volume + 40% Freq + 20% Review - 10% Penalty</div>
+                        </div>
+                        <div class="fact-box">
+                            <div class="fact-box-label">Chênh lệch đóng góp</div>
+                            <div class="fact-box-val" id="contributionDiffDisplay">30.29 điểm %</div>
+                        </div>
+                        <div class="fact-box">
+                            <div class="fact-box-label">Nghi vấn Free-rider / Spam</div>
+                            <div class="fact-box-val text-red" id="freeRiderCountDisplay">3 / 5 thành viên</div>
+                        </div>
+                    </div>
+
+                    <!-- BOTTOM FORMULA BAR WITH WEIGHTS CONFIG BUTTON -->
+                    <div class="banner-bottom-bar">
+                        <div class="formula-info-text">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <span>Điểm = (W₁×Khối lượng) + (W₂×Tần suất) + (W₃×Review) - (W₄×Phạt). Giảng viên có quyền tinh chỉnh trọng số phù hợp theo vai trò.</span>
+                        </div>
+                        <button type="button" class="btn-config-weights" id="btnOpenWeightsModal">
+                            <i class="fa-solid fa-sliders"></i> Cấu hình trọng số W
+                        </button>
+                    </div>
+                </div>
+
+                <!-- CHARTS ROW: 2 CHARTS SIDE BY SIDE -->
+                <div class="charts-grid-row">
+                    <!-- Left: Doughnut Chart -->
+                    <div class="aita-card" style="margin-bottom: 0;">
+                        <div class="chart-card-header">
+                            <div class="chart-icon-badge">%</div>
+                            <h3>% Tỷ lệ đóng góp đề xuất</h3>
+                        </div>
+                        <div style="position: relative; height: 260px; display: flex; align-items: center; justify-content: center;">
+                            <canvas id="contributionPieChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Right: Line Activity Chart -->
+                    <div class="aita-card" style="margin-bottom: 0;">
+                        <div class="chart-card-header">
+                            <div class="chart-icon-badge"><i class="fa-solid fa-code-fork"></i></div>
+                            <h3>Hoạt động theo thời gian</h3>
+                        </div>
+                        <div style="position: relative; height: 260px;">
+                            <canvas id="timelineBarChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DETAILED MEMBER BREAKDOWN TABLE -->
+                <div class="aita-card" style="margin-top: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                        <div>
+                            <h3 style="font-size: 1.05rem; font-weight: 700; color: #1e293b;">Bảng phân tích chi tiết đóng góp thành viên trong Repo</h3>
+                            <p style="font-size: 0.82rem; color: #64748b;">Dữ liệu cam kết mã nguồn được trích xuất và tính toán tự động</p>
+                        </div>
+                        <span id="memberCountBadge" style="font-size: 0.82rem; font-weight: 600; background: #eef2ff; color: #4f46e5; padding: 4px 10px; border-radius: 6px;">
+                            5 thành viên
+                        </span>
+                    </div>
+
                     <div class="table-responsive">
-                        <table class="data-table">
+                        <table class="aita-table">
                             <thead>
                                 <tr>
                                     <th>Thành viên</th>
                                     <th>Commits</th>
-                                    <th>Khối lượng (LOC)</th>
-                                    <th>Tần suất & Đều đặn</th>
-                                    <th>PR & Reviews</th>
-                                    <th>Phạt (Penalty)</th>
-                                    <th>Đề xuất Assessor</th>
-                                    <th>Trạng thái Đánh giá</th>
+                                    <th>Dòng code (+ / -)</th>
+                                    <th>Độ đều (Freq)</th>
+                                    <th>PRs & Reviews</th>
+                                    <th>Trạng thái / Đánh giá</th>
+                                    <th>Điểm đề xuất (%)</th>
                                 </tr>
                             </thead>
-                            <tbody id="studentTableBody">
-                                <!-- Dữ liệu sẽ được render bằng JS -->
+                            <tbody id="memberTableBody">
+                                <!-- Populated dynamically by dashboard.js -->
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
-        </div>
-        </section>
 
-        <section id="studentsView" class="page-view hidden">
-            <div class="card glass-panel students-panel">
-                <div class="card-header flex-between">
-                    <h3><i class="fa-solid fa-users"></i> Tài khoản sinh viên toàn hệ thống</h3>
-                    <button class="btn-secondary" id="addStudentBtn"><i class="fa-solid fa-plus"></i> Thêm sinh viên</button>
-                </div>
-                <p id="studentsMessage" class="students-message" role="status"></p>
-                <div class="table-responsive">
-                    <table class="data-table">
-                        <thead>
-                            <tr><th>Họ tên</th><th>Tên đăng nhập</th><th>Email</th><th>GitHub</th><th>Thao tác</th></tr>
-                        </thead>
-                        <tbody id="studentsTableBody"></tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-
-        <section id="coursesView" class="page-view hidden">
-            <div class="card glass-panel students-panel">
-                <div class="card-header flex-between">
-                    <h3><i class="fa-solid fa-book-open"></i> Danh sách môn học</h3>
-                    <button class="btn-secondary hidden" id="addCourseBtn" type="button"><i class="fa-solid fa-plus"></i> Thêm môn học</button>
-                </div>
-                <p id="coursesMessage" class="students-message" role="status"></p>
-                <div class="table-responsive">
-                    <table class="data-table">
-                        <thead><tr><th>Mã môn</th><th>Tên môn học</th><th>Học kỳ</th><th>Giảng viên</th><th>Lớp</th><th>Hành động môn học</th><th id="courseActionHeader">Thao tác Admin</th></tr></thead>
-                        <tbody id="coursesTableBody"></tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-
-        <section id="classesView" class="page-view hidden">
-            <div class="card glass-panel students-panel">
-                <div class="card-header flex-between">
-                    <div><h3><i class="fa-solid fa-users-rectangle"></i> Danh sách lớp</h3><p id="classesCourseName" class="subtitle"></p></div>
-                    <div style="display: flex; gap: 8px;">
-                        <button class="btn-primary hidden" id="classAssignHomeworkBtn" type="button"><i class="fa-solid fa-file-circle-plus"></i> Giao bài tập cho môn này</button>
-                        <button class="btn-secondary hidden" id="addClassBtn" type="button"><i class="fa-solid fa-plus"></i> Thêm lớp</button>
+            <!-- ========================================================
+                 VIEW 2: QUẢN LÝ SINH VIÊN (STUDENT ROSTER & ROLE-BASED CRUD)
+                 ======================================================== -->
+            <div id="studentsView" class="page-view hidden">
+                <div class="aita-card header-card">
+                    <div class="header-left-col">
+                        <span class="kicker-label">HỌC TẬP & ĐÀO TẠO</span>
+                        <h1 class="header-main-title">Quản lý sinh viên</h1>
+                        <p class="header-sub-title" id="studentRosterSubtitle">Lớp SE20C - PRJ301 (Tổng số: 25 sinh viên)</p>
                     </div>
-                </div>
-                <p id="classesMessage" class="students-message" role="status"></p>
-                <div class="table-responsive">
-                    <table class="data-table">
-                        <thead><tr><th>Lớp</th><th>Số sinh viên</th><th id="classActionHeader">Thao tác</th></tr></thead>
-                        <tbody id="classesTableBody"></tbody>
-                    </table>
-                </div>
-                <button class="btn-outline" id="backToCourses" type="button"><i class="fa-solid fa-arrow-left"></i> Danh sách môn học</button>
-            </div>
-        </section>
-
-        <section id="classStudentsView" class="page-view hidden">
-            <div class="card glass-panel students-panel">
-                <div class="card-header flex-between">
-                    <div>
-                        <h3><i class="fa-solid fa-users"></i> Sinh viên trong lớp</h3>
-                        <p id="classStudentsCourseName" class="subtitle"></p>
-                    </div>
-                    <button class="btn-secondary hidden" id="editClassRosterBtn" type="button">
-                        <i class="fa-solid fa-user-pen"></i> Cập nhật danh sách lớp
-                    </button>
-                </div>
-                <p id="classStudentsMessage" class="students-message" role="status"></p>
-                <div class="table-responsive">
-                    <table class="data-table">
-                        <thead><tr><th>Họ tên</th><th>Tên đăng nhập</th><th>Email</th></tr></thead>
-                        <tbody id="classStudentsTableBody"></tbody>
-                    </table>
-                </div>
-                <button class="btn-outline" id="backToClasses" type="button">
-                    <i class="fa-solid fa-arrow-left"></i> Danh sách lớp
-                </button>
-            </div>
-        </section>
-
-        <section id="lecturersView" class="page-view hidden">
-            <div class="card glass-panel students-panel">
-                <div class="card-header"><h3><i class="fa-solid fa-chalkboard-user"></i> Tài khoản giảng viên</h3></div>
-                <form id="lecturerForm" class="student-form">
-                    <div class="exam-form-grid">
-                        <label>Tên đăng nhập<input name="username" required minlength="3" maxlength="50" pattern="[A-Za-z0-9._-]+"></label>
-                        <label>Họ và tên<input name="fullName" required maxlength="100"></label>
-                        <label>Email<input name="email" type="email" required maxlength="100"></label>
-                        <label>Mật khẩu khởi tạo (12 ký tự trở lên)<input name="initialPassword" type="password" required minlength="12" maxlength="128" autocomplete="new-password"></label>
-                    </div>
-                    <p class="students-message">Giảng viên phải đổi mật khẩu khi đăng nhập lần đầu.</p>
-                    <p id="lecturerFormMessage" class="students-message" role="status"></p>
-                    <p id="lecturerFormError" class="error-msg hidden" role="alert"></p>
-                    <button class="btn-primary" type="submit"><i class="fa-solid fa-user-plus"></i> Cấp tài khoản</button>
-                </form>
-                <div class="table-responsive">
-                    <table class="data-table">
-                        <thead><tr><th>Họ tên</th><th>Tên đăng nhập</th><th>Email</th></tr></thead>
-                        <tbody id="lecturersTableBody"></tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-
-        <section id="examsView" class="page-view hidden">
-            <div class="card glass-panel exams-panel">
-                <section class="assignments-section">
-                    <div class="card-header flex-between exam-header">
-                        <div>
-                            <span class="card-kicker">GIAO VÀ NỘP BÀI</span>
-                            <h3><i class="fa-solid fa-file-arrow-up"></i> Bài tập tự luận</h3>
-                            <p id="assignmentMessage" class="students-message" role="status"></p>
-                        </div>
-                        <button class="btn-primary assignment-create-toggle" id="assignmentCreateToggle" type="button">
-                            <i class="fa-solid fa-plus"></i> Giao bài tập
-                        </button>
-                    </div>
-
-                    <form id="assignmentCreateForm" class="exam-upload-form hidden" enctype="multipart/form-data">
-                        <div class="exam-form-grid">
-                            <label>Môn học
-                                <select name="courseId" id="assignmentCourseId" required></select>
-                            </label>
-                            <label>Tên bài tập<input name="title" required maxlength="160"></label>
-                            <label class="exam-description">Mô tả / yêu cầu<input name="description" maxlength="2000"></label>
-                            <label>Hạn nộp (không bắt buộc)
-                                <input name="dueAt" type="datetime-local">
-                            </label>
-                            <label class="exam-file">File đề bài (PDF, DOC, DOCX, ODT, RTF, TXT; tối đa 15 MB)
-                                <input name="file" type="file" accept=".pdf,.doc,.docx,.odt,.rtf,.txt">
-                            </label>
-                        </div>
-                        <div class="exam-form-actions">
-                            <span class="text-muted">Hạn nộp và file đề bài không bắt buộc; nội dung có thể ghi trong mô tả.</span>
-                            <button class="btn-primary" type="submit"><i class="fa-solid fa-cloud-arrow-up"></i> Tạo bài tập</button>
-                        </div>
-                        <p id="assignmentCreateError" class="error-msg hidden" role="alert"></p>
-                    </form>
-
-                    <p id="assignmentError" class="error-msg hidden" role="alert"></p>
-                    <div class="table-responsive">
-                        <table class="data-table">
-                            <thead><tr><th>MÃ´n há»c</th><th>BÃ i táº­p</th><th>File Ä‘á»</th><th>BÃ i Ä‘Ã£ ná»™p / Äiá»ƒm</th><th>Háº¡n ná»™p</th><th>NgÃ y giao</th><th>Thao tÃ¡c</th></tr></thead>
-                            <tbody id="assignmentsTableBody"></tbody>
-                        </table>
-                    </div>
-
-                    <section id="assignmentSubmissionsPanel" class="exam-results hidden" aria-live="polite">
-                        <div class="card-header flex-between">
-                            <h3 id="assignmentSubmissionsTitle">Bài sinh viên đã nộp</h3>
-                            <button class="btn-outline" id="closeAssignmentSubmissions" type="button" aria-label="Đóng danh sách bài nộp">
-                                <i class="fa-solid fa-xmark"></i>
+                    <div class="header-right-col">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <div style="position: relative;">
+                                <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 12px; top: 11px; color: #94a3b8; font-size: 0.85rem;"></i>
+                                <input type="text" id="studentSearchInput" placeholder="Tìm theo tên, MSSV, email..." 
+                                       style="padding: 8px 14px 8px 34px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.88rem; outline: none; width: 240px;">
+                            </div>
+                            <!-- "+ Thêm sinh viên" button (visible only for LECTURER and ADMIN) -->
+                            <button type="button" class="btn-primary" id="btnOpenAddStudentModal">
+                                <i class="fa-solid fa-user-plus"></i> Thêm sinh viên
                             </button>
                         </div>
-                        <div class="table-responsive">
-                            <table class="data-table">
-                                <thead><tr><th>Sinh viÃªn</th><th>Email</th><th>TÃªn file</th><th>Thá»i gian ná»™p</th><th>Táº£i bÃ i</th><th>Äiá»ƒm (0 - 10)</th><th>Nháº­n xÃ©t</th><th>Thao tÃ¡c</th></tr></thead>
-                                <tbody id="assignmentSubmissionsBody"></tbody>
-                            </table>
-                        </div>
-                    </section>
-                </section>
-
-                <div class="assignment-exams-divider"><span>Đề thi trắc nghiệm / tự luận ngắn</span></div>
-                <div class="card-header flex-between exam-header">
-                    <div>
-                    <span class="card-kicker">KIỂM TRA TRỰC TUYẾN</span>
-                    <h3><i class="fa-solid fa-file-circle-question"></i> Đề thi</h3>
-                        <p id="examMessage" class="students-message" role="status"></p>
                     </div>
-                    <button class="btn-primary exam-upload-toggle" id="examUploadToggle" type="button">
-                        <i class="fa-solid fa-upload"></i> Tải đề lên
-                    </button>
                 </div>
 
-                <form id="examUploadForm" class="exam-upload-form hidden" enctype="multipart/form-data">
-                    <div class="exam-form-grid">
-                        <label>Môn học
-                            <select name="courseId" id="examCourseId" required></select>
-                        </label>
-                        <label>Tên đề<input name="title" required maxlength="160"></label>
-                        <label class="exam-description">Mô tả<input name="description" maxlength="2000"></label>
-                        <label class="exam-file">File đề (.csv, .xlsx)<input name="file" type="file" accept=".csv,.xlsx" required></label>
+                <div class="aita-card">
+                    <div style="margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-size: 0.85rem; color: #64748b;" id="studentListStatusText">Đang tải danh sách sinh viên...</span>
+                        <span id="roleNoticeBadge" style="font-size: 0.76rem; padding: 4px 10px; border-radius: 6px; font-weight: 600; background: #f1f5f9; color: #475569;">
+                            <i class="fa-solid fa-shield"></i> Quyền: <strong id="currentUserRoleNotice">Sinh viên (Chỉ xem)</strong>
+                        </span>
                     </div>
-                    <div class="exam-form-actions">
-                        <a href="files/exam-template.csv" download><i class="fa-solid fa-download"></i> Tải file mẫu CSV</a>
-                        <button class="btn-primary" type="submit"><i class="fa-solid fa-cloud-arrow-up"></i> Lưu đề vào database</button>
-                    </div>
-                    <p id="examUploadError" class="error-msg hidden" role="alert"></p>
-                </form>
-
-                <div class="table-responsive">
-                    <table class="data-table">
-                        <thead><tr><th>Môn học</th><th>Tên đề</th><th>Số câu</th><th>Kết quả</th><th>Ngày tạo</th><th>Thao tác</th></tr></thead>
-                        <tbody id="examsTableBody"></tbody>
-                    </table>
-                </div>
-
-                <section id="examResultsPanel" class="exam-results hidden" aria-live="polite">
-                    <div class="card-header flex-between"><h3 id="examResultsTitle">Kết quả bài làm</h3><button class="btn-outline" id="closeExamResults" type="button" aria-label="Đóng kết quả"><i class="fa-solid fa-xmark"></i></button></div>
                     <div class="table-responsive">
-                        <table class="data-table">
-                            <thead><tr><th>Sinh viên</th><th>Tên đăng nhập</th><th>Điểm</th><th>Thời gian nộp</th></tr></thead>
-                            <tbody id="examResultsBody"></tbody>
+                        <table class="aita-table">
+                            <thead>
+                                <tr>
+                                    <th>STT</th>
+                                    <th>Mã SV</th>
+                                    <th>Họ và tên</th>
+                                    <th>Email</th>
+                                    <th>Lớp & Môn học</th>
+                                    <th>Nhóm Git</th>
+                                    <th>Trạng thái</th>
+                                    <th class="action-column">Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody id="studentTableBody">
+                                <!-- Populated dynamically by dashboard.js -->
+                            </tbody>
                         </table>
                     </div>
-                </section>
-            </div>
-        </section>
-
-        <section id="examDetailView" class="page-view hidden">
-            <div class="card glass-panel exam-detail-panel">
-                <div class="card-header flex-between exam-header">
-                    <div><h3 id="examDetailTitle">Đề thi</h3><p id="examDetailDescription" class="subtitle"></p></div>
-                    <button class="btn-outline" id="backToExams" type="button"><i class="fa-solid fa-arrow-left"></i> Danh sách đề</button>
                 </div>
-                <p id="examAttemptResult" class="exam-attempt-result hidden" role="status"></p>
-                <form id="examAttemptForm"></form>
             </div>
-        </section>
-    </main>
 
-    <dialog id="studentDialog" class="student-dialog">
-        <form id="studentForm" class="student-form">
-            <div class="card-header flex-between">
-                <h3 id="studentDialogTitle">Thêm sinh viên</h3>
-                <button type="button" class="dialog-close" id="closeStudentDialog" aria-label="Đóng"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <input type="hidden" id="studentId">
-            <label>Tên đăng nhập<input id="studentUsername" required maxlength="50"></label>
-            <label>Họ và tên<input id="studentFullName" required maxlength="100"></label>
-            <label>Email<input id="studentEmail" type="email" required maxlength="100"></label>
-            <label>Tài khoản GitHub<input id="studentGithub" maxlength="50"></label>
-            <label>Mật khẩu <span id="passwordHint">(bắt buộc)</span><input id="studentPassword" type="password" autocomplete="new-password"></label>
-            <p id="studentFormError" class="error-msg hidden" role="alert"></p>
-            <button type="submit" class="btn-primary">Lưu sinh viên</button>
-        </form>
-    </dialog>
+            <!-- ========================================================
+                 VIEW 3: ĐỀ THI & BÀI TẬP (ASSIGNMENTS & EXAMS CRUD)
+                 ======================================================== -->
+            <div id="examsView" class="page-view hidden">
+                <div class="aita-card header-card">
+                    <div class="header-left-col">
+                        <span class="kicker-label">KHẢO THÍ & BÀI TẬP</span>
+                        <h1 class="header-main-title">Đề thi & Bài tập học phần</h1>
+                        <p class="header-sub-title">Giao bài tập, nộp bài đồ án ZIP xác thực SHA-256 và đánh giá kết quả</p>
+                    </div>
+                    <div class="header-right-col">
+                        <!-- Visible for Lecturer / Admin -->
+                        <button type="button" class="btn-primary" id="btnOpenCreateAssignmentModal">
+                            <i class="fa-solid fa-plus"></i> Giao bài tập mới
+                        </button>
+                    </div>
+                </div>
 
-    <dialog id="courseDialog" class="student-dialog">
-        <form id="courseForm" class="student-form">
-            <div class="card-header flex-between">
-                <h3 id="courseDialogTitle">Thêm môn học</h3>
-                <button type="button" class="dialog-close" id="closeCourseDialog" aria-label="Đóng"><i class="fa-solid fa-xmark"></i></button>
+                <div class="aita-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+                        <h3 style="font-size: 1.05rem; font-weight: 700; color: #1e293b;">Danh sách bài tập & đề thi được giao</h3>
+                        <span id="assignmentStatusMessage" style="font-size: 0.82rem; color: #64748b;">Đang tải bài tập...</span>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="aita-table">
+                            <thead>
+                                <tr>
+                                    <th>Môn học</th>
+                                    <th>Tiêu đề bài tập / Đề thi</th>
+                                    <th>Hạn nộp</th>
+                                    <th>Đề bài đính kèm</th>
+                                    <th>Tiến độ nộp / Điểm</th>
+                                    <th>Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody id="assignmentsTableBody">
+                                <!-- Populated dynamically by assignments.js -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
-            <input type="hidden" name="id" id="courseId">
-            <label>Mã môn học<input name="courseCode" id="courseCode" required maxlength="30"></label>
-            <label>Tên môn học<input name="courseName" id="courseName" required maxlength="150"></label>
-            <label>Học kỳ<input name="semester" id="courseSemester" maxlength="50" placeholder="Ví dụ: Fall 2026"></label>
-            <label>Giảng viên (giữ Ctrl để chọn nhiều)
-                <select name="lecturerIds" id="courseLecturers" multiple required></select>
-            </label>
-            <p id="courseFormError" class="error-msg hidden" role="alert"></p>
-            <button type="submit" class="btn-primary">Lưu môn học</button>
-        </form>
-    </dialog>
 
-    <dialog id="classDialog" class="student-dialog">
-        <form id="classForm" class="student-form">
-            <div class="card-header flex-between">
-                <h3 id="classDialogTitle">Thêm lớp học</h3>
-                <button type="button" class="dialog-close" id="closeClassDialog" aria-label="Đóng"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <input type="hidden" name="classId" id="classId">
-            <label id="classNameLabel">Tên lớp<input name="className" id="className" required maxlength="100" placeholder="Ví dụ: SE20C"></label>
-            <label>Danh sách học sinh (giữ Ctrl để chọn nhiều)
-                <select name="studentIds" id="classStudents" multiple size="10"></select>
-            </label>
-            <p id="classFormError" class="error-msg hidden" role="alert"></p>
-            <button type="submit" class="btn-primary">Lưu lớp và danh sách học sinh</button>
-        </form>
-    </dialog>
+            <!-- ========================================================
+                 VIEW 4: MÔN HỌC & PHÂN LỚP (5 COURSES & ROSTER)
+                 ======================================================== -->
+            <div id="coursesView" class="page-view hidden">
+                <div class="aita-card header-card">
+                    <div class="header-left-col">
+                        <span class="kicker-label">CHƯƠNG TRÌNH ĐÀO TẠO KỸ THUẬT PHẦN MỀM</span>
+                        <h1 class="header-main-title">Môn học & Phân lớp</h1>
+                        <p class="header-sub-title">Fall 2026 - Danh mục 5 môn học chuyên ngành theo chuẩn Syllabus PRJ301</p>
+                    </div>
+                    <div class="header-right-col" id="adminCourseActions" style="display: none;">
+                        <button type="button" class="btn-primary" id="btnAdminAddCourse">
+                            <i class="fa-solid fa-plus"></i> Thêm môn học
+                        </button>
+                    </div>
+                </div>
 
-    <dialog id="passwordDialog" class="student-dialog">
-        <form id="passwordForm" class="student-form">
-            <div class="card-header flex-between">
-                <h3>Đổi mật khẩu</h3>
-                <button type="button" class="dialog-close" id="closePasswordDialog" aria-label="Đóng"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <label>Mật khẩu hiện tại<input name="currentPassword" type="password" autocomplete="current-password" required></label>
-            <label>Mật khẩu mới (8-128 ký tự)<input name="newPassword" type="password" autocomplete="new-password" minlength="8" maxlength="128" required></label>
-            <label>Xác nhận mật khẩu mới<input name="confirmPassword" type="password" autocomplete="new-password" minlength="8" maxlength="128" required></label>
-            <p id="passwordFormError" class="error-msg hidden" role="alert"></p>
-            <p id="passwordFormSuccess" class="students-message hidden" role="status"></p>
-            <button type="submit" class="btn-primary">Cập nhật mật khẩu</button>
-        </form>
-    </dialog>
+                <!-- 5 COURSES CARDS (PRJ301, SWR302, JPD123, CSD201, IOT102) -->
+                <div class="courses-grid" id="coursesGridContainer">
+                    <!-- PRJ301 -->
+                    <div class="course-card">
+                        <div>
+                            <div class="course-card-top">
+                                <span class="course-code-tag">PRJ301</span>
+                                <span class="badge-pill normal">Đang diễn ra</span>
+                            </div>
+                            <h3 class="course-name-text">Java Web Application Development</h3>
+                            <p style="font-size: 0.82rem; color: #64748b; margin-bottom: 12px;">Servlet, JSP, MVC2, Filter, JDBC nâng cao & Tích hợp AI Assistant</p>
+                            <div class="course-lecturer-info">
+                                <i class="fa-solid fa-chalkboard-user" style="color: #4f46e5;"></i>
+                                <span>Giảng viên: <strong>TS. Trần Giảng Viên</strong></span>
+                            </div>
+                        </div>
+                        <div class="course-card-footer">
+                            <span><i class="fa-solid fa-users"></i> Lớp <strong>SE20C</strong> (25 SV)</span>
+                            <button type="button" class="btn-outline" onclick="openClassRosterModal('PRJ301', 'Java Web Application Development')">
+                                <i class="fa-solid fa-list-ul"></i> Xem lớp
+                            </button>
+                        </div>
+                    </div>
 
-    <!-- Modal điều chỉnh trọng số cho giảng viên -->
-    <dialog id="weightsModal" class="student-dialog weights-modal">
-        <form id="weightsForm" class="student-form">
-            <div class="card-header flex-between">
-                <h3><i class="fa-solid fa-sliders"></i> Cấu hình trọng số W</h3>
-                <button type="button" class="dialog-close" id="closeWeightsModalBtn" aria-label="Đóng"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <label><strong>W₁: Khối lượng code (Volume)</strong>
-                <input type="number" id="weightVolumeInput" name="volumeWeight" step="0.05" min="0" max="1" required>
-                <small class="text-muted" style="display:block; margin-top:2px;">Tỷ lệ dòng code thực chất (LOC thêm/xóa)</small>
-            </label>
-            <label><strong>W₂: Tần suất & Đều đặn (Frequency)</strong>
-                <input type="number" id="weightFrequencyInput" name="frequencyWeight" step="0.05" min="0" max="1" required>
-                <small class="text-muted" style="display:block; margin-top:2px;">Độ đều đặn phân bố commits, chống dồn sát hạn</small>
-            </label>
-            <label><strong>W₃: Quản lý & Code Review (Review)</strong>
-                <input type="number" id="weightReviewInput" name="reviewWeight" step="0.05" min="0" max="1" required>
-                <small class="text-muted" style="display:block; margin-top:2px;">Tạo Pull Requests và review code đồng đội</small>
-            </label>
-            <label><strong>W₄: Hệ số phạt (Penalty)</strong>
-                <input type="number" id="weightPenaltyInput" name="penaltyWeight" step="0.05" min="0" max="1" required>
-                <small class="text-muted" style="display:block; margin-top:2px;">Trừ điểm commit rác ('fix', 'update') hoặc dồn code</small>
-            </label>
-            <p id="weightsFormMsg" class="error-msg hidden" role="alert"></p>
-            <div class="flex-between" style="margin-top: 18px; gap: 10px;">
-                <button type="button" class="btn-outline" id="cancelWeightsBtn" style="flex: 1;">Hủy</button>
-                <button type="submit" class="btn-primary" style="flex: 2;"><i class="fa-solid fa-save"></i> Lưu trọng số</button>
-            </div>
-        </form>
-    </dialog>
+                    <!-- SWR302 -->
+                    <div class="course-card">
+                        <div>
+                            <div class="course-card-top">
+                                <span class="course-code-tag">SWR302</span>
+                                <span class="badge-pill normal">Đang diễn ra</span>
+                            </div>
+                            <h3 class="course-name-text">Software Requirement Engineering</h3>
+                            <p style="font-size: 0.82rem; color: #64748b; margin-bottom: 12px;">Kỹ thuật thu thập, phân tích đặc tả yêu cầu phần mềm và mô hình hóa hệ thống</p>
+                            <div class="course-lecturer-info">
+                                <i class="fa-solid fa-chalkboard-user" style="color: #4f46e5;"></i>
+                                <span>Giảng viên: <strong>ThS. Lê Thị Phương</strong></span>
+                            </div>
+                        </div>
+                        <div class="course-card-footer">
+                            <span><i class="fa-solid fa-users"></i> Lớp <strong>SE20C</strong> (25 SV)</span>
+                            <button type="button" class="btn-outline" onclick="openClassRosterModal('SWR302', 'Software Requirement')">
+                                <i class="fa-solid fa-list-ul"></i> Xem lớp
+                            </button>
+                        </div>
+                    </div>
 
-    <!-- Modal đổi GitHub Repository -->
-    <dialog id="editRepoDialog" class="student-dialog weights-modal">
-        <form id="editRepoForm" class="student-form">
-            <div class="card-header flex-between">
-                <h3><i class="fa-brands fa-github"></i> Liên kết GitHub Repository</h3>
-                <button type="button" class="dialog-close" id="closeEditRepoDialogBtn" aria-label="Đóng"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <label><strong>Đường dẫn Repository (URL)</strong>
-                <input type="url" id="repoUrlInput" name="repoUrl" placeholder="https://github.com/owner/repository" required style="margin-top: 6px;">
-                <small class="text-muted" style="display:block; margin-top:4px;">Ví dụ: https://github.com/PRJ301-AITA/team-project-repo</small>
-            </label>
-            <p id="editRepoMsg" class="error-msg hidden" role="alert"></p>
-            <div class="flex-between" style="margin-top: 18px; gap: 10px;">
-                <button type="button" class="btn-outline" id="cancelEditRepoBtn" style="flex: 1;">Hủy</button>
-                <button type="submit" class="btn-primary" style="flex: 2;"><i class="fa-solid fa-link"></i> Lưu liên kết</button>
-            </div>
-        </form>
-    </dialog>
+                    <!-- JPD123 -->
+                    <div class="course-card">
+                        <div>
+                            <div class="course-card-top">
+                                <span class="course-code-tag">JPD123</span>
+                                <span class="badge-pill normal">Đang diễn ra</span>
+                            </div>
+                            <h3 class="course-name-text">Core Java Lab & Practice</h3>
+                            <p style="font-size: 0.82rem; color: #64748b; margin-bottom: 12px;">Lập trình hướng đối tượng chuyên sâu, xử lý đa luồng và cấu trúc dữ liệu Java Core</p>
+                            <div class="course-lecturer-info">
+                                <i class="fa-solid fa-chalkboard-user" style="color: #4f46e5;"></i>
+                                <span>Giảng viên: <strong>ThS. Phạm Văn Java</strong></span>
+                            </div>
+                        </div>
+                        <div class="course-card-footer">
+                            <span><i class="fa-solid fa-users"></i> Lớp <strong>SE20C</strong> (25 SV)</span>
+                            <button type="button" class="btn-outline" onclick="openClassRosterModal('JPD123', 'Core Java Lab & Practice')">
+                                <i class="fa-solid fa-list-ul"></i> Xem lớp
+                            </button>
+                        </div>
+                    </div>
 
-    <!-- Custom JS -->
-    <script src="js/dashboard.js?v=20261018_fix_repo_v4"></script>
-    <script src="js/exams.js?v=20261018_fix_repo_v4"></script>
-    <script src="js/assignments.js?v=20261026_grade_v1"></script>
+                    <!-- CSD201 -->
+                    <div class="course-card">
+                        <div>
+                            <div class="course-card-top">
+                                <span class="course-code-tag">CSD201</span>
+                                <span class="badge-pill normal">Đang diễn ra</span>
+                            </div>
+                            <h3 class="course-name-text">Data Structures and Algorithms</h3>
+                            <p style="font-size: 0.82rem; color: #64748b; margin-bottom: 12px;">Cấu trúc dữ liệu nâng cao, đồ thị, cây nhị phân tìm kiếm, tối ưu giải thuật</p>
+                            <div class="course-lecturer-info">
+                                <i class="fa-solid fa-chalkboard-user" style="color: #4f46e5;"></i>
+                                <span>Giảng viên: <strong>TS. Vũ Thuật Toán</strong></span>
+                            </div>
+                        </div>
+                        <div class="course-card-footer">
+                            <span><i class="fa-solid fa-users"></i> Lớp <strong>SE20C</strong> (25 SV)</span>
+                            <button type="button" class="btn-outline" onclick="openClassRosterModal('CSD201', 'Data Structures and Algorithms')">
+                                <i class="fa-solid fa-list-ul"></i> Xem lớp
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- IOT102 -->
+                    <div class="course-card">
+                        <div>
+                            <div class="course-card-top">
+                                <span class="course-code-tag">IOT102</span>
+                                <span class="badge-pill normal">Đang diễn ra</span>
+                            </div>
+                            <h3 class="course-name-text">Internet of Things Fundamentals</h3>
+                            <p style="font-size: 0.82rem; color: #64748b; margin-bottom: 12px;">Kiến trúc IoT, cảm biến vi điều khiển, giao thức kết nối MQTT và nhúng mạng</p>
+                            <div class="course-lecturer-info">
+                                <i class="fa-solid fa-chalkboard-user" style="color: #4f46e5;"></i>
+                                <span>Giảng viên: <strong>ThS. Đỗ Vạn Vật</strong></span>
+                            </div>
+                        </div>
+                        <div class="course-card-footer">
+                            <span><i class="fa-solid fa-users"></i> Lớp <strong>SE20C</strong> (25 SV)</span>
+                            <button type="button" class="btn-outline" onclick="openClassRosterModal('IOT102', 'Internet of Things Fundamentals')">
+                                <i class="fa-solid fa-list-ul"></i> Xem lớp
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- ============================================================
+         MODAL 1: ĐỔI LINK GITHUB REPOSITORY ĐỂ CHẤM ĐÓNG GÓP
+         ============================================================ -->
+    <div id="editRepoModal" class="aita-modal-overlay hidden">
+        <div class="aita-modal-dialog">
+            <div class="modal-header">
+                <h3><i class="fa-brands fa-github"></i> Gán liên kết GitHub Repository</h3>
+                <button type="button" class="btn-modal-close" onclick="closeModal('editRepoModal')"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="editRepoForm">
+                <div class="modal-body">
+                    <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 16px;">
+                        Nhập đường dẫn GitHub repository của nhóm để hệ thống tự động quét lịch sử commit, pull request, code review và tính toán điểm số cho từng thành viên:
+                    </p>
+                    <div class="form-group-block">
+                        <label for="repoUrlInput">Đường dẫn GitHub Repository</label>
+                        <input type="url" id="repoUrlInput" class="form-control-input" 
+                               value="https://github.com/lx426352-art/PRJ301-Nh-m-6" 
+                               placeholder="https://github.com/username/repository-name" required>
+                    </div>
+                    <div class="form-group-block">
+                        <label for="repoGroupIdInput">Mã nhóm học tập</label>
+                        <input type="number" id="repoGroupIdInput" class="form-control-input" value="6" readonly style="background: #f1f5f9;">
+                    </div>
+                    <p id="editRepoMsg" style="font-size: 0.84rem; display: none;"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-outline" onclick="closeModal('editRepoModal')">Hủy bỏ</button>
+                    <button type="submit" class="btn-primary" id="btnSubmitRepo">
+                        <i class="fa-solid fa-check"></i> Lưu & Quét dữ liệu
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         MODAL 2: CẤU HÌNH TRỌNG SỐ W (VOLUME, FREQ, REVIEW, PENALTY)
+         ============================================================ -->
+    <div id="weightsModal" class="aita-modal-overlay hidden">
+        <div class="aita-modal-dialog">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-sliders"></i> Cấu hình trọng số W (Git Assessor)</h3>
+                <button type="button" class="btn-modal-close" onclick="closeModal('weightsModal')"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="weightsForm">
+                <div class="modal-body">
+                    <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 16px;">
+                        Điều chỉnh trọng số theo công thức chuẩn hóa của AITA Assessor:
+                        <br><strong>Điểm = (W₁×Khối lượng) + (W₂×Tần suất) + (W₃×Review) - (W₄×Phạt)</strong>
+                    </p>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+                        <div class="form-group-block">
+                            <label for="weightW1">W₁ Khối lượng code (Volume %)</label>
+                            <input type="number" step="0.05" min="0" max="1" id="weightW1" class="form-control-input" value="0.50" required>
+                            <small style="color: #64748b;">Mặc định: 0.50 (50%)</small>
+                        </div>
+                        <div class="form-group-block">
+                            <label for="weightW2">W₂ Tần suất commit (Freq %)</label>
+                            <input type="number" step="0.05" min="0" max="1" id="weightW2" class="form-control-input" value="0.40" required>
+                            <small style="color: #64748b;">Mặc định: 0.40 (40%)</small>
+                        </div>
+                        <div class="form-group-block">
+                            <label for="weightW3">W₃ Code Review & PR (%)</label>
+                            <input type="number" step="0.05" min="0" max="1" id="weightW3" class="form-control-input" value="0.20" required>
+                            <small style="color: #64748b;">Mặc định: 0.20 (20%)</small>
+                        </div>
+                        <div class="form-group-block">
+                            <label for="weightW4">W₄ Trừ điểm vi phạm (Penalty %)</label>
+                            <input type="number" step="0.05" min="0" max="1" id="weightW4" class="form-control-input" value="0.10" required>
+                            <small style="color: #64748b;">Mặc định: 0.10 (10%)</small>
+                        </div>
+                    </div>
+                    <div style="background: #f1f5f9; padding: 12px; border-radius: 8px; margin-top: 10px;">
+                        <span style="font-size: 0.8rem; font-weight: 700; color: #475569;">Công thức xem trước:</span>
+                        <div style="font-weight: 700; color: #4f46e5; font-size: 0.92rem; margin-top: 4px;" id="formulaPreviewText">
+                            50% Volume + 40% Freq + 20% Review - 10% Penalty
+                        </div>
+                    </div>
+                    <p id="weightsMsg" style="font-size: 0.84rem; display: none; margin-top: 10px;"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-outline" onclick="closeModal('weightsModal')">Đóng</button>
+                    <button type="submit" class="btn-primary" id="btnSaveWeights">
+                        <i class="fa-solid fa-floppy-disk"></i> Lưu & Áp dụng
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         MODAL 3: THÊM / SỬA SINH VIÊN (CHO GIẢNG VIÊN VÀ ADMIN)
+         ============================================================ -->
+    <div id="studentModal" class="aita-modal-overlay hidden">
+        <div class="aita-modal-dialog">
+            <div class="modal-header">
+                <h3 id="studentModalTitle"><i class="fa-solid fa-user-plus"></i> Thêm sinh viên mới</h3>
+                <button type="button" class="btn-modal-close" onclick="closeModal('studentModal')"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="studentForm">
+                <input type="hidden" id="studentEditId">
+                <div class="modal-body">
+                    <div class="form-group-block">
+                        <label for="studentCodeInput">Mã số sinh viên (MSSV)</label>
+                        <input type="text" id="studentCodeInput" class="form-control-input" placeholder="Ví dụ: QE200026" required>
+                    </div>
+                    <div class="form-group-block">
+                        <label for="studentFullNameInput">Họ và tên sinh viên</label>
+                        <input type="text" id="studentFullNameInput" class="form-control-input" placeholder="Ví dụ: Hoàng Minh Quân" required>
+                    </div>
+                    <div class="form-group-block">
+                        <label for="studentUsernameInput">Tên đăng nhập (Username)</label>
+                        <input type="text" id="studentUsernameInput" class="form-control-input" placeholder="Ví dụ: quan.hm" required>
+                    </div>
+                    <div class="form-group-block">
+                        <label for="studentEmailInput">Email</label>
+                        <input type="email" id="studentEmailInput" class="form-control-input" placeholder="quan.hm@fpt.edu.vn" required>
+                    </div>
+                    <div class="form-group-block" id="studentPasswordBlock">
+                        <label for="studentPasswordInput">Mật khẩu khởi tạo</label>
+                        <input type="password" id="studentPasswordInput" class="form-control-input" value="123456" placeholder="Mặc định: 123456">
+                    </div>
+                    <div class="form-group-block">
+                        <label for="studentGithubInput">GitHub Username (nếu có)</label>
+                        <input type="text" id="studentGithubInput" class="form-control-input" placeholder="username">
+                    </div>
+                    <p id="studentFormError" style="font-size: 0.84rem; color: #dc2626; display: none; margin-top: 10px;"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-outline" onclick="closeModal('studentModal')">Hủy</button>
+                    <button type="submit" class="btn-primary" id="btnSaveStudent">
+                        <i class="fa-solid fa-check"></i> Lưu sinh viên
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         MODAL 4: GIAO BÀI TẬP MỚI (DÀNH CHO GIẢNG VIÊN / ADMIN)
+         ============================================================ -->
+    <div id="assignmentModal" class="aita-modal-overlay hidden">
+        <div class="aita-modal-dialog">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-file-circle-plus"></i> Giao bài tập / Đề thi mới</h3>
+                <button type="button" class="btn-modal-close" onclick="closeModal('assignmentModal')"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="assignmentForm" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <div class="form-group-block">
+                        <label for="assignmentCourseSelect">Môn học</label>
+                        <select id="assignmentCourseSelect" class="form-control-input" required>
+                            <option value="1">PRJ301 - Java Web Application Development</option>
+                            <option value="2">SWR302 - Software Requirement Engineering</option>
+                            <option value="3">JPD123 - Core Java Lab & Practice</option>
+                            <option value="4">CSD201 - Data Structures and Algorithms</option>
+                            <option value="5">IOT102 - Internet of Things Fundamentals</option>
+                        </select>
+                    </div>
+                    <div class="form-group-block">
+                        <label for="assignmentTitleInput">Tiêu đề bài tập</label>
+                        <input type="text" id="assignmentTitleInput" class="form-control-input" placeholder="Ví dụ: Assignment 1 - Xây dựng MVC2 Servlet với SHA-256" required>
+                    </div>
+                    <div class="form-group-block">
+                        <label for="assignmentDueInput">Hạn chót nộp bài (Deadline)</label>
+                        <input type="datetime-local" id="assignmentDueInput" class="form-control-input" required>
+                    </div>
+                    <div class="form-group-block">
+                        <label for="assignmentPromptFileInput">File đề bài đính kèm (PDF, DOCX, ZIP)</label>
+                        <input type="file" id="assignmentPromptFileInput" class="form-control-input">
+                    </div>
+                    <div class="form-group-block">
+                        <label for="assignmentDescInput">Mô tả & Hướng dẫn làm bài</label>
+                        <textarea id="assignmentDescInput" class="form-control-input" rows="3" placeholder="Yêu cầu sinh viên tuân thủ cấu trúc package, mã hóa hash SHA-256..."></textarea>
+                    </div>
+                    <p id="assignmentFormError" style="font-size: 0.84rem; color: #dc2626; display: none;"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-outline" onclick="closeModal('assignmentModal')">Đóng</button>
+                    <button type="submit" class="btn-primary" id="btnSubmitAssignment">
+                        <i class="fa-solid fa-paper-plane"></i> Giao bài tập
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         MODAL 5: SINH VIÊN NỘP BÀI TẬP VÀ XÁC THỰC SHA-256
+         ============================================================ -->
+    <div id="submitAssignmentModal" class="aita-modal-overlay hidden">
+        <div class="aita-modal-dialog">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-cloud-arrow-up"></i> Nộp bài tập học phần</h3>
+                <button type="button" class="btn-modal-close" onclick="closeModal('submitAssignmentModal')"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="submitAssignmentForm" enctype="multipart/form-data">
+                <input type="hidden" id="submitAssignmentId">
+                <div class="modal-body">
+                    <div style="background: #f1f5f9; padding: 12px 14px; border-radius: 8px; margin-bottom: 16px;">
+                        <span style="font-size: 0.8rem; color: #64748b;">Bài tập đang nộp:</span>
+                        <div id="submitAssignmentTitle" style="font-weight: 700; color: #1e293b; font-size: 0.95rem;">-</div>
+                    </div>
+                    <div class="form-group-block">
+                        <label for="submissionFileInput">Chọn file bài làm (ZIP, PDF, DOCX)</label>
+                        <input type="file" id="submissionFileInput" class="form-control-input" accept=".zip,.pdf,.doc,.docx" required>
+                    </div>
+                    <div style="background: #eef2ff; border: 1px solid #c7d2fe; padding: 12px 14px; border-radius: 8px; font-size: 0.82rem; color: #4338ca;">
+                        <i class="fa-solid fa-shield-halved" style="margin-right: 4px;"></i>
+                        Hệ thống tự động băm mã hóa <strong>SHA-256 Hash</strong> để bảo vệ tính toàn vẹn của artifact và ngăn chặn thay đổi bài làm sau hạn nộp.
+                    </div>
+                    <p id="submissionErrorMsg" style="font-size: 0.84rem; color: #dc2626; display: none; margin-top: 10px;"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-outline" onclick="closeModal('submitAssignmentModal')">Hủy</button>
+                    <button type="submit" class="btn-primary" id="btnConfirmSubmit">
+                        <i class="fa-solid fa-upload"></i> Gửi bài nộp
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         MODAL 6: GIẢNG VIÊN XEM BÀI NỘP VÀ CHẤM ĐIỂM
+         ============================================================ -->
+    <div id="gradingModal" class="aita-modal-overlay hidden">
+        <div class="aita-modal-dialog large">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-clipboard-check"></i> Danh sách bài nộp & Chấm điểm</h3>
+                <button type="button" class="btn-modal-close" onclick="closeModal('gradingModal')"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <h4 id="gradingAssignmentTitle" style="font-size: 1rem; font-weight: 700; margin-bottom: 12px; color: #1e293b;">-</h4>
+                <div class="table-responsive">
+                    <table class="aita-table">
+                        <thead>
+                            <tr>
+                                <th>Sinh viên</th>
+                                <th>Thời gian nộp</th>
+                                <th>File nộp</th>
+                                <th>SHA-256 Hash</th>
+                                <th>Điểm (0-10)</th>
+                                <th>Nhận xét sư phạm</th>
+                                <th>Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody id="gradingTableBody">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-outline" onclick="closeModal('gradingModal')">Đóng</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         MODAL 7: XEM DANH SÁCH LỚP HỌC (25 SINH VIÊN)
+         ============================================================ -->
+    <div id="rosterModal" class="aita-modal-overlay hidden">
+        <div class="aita-modal-dialog large">
+            <div class="modal-header">
+                <h3 id="rosterModalTitle"><i class="fa-solid fa-users"></i> Danh sách sinh viên lớp SE20C</h3>
+                <button type="button" class="btn-modal-close" onclick="closeModal('rosterModal')"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <p id="rosterModalSubtitle" style="font-size: 0.85rem; color: #64748b; margin-bottom: 14px;">Môn học: -</p>
+                <div class="table-responsive" style="max-height: 420px; overflow-y: auto;">
+                    <table class="aita-table">
+                        <thead>
+                            <tr>
+                                <th>STT</th>
+                                <th>Mã SV</th>
+                                <th>Họ và tên</th>
+                                <th>Email</th>
+                                <th>Nhóm Git</th>
+                            </tr>
+                        </thead>
+                        <tbody id="rosterTableBody">
+                            <!-- Loaded dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-outline" onclick="closeModal('rosterModal')">Đóng</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         MODAL 8: ĐỔI MẬT KHẨU
+         ============================================================ -->
+    <div id="changePasswordModal" class="aita-modal-overlay hidden">
+        <div class="aita-modal-dialog">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-key"></i> Đổi mật khẩu tài khoản</h3>
+                <button type="button" class="btn-modal-close" onclick="closeModal('changePasswordModal')"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="changePasswordForm">
+                <div class="modal-body">
+                    <div class="form-group-block">
+                        <label for="currentPasswordInput">Mật khẩu hiện tại</label>
+                        <input type="password" id="currentPasswordInput" class="form-control-input" placeholder="••••••••" required>
+                    </div>
+                    <div class="form-group-block">
+                        <label for="newPasswordInput">Mật khẩu mới (ít nhất 6 ký tự)</label>
+                        <input type="password" id="newPasswordInput" class="form-control-input" placeholder="••••••••" required minlength="6">
+                    </div>
+                    <div class="form-group-block">
+                        <label for="confirmNewPasswordInput">Xác nhận mật khẩu mới</label>
+                        <input type="password" id="confirmNewPasswordInput" class="form-control-input" placeholder="••••••••" required minlength="6">
+                    </div>
+                    <p id="changePassMsg" style="font-size: 0.84rem; display: none;"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-outline" onclick="closeModal('changePasswordModal')">Hủy</button>
+                    <button type="submit" class="btn-primary" id="btnSubmitChangePass">
+                        <i class="fa-solid fa-check"></i> Cập nhật mật khẩu
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC SCRIPTS -->
+    <script src="js/dashboard.js"></script>
+    <script src="js/assignments.js"></script>
 </body>
 </html>
