@@ -1,0 +1,11 @@
+# Bỏ qua thư mục biên dịch của Maven
+target/
+**/target/
+*.war
+*.class
+
+# Bỏ qua cấu hình cá nhân của IDE
+.vscode/
+.idea/
+*.iml
+nb-configuration.xml
