@@ -292,6 +292,12 @@ BEGIN
 END
 GO
 
+IF COL_LENGTH('dbo.Contribution_Scores', 'lecturer_adjusted_score') IS NULL
+BEGIN
+    ALTER TABLE dbo.Contribution_Scores ADD lecturer_adjusted_score FLOAT NULL DEFAULT 0;
+END
+GO
+
 -- 17. BẢNG MEMBER_CONTRIBUTIONS
 IF OBJECT_ID('dbo.member_contributions', 'U') IS NULL
 BEGIN

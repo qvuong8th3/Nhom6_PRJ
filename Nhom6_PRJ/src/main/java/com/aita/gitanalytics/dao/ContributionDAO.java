@@ -38,6 +38,7 @@ public class ContributionDAO {
         public double volumeScore;
         public double frequencyScore;
         public double reviewScore;
+        public Double lecturerAdjustedScore;
 
         public StudentContribution(int userId, String studentName, int commits, int loc, int regularity,
                                    int pullRequests, int reviews, double penaltyScore, double percentage) {
@@ -381,6 +382,73 @@ public class ContributionDAO {
             e.printStackTrace();
         }
         return false;
+    }
+
+    /**
+     * Lấy điểm điều chỉnh của Giảng viên cho các thành viên trong nhóm
+     */
+    public Map<Integer, Double> getLecturerAdjustedScores(int groupId) {
+        Map<Integer, Double> map = new HashMap<>();
+        String sql = "SELECT user_id, lecturer_adjusted_score FROM Contribution_Scores WHERE group_id = ?";
+        try (Connection conn = DBContext.getConnection();
+             PreparedStatement ps = conn != null ? conn.prepareStatement(sql) : null) {
+            if (ps != null) {
+                ps.setInt(1, groupId);
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        double score = rs.getDouble("lecturer_adjusted_score");
+                        if (!rs.wasNull()) {
+                            map.put(rs.getInt("user_id"), score);
+                        }
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return map;
+    }
+
+    /**
+     * Lưu hoặc cập nhật điểm đánh giá chốt của Giảng viên (Lecturer Adjusted Score)
+     */
+    public boolean saveLecturerAdjustedScore(int groupId, int userId, double adjustedScore) {
+        String checkSql = "SELECT COUNT(*) FROM Contribution_Scores WHERE group_id = ? AND user_id = ?";
+        String updateSql = "UPDATE Contribution_Scores SET lecturer_adjusted_score = ?, final_contribution_percentage = ? WHERE group_id = ? AND user_id = ?";
+        String insertSql = "INSERT INTO Contribution_Scores (group_id, user_id, evaluated_period, lecturer_adjusted_score, final_contribution_percentage, created_at) VALUES (?, ?, 'Sprint Final', ?, ?, GETDATE())";
+
+        try (Connection conn = DBContext.getConnection()) {
+            if (conn == null) return false;
+            boolean exists = false;
+            try (PreparedStatement psCheck = conn.prepareStatement(checkSql)) {
+                psCheck.setInt(1, groupId);
+                psCheck.setInt(2, userId);
+                try (ResultSet rs = psCheck.executeQuery()) {
+                    if (rs.next()) exists = rs.getInt(1) > 0;
+                }
+            }
+
+            if (exists) {
+                try (PreparedStatement psUpdate = conn.prepareStatement(updateSql)) {
+                    psUpdate.setDouble(1, adjustedScore);
+                    psUpdate.setDouble(2, adjustedScore);
+                    psUpdate.setInt(3, groupId);
+                    psUpdate.setInt(4, userId);
+                    return psUpdate.executeUpdate() > 0;
+                }
+            } else {
+                try (PreparedStatement psInsert = conn.prepareStatement(insertSql)) {
+                    psInsert.setInt(1, groupId);
+                    psInsert.setInt(2, userId);
+                    psInsert.setDouble(3, adjustedScore);
+                    psInsert.setDouble(4, adjustedScore);
+                    return psInsert.executeUpdate() > 0;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     private void collectTimelineRows(ResultSet rs, LocalDate start,

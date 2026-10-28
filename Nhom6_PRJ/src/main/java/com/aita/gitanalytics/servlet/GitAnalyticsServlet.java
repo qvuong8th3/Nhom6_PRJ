@@ -24,7 +24,13 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-@WebServlet(urlPatterns = {"/api/v1/git-analytics/dashboard", "/api/v1/git-analytics/settings", "/api/v1/git-analytics/repository", "/api/v1/git-analytics/sync"})
+@WebServlet(urlPatterns = {
+    "/api/v1/git-analytics/dashboard",
+    "/api/v1/git-analytics/settings",
+    "/api/v1/git-analytics/repository",
+    "/api/v1/git-analytics/sync",
+    "/api/v1/git-analytics/adjust-score"
+})
 public class GitAnalyticsServlet extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
@@ -66,6 +72,9 @@ public class GitAnalyticsServlet extends HttpServlet {
         // 3. Chạy thuật toán tính điểm toàn diện Assessor: (W1*Volume + W2*Freq + W3*Review - W4*Penalty)
         Map<String, EvaluatedContribution> evalResults = scoreCalculator.evaluateGroupContributions(evalInput, weights);
 
+        // Lấy điểm đã được giảng viên duyệt/điều chỉnh trước đó (nếu có)
+        Map<Integer, Double> lecturerScores = contributionDAO.getLecturerAdjustedScores(targetGroupId);
+
         // 4. Tổng hợp danh sách StudentContribution
         List<StudentContribution> contributions = new ArrayList<>();
         for (Map.Entry<Integer, StudentGitData> entry : groupGitData.entrySet()) {
@@ -92,6 +101,7 @@ public class GitAnalyticsServlet extends HttpServlet {
                 sc.penaltyReasons = eval.penaltyReasons;
                 sc.isFreeRiderSuspect = eval.isFreeRiderSuspect;
             }
+            sc.lecturerAdjustedScore = lecturerScores.get(uid);
             contributions.add(sc);
         }
 
@@ -141,6 +151,32 @@ public class GitAnalyticsServlet extends HttpServlet {
             } else {
                 response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 out.print("{\"error\":\"" + syncRes.message + "\"}");
+            }
+            return;
+        }
+
+        if (servletPath.endsWith("/adjust-score")) {
+            try {
+                int groupId = Integer.parseInt(request.getParameter("groupId"));
+                int userId = Integer.parseInt(request.getParameter("userId"));
+                double adjustedScore = Double.parseDouble(request.getParameter("adjustedScore"));
+
+                if (adjustedScore < 0 || adjustedScore > 100) {
+                    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                    out.print("{\"error\":\"Điểm điều chỉnh phải nằm trong khoảng từ 0% đến 100%.\"}");
+                    return;
+                }
+
+                boolean success = contributionDAO.saveLecturerAdjustedScore(groupId, userId, adjustedScore);
+                if (success) {
+                    out.print("{\"status\":\"success\",\"message\":\"Đã lưu điểm điều chỉnh của giảng viên thành công.\"}");
+                } else {
+                    response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                    out.print("{\"error\":\"Không thể lưu điểm điều chỉnh vào cơ sở dữ liệu.\"}");
+                }
+            } catch (Exception e) {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                out.print("{\"error\":\"Tham số điểm điều chỉnh không hợp lệ: " + e.getMessage() + "\"}");
             }
             return;
         }

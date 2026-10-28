@@ -1,5 +1,15 @@
 package com.aita.gitanalytics.service;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -55,6 +65,12 @@ public class PedagogicalGuidanceService {
 
         String lower = rawError.toLowerCase(Locale.ROOT);
         String name = (studentName != null && !studentName.trim().isEmpty()) ? studentName.trim() : "bạn";
+
+        // Tích hợp LLM API (OpenAI/Gemini 5.1): Nếu có API key, gọi mô hình sinh lời khuyên trực quan
+        PedagogicalFeedback llmFeedback = tryGenerateWithLLM(rawError, codeSnippet, name);
+        if (llmFeedback != null) {
+            return llmFeedback;
+        }
 
         // 1. Lỗi Cannot Find Symbol
         if (lower.contains("cannot find symbol") || lower.contains("symbol not found")) {
@@ -155,5 +171,134 @@ public class PedagogicalGuidanceService {
         fb.actionSteps.add("Tách nhỏ logic phức tạp thành các phương thức hỗ trợ đơn giản (Modularization).");
         fb.actionSteps.add("Chạy thử nghiệm cục bộ trước khi đẩy code lên repository của nhóm.");
         return fb;
+    }
+
+    /**
+     * Tích hợp LLM API (Gemini/OpenAI) qua Prompt Engineering theo phương pháp sư phạm Socratic
+     */
+    private PedagogicalFeedback tryGenerateWithLLM(String rawError, String codeSnippet, String studentName) {
+        String geminiApiKey = System.getenv("GEMINI_API_KEY");
+        String openAiApiKey = System.getenv("OPENAI_API_KEY");
+
+        if ((geminiApiKey == null || geminiApiKey.trim().isEmpty()) &&
+            (openAiApiKey == null || openAiApiKey.trim().isEmpty())) {
+            return null; // Không có API key -> chuyển sang fallback pattern matching
+        }
+
+        try {
+            String prompt = "Bạn là Trợ lý Sư phạm AI của hệ sinh thái AITA (PRJ301 Java Web). "
+                    + "Hãy phân tích lỗi sau cho sinh viên " + studentName + " theo phương pháp Socratic (hỏi mở, gợi ý tư duy, không giải hộ):\n"
+                    + "Lỗi: " + rawError + "\n"
+                    + "Đoạn code: " + (codeSnippet != null ? codeSnippet : "Không kèm đoạn mã") + "\n"
+                    + "Trả về JSON duy nhất không kèm markdown format với các trường:\n"
+                    + "{\n"
+                    + "  \"errorCategory\": \"Tên phân loại lỗi\",\n"
+                    + "  \"pedagogicalExplanation\": \"Lời giải thích sư phạm thân thiện\",\n"
+                    + "  \"socraticQuestion\": \"Câu hỏi mở kích thích tư duy\",\n"
+                    + "  \"actionSteps\": [\"Bước 1\", \"Bước 2\"],\n"
+                    + "  \"gitContextAdvice\": \"Lời khuyên về commit/nhánh Git\",\n"
+                    + "  \"cleanCodeTip\": \"Mẹo Clean Code / MVC2\",\n"
+                    + "  \"severity\": \"WARNING\"\n"
+                    + "}";
+
+            String responseJson = null;
+            if (geminiApiKey != null && !geminiApiKey.trim().isEmpty()) {
+                String endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + geminiApiKey.trim();
+                JsonObject reqBody = new JsonObject();
+                JsonArray contents = new JsonArray();
+                JsonObject part = new JsonObject();
+                JsonArray parts = new JsonArray();
+                JsonObject textPart = new JsonObject();
+                textPart.addProperty("text", prompt);
+                parts.add(textPart);
+                part.add("parts", parts);
+                contents.add(part);
+                reqBody.add("contents", contents);
+
+                responseJson = postJson(endpoint, reqBody.toString(), null);
+                if (responseJson != null) {
+                    JsonObject root = JsonParser.parseString(responseJson).getAsJsonObject();
+                    String text = root.getAsJsonArray("candidates").get(0).getAsJsonObject()
+                            .getAsJsonObject("content").getAsJsonArray("parts").get(0).getAsJsonObject()
+                            .get("text").getAsString();
+                    text = text.replaceAll("```json", "").replaceAll("```", "").trim();
+                    return parseLlmJson(text, rawError);
+                }
+            } else if (openAiApiKey != null && !openAiApiKey.trim().isEmpty()) {
+                String endpoint = "https://api.openai.com/v1/chat/completions";
+                JsonObject reqBody = new JsonObject();
+                reqBody.addProperty("model", "gpt-3.5-turbo");
+                JsonArray messages = new JsonArray();
+                JsonObject msg = new JsonObject();
+                msg.addProperty("role", "user");
+                msg.addProperty("content", prompt);
+                messages.add(msg);
+                reqBody.add("messages", messages);
+
+                responseJson = postJson(endpoint, reqBody.toString(), "Bearer " + openAiApiKey.trim());
+                if (responseJson != null) {
+                    JsonObject root = JsonParser.parseString(responseJson).getAsJsonObject();
+                    String text = root.getAsJsonArray("choices").get(0).getAsJsonObject()
+                            .getAsJsonObject("message").get("content").getAsString();
+                    text = text.replaceAll("```json", "").replaceAll("```", "").trim();
+                    return parseLlmJson(text, rawError);
+                }
+            }
+        } catch (Exception ignored) {
+            // Lỗi mạng hoặc key không hợp lệ -> fallback tự nhiên
+        }
+        return null;
+    }
+
+    private PedagogicalFeedback parseLlmJson(String jsonStr, String rawError) {
+        try {
+            JsonObject obj = JsonParser.parseString(jsonStr).getAsJsonObject();
+            String cat = obj.has("errorCategory") ? obj.get("errorCategory").getAsString() : "PHÂN TÍCH AI (GEMINI/OPENAI)";
+            String exp = obj.has("pedagogicalExplanation") ? obj.get("pedagogicalExplanation").getAsString() : "Giải thích sư phạm từ AI";
+            String q = obj.has("socraticQuestion") ? obj.get("socraticQuestion").getAsString() : "Bạn hãy kiểm tra lại cấu trúc mã nguồn.";
+            String git = obj.has("gitContextAdvice") ? obj.get("gitContextAdvice").getAsString() : "Kiểm tra commit gần nhất trên Git.";
+            String tip = obj.has("cleanCodeTip") ? obj.get("cleanCodeTip").getAsString() : "Tuân thủ mô hình MVC2.";
+            String sev = obj.has("severity") ? obj.get("severity").getAsString() : "WARNING";
+
+            PedagogicalFeedback fb = new PedagogicalFeedback(cat, rawError.length() > 100 ? rawError.substring(0, 100) + "..." : rawError,
+                    exp, q, git, tip, sev);
+
+            if (obj.has("actionSteps") && obj.get("actionSteps").isJsonArray()) {
+                for (var s : obj.getAsJsonArray("actionSteps")) {
+                    fb.actionSteps.add(s.getAsString());
+                }
+            }
+            return fb;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private String postJson(String endpoint, String body, String authHeader) throws Exception {
+        URL url = new URL(endpoint);
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("POST");
+        conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+        if (authHeader != null) {
+            conn.setRequestProperty("Authorization", authHeader);
+        }
+        conn.setConnectTimeout(8000);
+        conn.setReadTimeout(12000);
+        conn.setDoOutput(true);
+
+        try (OutputStream os = conn.getOutputStream()) {
+            os.write(body.getBytes(StandardCharsets.UTF_8));
+        }
+
+        int code = conn.getResponseCode();
+        if (code >= 200 && code < 300) {
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8))) {
+                StringBuilder sb = new StringBuilder();
+                String line;
+                while ((line = br.readLine()) != null) sb.append(line);
+                return sb.toString();
+            }
+        }
+        return null;
     }
 }

@@ -417,9 +417,67 @@ function renderMemberTable(contributions) {
                 <td><strong>${c.pullRequests || 0}</strong> PRs &bull; <strong>${c.reviews || 0}</strong> reviews</td>
                 <td>${suspectBadge}</td>
                 <td><span class="score-badge-percentage">${Number(c.suggestedPercentage || 0).toFixed(1)}%</span></td>
+                <td>
+                    ${(isLecturer || isAdministrator) ? `
+                        <div style="display:flex; align-items:center; gap:5px;">
+                            <input type="number" step="0.1" min="0" max="100" 
+                                class="lecturer-score-input"
+                                id="score_input_${c.userId || c.studentId}"
+                                value="${c.lecturerAdjustedScore != null ? Number(c.lecturerAdjustedScore).toFixed(1) : Number(c.suggestedPercentage || 0).toFixed(1)}"
+                                style="width:65px; padding:3px 5px; border:1px solid #cbd5e1; border-radius:5px; font-weight:700; color:#1e293b; text-align:center; font-size:0.83rem;"
+                                title="Giảng viên duyệt / điều chỉnh % điểm chốt"
+                            />
+                            <button type="button" 
+                                onclick="submitAdjustedScore(${c.userId || c.studentId}, 6)"
+                                class="btn-save-score"
+                                title="Lưu điểm điều chỉnh"
+                                style="background:#4f46e5; color:white; border:none; border-radius:5px; padding:5px 8px; cursor:pointer; font-size:0.75rem;">
+                                <i class="fa-solid fa-floppy-disk"></i>
+                            </button>
+                        </div>
+                    ` : `
+                        <span class="score-badge-percentage" style="background:${c.lecturerAdjustedScore != null ? '#10b981' : '#64748b'}; color:#fff;">
+                            ${c.lecturerAdjustedScore != null ? Number(c.lecturerAdjustedScore).toFixed(1) + '%' : 'Chờ duyệt'}
+                        </span>
+                    `}
+                </td>
             </tr>
         `;
     }).join('');
+}
+
+// Giảng viên lưu điểm điều chỉnh cho sinh viên
+async function submitAdjustedScore(userId, groupId) {
+    const inputEl = document.getElementById(`score_input_${userId}`);
+    if (!inputEl) return;
+    const adjustedScore = parseFloat(inputEl.value);
+    if (isNaN(adjustedScore) || adjustedScore < 0 || adjustedScore > 100) {
+        alert('Vui lòng nhập điểm % hợp lệ từ 0 đến 100.');
+        return;
+    }
+
+    try {
+        const response = await fetch(apiUrl('api/v1/git-analytics/adjust-score'), {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({ groupId, userId, adjustedScore })
+        });
+        const result = await response.json();
+        if (response.ok) {
+            inputEl.style.borderColor = '#10b981';
+            inputEl.style.backgroundColor = '#ecfdf5';
+            setTimeout(() => {
+                inputEl.style.borderColor = '#cbd5e1';
+                inputEl.style.backgroundColor = '#fff';
+            }, 1200);
+            alert(result.message || 'Đã lưu điểm điều chỉnh của giảng viên thành công!');
+        } else {
+            alert(result.error || 'Không thể lưu điểm điều chỉnh.');
+        }
+    } catch (e) {
+        alert('Lỗi kết nối máy chủ: ' + e.message);
+    }
 }
 
 // 3. STUDENTS VIEW: 25 STUDENTS ROSTER & ROLE-BASED PERMISSIONS
