@@ -16,12 +16,13 @@ public class DBContext {
     // 1. Cấu hình CSDL Online trên Web / Cloud Database
     private static final String CLOUD_URL = getSetting("AITA_DB_URL", "db.url", null);
 
-    // 2. Cấu hình CSDL Server nội bộ
-    private static final String SERVER_NAME = getSetting("AITA_DB_SERVER", "db.server", "localhost");
-    private static final String CONFIGURED_PORT = getSetting("AITA_DB_PORT", "db.port", "1433");
-    private static final String DATABASE_NAME = getSetting("AITA_DB_NAME", "db.name", "AITA_DB");
-    private static final String USER = getSetting("AITA_DB_USER", "db.user", "sa");
-    private static final String PASSWORD = getSetting("AITA_DB_PASSWORD", "db.password", "123");
+
+    // 2. Cấu hình CSDL Server nội bộ (Gán cứng trực tiếp để không bị file db.properties ghi đè)
+    private static final String SERVER_NAME = "localhost";
+    private static final String CONFIGURED_PORT = "1433";
+    private static final String DATABASE_NAME = "AITA_DB";
+    private static final String USER = "sa";
+    private static final String PASSWORD = "123";
 
     // Port hoạt động hiện tại (tự động điều chỉnh nếu phát hiện port thay thế)
     private static volatile String activePort = CONFIGURED_PORT;
