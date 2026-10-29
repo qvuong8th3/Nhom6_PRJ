@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 E:\FALL26\PRJ\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\dao\UserDAO.java
 E:\FALL26\PRJ\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\dao\AssignmentDAO.java
 E:\FALL26\PRJ\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\service\ContributionCalculator.java
@@ -32,3 +33,39 @@ E:\FALL26\PRJ\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\service\St
 E:\FALL26\PRJ\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\servlet\RememberMeService.java
 E:\FALL26\PRJ\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\dao\ContributionScoreDAO.java
 E:\FALL26\PRJ\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\demo\InsertUserDemo.java
+=======
+D:\Nhom6_PRJ\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\service\ContributionCalculator.java
+D:\Nhom6_PRJ\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\service\PedagogicalGuidanceService.java
+D:\Nhom6_PRJ\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\service\StudentService.java
+D:\Nhom6_PRJ\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\model\Lecturer.java
+D:\Nhom6_PRJ\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\model\UserAccount.java
+D:\Nhom6_PRJ\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\dao\DBContext.java
+D:\Nhom6_PRJ\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\demo\InsertUserDemo.java
+D:\Nhom6_PRJ\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\service\ExamService.java
+D:\Nhom6_PRJ\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\service\GitScoreCalculatorService.java
+D:\Nhom6_PRJ\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\dao\ContributionDAO.java
+D:\Nhom6_PRJ\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\servlet\AdministratorBootstrapListener.java
+D:\Nhom6_PRJ\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\dao\UserDAO.java
+D:\Nhom6_PRJ\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\servlet\LecturerServlet.java
+D:\Nhom6_PRJ\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\servlet\AuthServlet.java
+D:\Nhom6_PRJ\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\dao\ContributionScoreDAO.java
+D:\Nhom6_PRJ\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\util\Sha256ChecksumUtil.java
+D:\Nhom6_PRJ\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\servlet\CourseServlet.java
+D:\Nhom6_PRJ\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\servlet\RememberMeFilter.java
+D:\Nhom6_PRJ\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\dao\CourseDAO.java
+D:\Nhom6_PRJ\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\dao\DataAccessException.java
+D:\Nhom6_PRJ\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\service\MarketplaceService.java
+D:\Nhom6_PRJ\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\servlet\ExamServlet.java
+D:\Nhom6_PRJ\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\servlet\MarketplaceServlet.java
+D:\Nhom6_PRJ\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\service\GitHubSyncService.java
+D:\Nhom6_PRJ\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\dao\GitCommitDAO.java
+D:\Nhom6_PRJ\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\servlet\StudentServlet.java
+D:\Nhom6_PRJ\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\dao\PasswordHasher.java
+D:\Nhom6_PRJ\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\servlet\GitAnalyticsServlet.java
+D:\Nhom6_PRJ\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\dao\AssignmentDAO.java
+D:\Nhom6_PRJ\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\servlet\AssignmentServlet.java
+D:\Nhom6_PRJ\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\servlet\PedagogicalServlet.java
+D:\Nhom6_PRJ\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\dao\ExamDAO.java
+D:\Nhom6_PRJ\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\servlet\RememberMeService.java
+D:\Nhom6_PRJ\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\model\Student.java
+>>>>>>> a78175f4083e38008086641e8ca85833abcd35c9
