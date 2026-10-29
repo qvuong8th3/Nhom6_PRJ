@@ -137,7 +137,7 @@ Write-Host "  Database: AITA_DB" -ForegroundColor White
 Write-Host "  User sa:  sa / 123" -ForegroundColor White
 Write-Host ""
 Write-Host "  Cac tai khoan kiem thu san sang dang nhap:" -ForegroundColor Yellow
-Write-Host "  - ADMIN:      admin       / Admin@123456" -ForegroundColor Cyan
+Write-Host "  - ADMIN:      admin       / 123456" -ForegroundColor Cyan
 Write-Host "  - GIANG VIEN: lecturer01  / 123456" -ForegroundColor Cyan
 Write-Host "  - SINH VIEN:  student01   / 123456 (student01 - student06)" -ForegroundColor Cyan
 Write-Host "====================================================================" -ForegroundColor Cyan

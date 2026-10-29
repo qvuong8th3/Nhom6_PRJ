@@ -482,7 +482,7 @@ GO
 IF NOT EXISTS (SELECT 1 FROM dbo.Users WHERE username = 'admin' OR role = 'ADMIN')
 BEGIN
     INSERT INTO dbo.Users (username, password_hash, full_name, email, role, must_change_password)
-    VALUES ('admin', 'Admin@123456', N'Quản trị viên Hệ thống', 'admin@example.com', 'ADMIN', 0);
+    VALUES ('admin', '123456', N'Quản trị viên Hệ thống', 'admin@example.com', 'ADMIN', 0);
 END
 GO
 
