@@ -54,6 +54,7 @@ Write-Host "[OK] Build thanh cong file WAR: $warFile" -ForegroundColor Green
 # 2. Tim Apache Tomcat 9
 $tomcatDir = $null
 $possibleTomcat = @(
+    "E:\Download\apache-tomcat-9.0.122-windows-x64\apache-tomcat-9.0.122",
     "C:\Users\asus\Downloads\apache-tomcat-9.0.122-windows-x64\apache-tomcat-9.0.122",
     "C:\Program Files\Apache Software Foundation\Tomcat 9.0",
     "C:\apache-tomcat-9.0",
@@ -93,8 +94,12 @@ if ($tomcatDir) {
     $conn = Test-NetConnection -ComputerName localhost -Port 8080 -WarningAction SilentlyContinue
     if (-not $conn.TcpTestSucceeded) {
         Write-Host "[*] Dang khoi dong Apache Tomcat..." -ForegroundColor Green
-        $cp = "$tomcatDir\bin\bootstrap.jar;$tomcatDir\bin\tomcat-juli.jar"
-        Start-Process -FilePath $javaExe -ArgumentList "-Dcatalina.home=`"$tomcatDir`" -Dcatalina.base=`"$tomcatDir`" -Djava.io.tmpdir=`"$tomcatDir\temp`" -cp `"$cp`" org.apache.catalina.startup.Bootstrap start" -WindowStyle Normal
+        if (Test-Path "$tomcatDir\bin\startup.bat") {
+            Start-Process -FilePath "$tomcatDir\bin\startup.bat" -WorkingDirectory "$tomcatDir\bin"
+        } else {
+            $cp = "$tomcatDir\bin\bootstrap.jar;$tomcatDir\bin\tomcat-juli.jar"
+            Start-Process -FilePath $javaExe -ArgumentList "-Djava.util.logging.config.file=`"$tomcatDir\conf\logging.properties`" -Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager -Dcatalina.home=`"$tomcatDir`" -Dcatalina.base=`"$tomcatDir`" -Djava.io.tmpdir=`"$tomcatDir\temp`" -cp `"$cp`" org.apache.catalina.startup.Bootstrap start" -WindowStyle Normal
+        }
         Start-Sleep -Seconds 4
     } else {
         Write-Host "[OK] Apache Tomcat dang chay tren port 8080!" -ForegroundColor Green
