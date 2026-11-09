@@ -389,9 +389,15 @@ function renderMemberTable(contributions) {
             ? `<span class="badge-pill role-leader"><i class="fa-solid fa-crown"></i> Trưởng nhóm</span>`
             : `<span class="badge-pill role-member">Thành viên</span>`;
 
+        const reasons = (c.penaltyReasons && c.penaltyReasons.length > 0) 
+            ? c.penaltyReasons.join(', ') 
+            : (c.isFreeRiderSuspect ? 'Đóng góp dưới 50% mức trung bình của nhóm' : '');
+
         const suspectBadge = c.isFreeRiderSuspect 
-            ? `<span class="badge-pill warning-suspect"><i class="fa-solid fa-triangle-exclamation"></i> Nghi vấn Free-rider</span>`
-            : `<span class="badge-pill normal"><i class="fa-solid fa-check"></i> Đạt chuẩn</span>`;
+            ? `<span class="badge-pill warning-suspect" title="${escapeHtml(reasons)}" style="cursor:help;"><i class="fa-solid fa-triangle-exclamation"></i> Nghi vấn Free-rider</span>`
+            : (c.penaltyScore > 0 
+                ? `<span class="badge-pill" title="${escapeHtml(reasons)}" style="background:#fef3c7; color:#b45309; border:1px solid #fde68a; cursor:help;"><i class="fa-solid fa-triangle-exclamation"></i> Bị phạt ${c.penaltyScore}%</span>`
+                : `<span class="badge-pill normal"><i class="fa-solid fa-check"></i> Đạt chuẩn</span>`);
 
         return `
             <tr>
