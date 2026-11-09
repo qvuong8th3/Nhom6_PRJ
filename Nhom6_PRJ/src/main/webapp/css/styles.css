@@ -306,6 +306,10 @@ button {
     display: none !important;
 }
 
+.page-view [data-menu-section].hidden {
+    display: none !important;
+}
+
 /* CARD SYSTEM */
 .aita-card {
     background-color: #ffffff;

@@ -388,16 +388,16 @@
                         <i class="fa-solid fa-chevron-down nav-chevron"></i>
                     </button>
                     <div class="nav-submenu open">
-                        <a href="#" class="nav-sub-item active" data-view-target="dashboardView" onclick="switchView('dashboardView', this)">
+                        <a href="#" class="nav-sub-item active" data-view-target="dashboardView" data-section-target="dashboard-filters" onclick="switchView('dashboardView', this)">
                             <i class="fa-solid fa-filter"></i> Bộ lọc điều hướng
                         </a>
-                        <a href="#" class="nav-sub-item" data-view-target="dashboardView" onclick="switchView('dashboardView', this)">
+                        <a href="#" class="nav-sub-item" data-view-target="dashboardView" data-section-target="dashboard-charts" onclick="switchView('dashboardView', this)">
                             <i class="fa-solid fa-chart-bar"></i> Biểu đồ Git Analytics
                         </a>
-                        <a href="#" class="nav-sub-item" data-view-target="dashboardView" onclick="switchView('dashboardView', this)">
+                        <a href="#" class="nav-sub-item" data-view-target="dashboardView" data-section-target="dashboard-alerts" onclick="switchView('dashboardView', this)">
                             <i class="fa-solid fa-bell"></i> Huy hiệu cảnh báo AI
                         </a>
-                        <a href="#" class="nav-sub-item" data-view-target="dashboardView" onclick="switchView('dashboardView', this)">
+                        <a href="#" class="nav-sub-item" data-view-target="dashboardView" data-section-target="dashboard-recommendations" onclick="switchView('dashboardView', this)">
                             <i class="fa-solid fa-star"></i> Đề xuất điểm Git (AI)
                         </a>
                     </div>
@@ -413,7 +413,7 @@
                         <i class="fa-solid fa-chevron-down nav-chevron"></i>
                     </button>
                     <div class="nav-submenu">
-                        <a href="#" class="nav-sub-item" data-view-target="studentsView" onclick="switchView('studentsView', this)">
+                        <a href="#" class="nav-sub-item" data-view-target="studentsView" data-section-target="student-list" onclick="switchView('studentsView', this)">
                             <i class="fa-solid fa-list-ul"></i> Danh sách sinh viên
                         </a>
                         <a href="#" class="nav-sub-item" data-view-target="gitMappingView" onclick="switchView('gitMappingView', this)">
@@ -422,7 +422,7 @@
                         <a href="#" class="nav-sub-item" data-view-target="correctionPointsView" onclick="switchView('correctionPointsView', this)">
                             <i class="fa-solid fa-coins"></i> Điểm sửa lỗi
                         </a>
-                        <a href="#" class="nav-sub-item" data-view-target="studentsView" onclick="switchView('studentsView', this)">
+                        <a href="#" class="nav-sub-item" data-view-target="studentsView" data-section-target="student-actions" onclick="switchView('studentsView', this)">
                             <i class="fa-solid fa-user-plus"></i> Hành động quản trị
                         </a>
                     </div>
@@ -438,10 +438,10 @@
                         <i class="fa-solid fa-chevron-down nav-chevron"></i>
                     </button>
                     <div class="nav-submenu">
-                        <a href="#" class="nav-sub-item" data-view-target="coursesView" onclick="switchView('coursesView', this)">
+                        <a href="#" class="nav-sub-item" data-view-target="coursesView" data-section-target="subject-list" onclick="switchView('coursesView', this)">
                             <i class="fa-solid fa-graduation-cap"></i> Quản lý Môn học
                         </a>
-                        <a href="#" class="nav-sub-item" data-view-target="coursesView" onclick="switchView('coursesView', this)">
+                        <a href="#" class="nav-sub-item" data-view-target="coursesView" data-section-target="class-list" onclick="switchView('coursesView', this)">
                             <i class="fa-solid fa-chalkboard-user"></i> Quản lý lớp học
                         </a>
                     </div>
@@ -457,13 +457,13 @@
                         <i class="fa-solid fa-chevron-down nav-chevron"></i>
                     </button>
                     <div class="nav-submenu">
-                        <a href="#" class="nav-sub-item" data-view-target="examsView" onclick="switchView('examsView', this)">
+                        <a href="#" class="nav-sub-item" data-view-target="examsView" data-section-target="assignment-list" onclick="switchView('examsView', this)">
                             <i class="fa-solid fa-book-open-reader"></i> Danh sách bài tập / Milestone
                         </a>
-                        <a href="#" class="nav-sub-item" data-view-target="examsView" onclick="switchView('examsView', this)">
+                        <a href="#" class="nav-sub-item" data-view-target="examsView" data-section-target="assignment-config" onclick="switchView('examsView', this)">
                             <i class="fa-solid fa-sliders"></i> Cấu hình bài tập
                         </a>
-                        <a href="#" class="nav-sub-item" data-view-target="examsView" onclick="switchView('examsView', this)">
+                        <a href="#" class="nav-sub-item" data-view-target="examsView" data-section-target="submission-portal" onclick="switchView('examsView', this)">
                             <i class="fa-solid fa-cloud-arrow-up"></i> Cổng nộp bài & cơ chế chấm chéo
                         </a>
                     </div>
@@ -479,13 +479,13 @@
                         <i class="fa-solid fa-chevron-down nav-chevron"></i>
                     </button>
                     <div class="nav-submenu">
-                        <a href="#" class="nav-sub-item" data-view-target="peerReviewView" onclick="switchView('peerReviewView', this)">
+                        <a href="#" class="nav-sub-item" data-view-target="peerReviewView" data-section-target="review-loop" onclick="switchView('peerReviewView', this)">
                             <i class="fa-solid fa-diagram-project"></i> Sơ đồ xoay vòng (Review Loop)
                         </a>
-                        <a href="#" class="nav-sub-item" data-view-target="peerReviewView" onclick="switchView('peerReviewView', this)">
+                        <a href="#" class="nav-sub-item" data-view-target="peerReviewView" data-section-target="correction-wallet" onclick="switchView('peerReviewView', this)">
                             <i class="fa-solid fa-wallet"></i> Sàn giao dịch Điểm sửa lỗi (Wallet)
                         </a>
-                        <a href="#" class="nav-sub-item" data-view-target="peerReviewView" onclick="switchView('peerReviewView', this)">
+                        <a href="#" class="nav-sub-item" data-view-target="peerReviewView" data-section-target="peer-rubric" onclick="switchView('peerReviewView', this)">
                             <i class="fa-solid fa-clipboard-list"></i> Bảng nhập Rubric chấm chéo
                         </a>
                     </div>
@@ -501,13 +501,13 @@
                         <i class="fa-solid fa-chevron-down nav-chevron"></i>
                     </button>
                     <div class="nav-submenu">
-                        <a href="#" class="nav-sub-item" data-view-target="sandboxView" onclick="switchView('sandboxView', this)">
+                        <a href="#" class="nav-sub-item" data-view-target="sandboxView" data-section-target="grading-queue" onclick="switchView('sandboxView', this)">
                             <i class="fa-solid fa-list-check"></i> Hàng đợi chấm bài (Job Queue)
                         </a>
-                        <a href="#" class="nav-sub-item" data-view-target="sandboxView" onclick="switchView('sandboxView', this)">
+                        <a href="#" class="nav-sub-item" data-view-target="sandboxView" data-section-target="test-results" onclick="switchView('sandboxView', this)">
                             <i class="fa-solid fa-vial-circle-check"></i> Kết quả Test Case
                         </a>
-                        <a href="#" class="nav-sub-item" data-view-target="sandboxView" onclick="switchView('sandboxView', this)">
+                        <a href="#" class="nav-sub-item" data-view-target="sandboxView" data-section-target="resource-monitor" onclick="switchView('sandboxView', this)">
                             <i class="fa-solid fa-gauge-high"></i> Nhật ký tài nguyên (Resource Monitor)
                         </a>
                     </div>
@@ -523,10 +523,10 @@
                         <i class="fa-solid fa-chevron-down nav-chevron"></i>
                     </button>
                     <div class="nav-submenu">
-                        <a href="#" class="nav-sub-item" data-view-target="aiAssistantView" onclick="switchView('aiAssistantView', this)">
+                        <a href="#" class="nav-sub-item" data-view-target="aiAssistantView" data-section-target="error-translator" onclick="switchView('aiAssistantView', this)">
                             <i class="fa-solid fa-bug"></i> Chuyển đổi lỗi biên dịch
                         </a>
-                        <a href="#" class="nav-sub-item" data-view-target="aiAssistantView" onclick="switchView('aiAssistantView', this)">
+                        <a href="#" class="nav-sub-item" data-view-target="aiAssistantView" data-section-target="prompt-history" onclick="switchView('aiAssistantView', this)">
                             <i class="fa-solid fa-clock-rotate-left"></i> Lịch sử Prompt & Phản hồi
                         </a>
                     </div>
@@ -542,10 +542,10 @@
                         <i class="fa-solid fa-chevron-down nav-chevron"></i>
                     </button>
                     <div class="nav-submenu">
-                        <a href="#" class="nav-sub-item" data-view-target="gradebookView" onclick="switchView('gradebookView', this)">
+                        <a href="#" class="nav-sub-item" data-view-target="gradebookView" data-section-target="grade-summary" onclick="switchView('gradebookView', this)">
                             <i class="fa-solid fa-table-list"></i> Bảng tổng hợp điểm đa nguồn
                         </a>
-                        <a href="#" class="nav-sub-item" data-view-target="gradebookView" onclick="switchView('gradebookView', this)">
+                        <a href="#" class="nav-sub-item" data-view-target="gradebookView" data-section-target="grade-reports" onclick="switchView('gradebookView', this)">
                             <i class="fa-solid fa-file-export"></i> Xuất báo cáo (Excel/PDF)
                         </a>
                     </div>
@@ -561,13 +561,13 @@
                         <i class="fa-solid fa-chevron-down nav-chevron"></i>
                     </button>
                     <div class="nav-submenu">
-                        <a href="#" class="nav-sub-item" data-view-target="settingsView" onclick="switchView('settingsView', this)">
+                        <a href="#" class="nav-sub-item" data-view-target="settingsView" data-section-target="ai-key-settings" onclick="switchView('settingsView', this)">
                             <i class="fa-solid fa-key"></i> Cấu hình API Key
                         </a>
-                        <a href="#" class="nav-sub-item" data-view-target="settingsView" onclick="switchView('settingsView', this)">
+                        <a href="#" class="nav-sub-item" data-view-target="settingsView" data-section-target="sandbox-settings" onclick="switchView('settingsView', this)">
                             <i class="fa-brands fa-docker"></i> Cấu hình Sandbox Rules
                         </a>
-                        <a href="#" class="nav-sub-item" data-view-target="settingsView" onclick="switchView('settingsView', this)">
+                        <a href="#" class="nav-sub-item" data-view-target="settingsView" data-section-target="github-settings" onclick="switchView('settingsView', this)">
                             <i class="fa-brands fa-github"></i> GitHub Token Config
                         </a>
                     </div>
@@ -628,7 +628,7 @@
                 <!-- ========================================================
                      BỘ LỌC ĐIỀU HƯỚNG & CẢNH BÁO THÔNG MINH (FE-L-03)
                      ======================================================== -->
-                <div class="aita-card" id="dashboardFilterSection" style="padding: 14px 20px; margin-bottom: 20px;">
+                <div class="aita-card" id="dashboardFilterSection" data-menu-section="dashboard-filters" style="padding: 14px 20px; margin-bottom: 20px;">
                     <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px;">
                         <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px;">
                             <span style="font-size: 0.85rem; font-weight: 700; color: #1e293b; display: flex; align-items: center; gap: 6px;">
@@ -678,7 +678,7 @@
                 </div>
 
                 <!-- HUY HIỆU CẢNH BÁO THÔNG MINH (AI / RULE ALERTS) -->
-                <div class="aita-card" id="dashboardAlertsSection" style="padding: 12px 20px; margin-bottom: 20px; background: #ffffff; border-left: 4px solid #f59e0b;">
+                <div class="aita-card" id="dashboardAlertsSection" data-menu-section="dashboard-alerts" style="padding: 12px 20px; margin-bottom: 20px; background: #ffffff; border-left: 4px solid #f59e0b;">
                     <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
                         <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
                             <span style="font-size: 0.82rem; font-weight: 700; color: #1e293b; display: flex; align-items: center; gap: 6px;">
@@ -702,7 +702,7 @@
                 </div>
 
                 <!-- BANNER CARD: GIT ANALYTICS TEAMWORK ASSESSOR (MATCHING SCREENSHOT) -->
-                <div class="aita-card banner-assessor-card">
+                <div class="aita-card banner-assessor-card" data-menu-section="dashboard-recommendations">
                     <span class="banner-kicker">AITA · GIT ANALYTICS TEAMWORK ASSESSOR</span>
                     <div class="banner-title-row">
                         <i class="fa-solid fa-scale-balanced"></i>
@@ -741,7 +741,7 @@
                 </div>
 
                 <!-- CHARTS ROW: 2 CHARTS SIDE BY SIDE -->
-                <div class="charts-grid-row">
+                <div class="charts-grid-row" data-menu-section="dashboard-charts">
                     <!-- Left: Doughnut Chart -->
                     <div class="aita-card" style="margin-bottom: 0;">
                         <div class="chart-card-header">
@@ -766,7 +766,7 @@
                 </div>
 
                 <!-- DETAILED MEMBER BREAKDOWN TABLE -->
-                <div class="aita-card" style="margin-top: 20px;">
+                <div class="aita-card" data-menu-section="dashboard-recommendations" style="margin-top: 20px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
                         <div>
                             <h3 style="font-size: 1.05rem; font-weight: 700; color: #1e293b;">Bảng phân tích chi tiết đóng góp thành viên trong Repo</h3>
@@ -809,7 +809,7 @@
                         <h1 class="header-main-title">Quản lý sinh viên</h1>
                         <p class="header-sub-title" id="studentRosterSubtitle">Lớp SE20C - PRJ301 (Tổng số: 25 sinh viên)</p>
                     </div>
-                    <div class="header-right-col">
+                    <div class="header-right-col" data-menu-section="student-actions">
                         <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                             <div style="position: relative;">
                                 <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 12px; top: 11px; color: #94a3b8; font-size: 0.85rem;"></i>
@@ -830,7 +830,7 @@
                     </div>
                 </div>
 
-                <div class="aita-card" style="margin-bottom: 16px; padding: 14px 18px; background: #f8fafc; border: 1px solid #e2e8f0;">
+                <div class="aita-card" data-menu-section="student-list" style="margin-bottom: 16px; padding: 14px 18px; background: #f8fafc; border: 1px solid #e2e8f0;">
                     <div style="display: flex; flex-wrap: wrap; gap: 14px; align-items: center; justify-content: space-between;">
                         <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
                             <label for="classSelectFilter" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; display: flex; align-items: center; gap: 6px;">
@@ -851,7 +851,7 @@
                     </div>
                 </div>
 
-                <div class="aita-card">
+                <div class="aita-card" data-menu-section="student-list">
                     <div style="margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
                         <span style="font-size: 0.85rem; color: #64748b;" id="studentListStatusText">Đang tải danh sách sinh viên...</span>
                         <span id="roleNoticeBadge" style="font-size: 0.76rem; padding: 4px 10px; border-radius: 6px; font-weight: 600; background: #f1f5f9; color: #475569;">
@@ -890,7 +890,7 @@
                         <h1 class="header-main-title">Đề thi & Bài tập học phần</h1>
                         <p class="header-sub-title">Giao bài tập, nộp bài đồ án ZIP xác thực SHA-256 và đánh giá kết quả</p>
                     </div>
-                    <div class="header-right-col">
+                    <div class="header-right-col" data-menu-section="assignment-config">
                         <!-- Visible for Lecturer / Admin -->
                         <button type="button" class="btn-primary" id="btnOpenCreateAssignmentModal">
                             <i class="fa-solid fa-plus"></i> Giao bài tập mới
@@ -898,7 +898,7 @@
                     </div>
                 </div>
 
-                <div class="aita-card">
+                <div class="aita-card" data-menu-section="assignment-list">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
                         <h3 style="font-size: 1.05rem; font-weight: 700; color: #1e293b;">Danh sách bài tập & đề thi được giao</h3>
                         <span id="assignmentStatusMessage" style="font-size: 0.82rem; color: #64748b;">Đang tải bài tập...</span>
@@ -921,6 +921,22 @@
                         </table>
                     </div>
                 </div>
+                <div class="aita-card" data-menu-section="assignment-config" style="margin-top: 20px;">
+                    <h3 style="font-size: 1.05rem; font-weight: 700; color: #1e293b;">Cấu hình bài tập</h3>
+                    <p style="font-size: 0.85rem; color: #64748b; margin: 10px 0 14px;">
+                        Tạo bài tập mới, chọn môn học, đặt hạn nộp và đính kèm đề bài.
+                    </p>
+                    <button type="button" class="btn-primary" onclick="openModal('assignmentModal')">
+                        <i class="fa-solid fa-sliders"></i> Mở cấu hình bài tập
+                    </button>
+                </div>
+                <div class="aita-card" data-menu-section="submission-portal" style="margin-top: 20px;">
+                    <h3 style="font-size: 1.05rem; font-weight: 700; color: #1e293b;">Cổng nộp bài</h3>
+                    <p style="font-size: 0.85rem; color: #64748b; margin: 10px 0 14px;">
+                        Chọn bài tập để tải bài làm lên. Hệ thống tiếp tục kiểm tra tính toàn vẹn SHA-256 như trước.
+                    </p>
+                    <div id="submissionAssignmentsList" class="courses-grid"></div>
+                </div>
             </div>
 
             <!-- ========================================================
@@ -941,7 +957,7 @@
                 </div>
 
                 <!-- 5 COURSES CARDS (PRJ301, SWR302, JPD123, CSD201, IOT102) -->
-                <div class="courses-grid" id="coursesGridContainer">
+                <div class="courses-grid" id="coursesGridContainer" data-menu-section="subject-list">
                     <!-- PRJ301 -->
                     <div class="course-card">
                         <div>
@@ -956,7 +972,7 @@
                                 <span>Giảng viên: <strong>ThS. Nguyễn Văn Vịnh (GV00002)</strong></span>
                             </div>
                         </div>
-                        <div class="course-card-footer">
+                        <div class="course-card-footer" data-menu-section="class-list">
                             <span><i class="fa-solid fa-users"></i> Lớp <strong>SE20C</strong> (25 SV)</span>
                             <button type="button" class="btn-outline" onclick="openClassRosterModal('PRJ301', 'Java Web Application Development')">
                                 <i class="fa-solid fa-list-ul"></i> Xem lớp
@@ -978,7 +994,7 @@
                                 <span>Giảng viên: <strong>ThS. Nguyễn Văn Vịnh (GV00002)</strong></span>
                             </div>
                         </div>
-                        <div class="course-card-footer">
+                        <div class="course-card-footer" data-menu-section="class-list">
                             <span><i class="fa-solid fa-users"></i> Lớp <strong>SE20C</strong> (25 SV)</span>
                             <button type="button" class="btn-outline" onclick="openClassRosterModal('SWR302', 'Software Requirement')">
                                 <i class="fa-solid fa-list-ul"></i> Xem lớp
@@ -1000,7 +1016,7 @@
                                 <span>Giảng viên: <strong>ThS. Nguyễn Lê Tín (GV00003)</strong></span>
                             </div>
                         </div>
-                        <div class="course-card-footer">
+                        <div class="course-card-footer" data-menu-section="class-list">
                             <span><i class="fa-solid fa-users"></i> Lớp <strong>SE20C</strong> (25 SV)</span>
                             <button type="button" class="btn-outline" onclick="openClassRosterModal('JPD123', 'Core Java Lab & Practice')">
                                 <i class="fa-solid fa-list-ul"></i> Xem lớp
@@ -1022,7 +1038,7 @@
                                 <span>Giảng viên: <strong>TS. Nguyễn Anh Khoa (GV00001) & ThS. Nguyễn Văn Vịnh</strong></span>
                             </div>
                         </div>
-                        <div class="course-card-footer">
+                        <div class="course-card-footer" data-menu-section="class-list">
                             <span><i class="fa-solid fa-users"></i> Lớp <strong>SE20C</strong> (25 SV)</span>
                             <button type="button" class="btn-outline" onclick="openClassRosterModal('CSD201', 'Data Structures and Algorithms')">
                                 <i class="fa-solid fa-list-ul"></i> Xem lớp
@@ -1044,13 +1060,36 @@
                                 <span>Giảng viên: <strong>ThS. Nguyễn Văn Hưng (GV00004)</strong></span>
                             </div>
                         </div>
-                        <div class="course-card-footer">
+                        <div class="course-card-footer" data-menu-section="class-list">
                             <span><i class="fa-solid fa-users"></i> Lớp <strong>SE20C</strong> (25 SV)</span>
                             <button type="button" class="btn-outline" onclick="openClassRosterModal('IOT102', 'Internet of Things Fundamentals')">
                                 <i class="fa-solid fa-list-ul"></i> Xem lớp
                             </button>
                         </div>
                     </div>
+                </div>
+                    <div class="aita-card" data-menu-section="class-list" style="margin-top: 20px;">
+                        <h3 style="font-size: 1.05rem; font-weight: 700; color: #1e293b; margin-bottom: 14px;">Danh sách lớp học</h3>
+                        <div class="table-responsive">
+                            <table class="aita-table">
+                                <thead>
+                                    <tr>
+                                        <th>Mã lớp</th>
+                                        <th>Môn học</th>
+                                        <th>Giảng viên</th>
+                                        <th>Sĩ số</th>
+                                        <th>Danh sách sinh viên</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td><strong>SE20C_PRJ301</strong></td><td>PRJ301 - Java Web Application Development</td><td>ThS. Nguyễn Văn Vịnh</td><td>25</td><td><button type="button" class="btn-outline" onclick="openClassRosterModal('PRJ301', 'Java Web Application Development')">Xem danh sách</button></td></tr>
+                                    <tr><td><strong>SE20C_SWR302</strong></td><td>SWR302 - Software Requirement Engineering</td><td>ThS. Nguyễn Văn Vịnh</td><td>25</td><td><button type="button" class="btn-outline" onclick="openClassRosterModal('SWR302', 'Software Requirement Engineering')">Xem danh sách</button></td></tr>
+                                    <tr><td><strong>SE20C_JPD123</strong></td><td>JPD123 - Core Java Lab & Practice</td><td>ThS. Nguyễn Lê Tín</td><td>25</td><td><button type="button" class="btn-outline" onclick="openClassRosterModal('JPD123', 'Core Java Lab & Practice')">Xem danh sách</button></td></tr>
+                                    <tr><td><strong>SE20C_CSD201</strong></td><td>CSD201 - Data Structures and Algorithms</td><td>TS. Nguyễn Anh Khoa</td><td>25</td><td><button type="button" class="btn-outline" onclick="openClassRosterModal('CSD201', 'Data Structures and Algorithms')">Xem danh sách</button></td></tr>
+                                    <tr><td><strong>SE20C_IOT102</strong></td><td>IOT102 - Internet of Things Fundamentals</td><td>ThS. Nguyễn Văn Hưng</td><td>25</td><td><button type="button" class="btn-outline" onclick="openClassRosterModal('IOT102', 'Internet of Things Fundamentals')">Xem danh sách</button></td></tr>
+                                </tbody>
+                            </table>
+                        </div>
                 </div>
             </div>
 
@@ -1067,7 +1106,7 @@
                 </div>
 
                 <!-- 1. SƠ ĐỒ XOAY VÒNG (REVIEW LOOP) -->
-                <div class="aita-card" style="margin-top: 20px;">
+                <div class="aita-card" data-menu-section="review-loop" style="margin-top: 20px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                         <h3 style="font-size: 1.05rem; font-weight: 700; color: #1e293b;">
                             <i class="fa-solid fa-arrows-spin" style="color: #4f46e5;"></i> Sơ đồ xoay vòng (Review Loop)
@@ -1116,7 +1155,7 @@
                 </div>
 
                 <!-- 2. SÀN GIAO DỊCH ĐIỂM SỬA LỖI (CORRECTION POINTS WALLET) -->
-                <div class="aita-card" style="margin-top: 20px;">
+                <div class="aita-card" data-menu-section="correction-wallet" style="margin-top: 20px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                         <h3 style="font-size: 1.05rem; font-weight: 700; color: #1e293b;">
                             <i class="fa-solid fa-wallet" style="color: #4f46e5;"></i> Sàn giao dịch Điểm sửa lỗi (Correction Points Wallet)
@@ -1161,7 +1200,7 @@
                 </div>
 
                 <!-- 3. BẢNG NHẬP RUBRIC CHẤM CHÉO 3 TIÊU CHÍ -->
-                <div class="aita-card" style="margin-top: 20px;">
+                <div class="aita-card" data-menu-section="peer-rubric" style="margin-top: 20px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                         <h3 style="font-size: 1.05rem; font-weight: 700; color: #1e293b;">
                             <i class="fa-solid fa-clipboard-check" style="color: #4f46e5;"></i> Bảng nhập Rubric chấm chéo (Chuẩn 3 tiêu chí)
@@ -1264,7 +1303,7 @@
                 </div>
 
                 <!-- 1. HÀNG ĐỢI CHẤM BÀI (GRADING JOB QUEUE) -->
-                <div class="aita-card" style="margin-top: 20px;">
+                <div class="aita-card" data-menu-section="grading-queue" style="margin-top: 20px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
                         <h3 style="font-size: 1.05rem; font-weight: 700; color: #1e293b;">
                             <i class="fa-solid fa-list-check" style="color: #4f46e5;"></i> Hàng đợi chấm bài (Grading Job Queue)
@@ -1331,7 +1370,7 @@
                 <!-- 2. KẾT QUẢ TEST CASE & 3. NHẬT KÝ TÀI NGUYÊN -->
                 <div class="charts-grid-row" style="margin-top: 20px;">
                     <!-- Test Case Result Box -->
-                    <div class="aita-card" style="margin-bottom: 0;">
+                    <div class="aita-card" data-menu-section="test-results" style="margin-bottom: 0;">
                         <div class="chart-card-header">
                             <div class="chart-icon-badge"><i class="fa-solid fa-vial-circle-check"></i></div>
                             <h3>Chi tiết kết quả Test Case (Job #8841)</h3>
@@ -1348,7 +1387,7 @@
                     </div>
 
                     <!-- Resource Monitor -->
-                    <div class="aita-card" style="margin-bottom: 0;">
+                    <div class="aita-card" data-menu-section="resource-monitor" style="margin-bottom: 0;">
                         <div class="chart-card-header">
                             <div class="chart-icon-badge"><i class="fa-solid fa-gauge-high"></i></div>
                             <h3>Nhật ký tài nguyên (Resource Monitor)</h3>
@@ -1404,7 +1443,7 @@
                 </div>
 
                 <!-- 1. CHUYỂN ĐỔI LỖI BIÊN DỊCH (COMPILER ERROR TRANSLATOR) -->
-                <div class="aita-card" style="margin-top: 20px;">
+                <div class="aita-card" data-menu-section="error-translator" style="margin-top: 20px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                         <h3 style="font-size: 1.05rem; font-weight: 700; color: #1e293b;">
                             <i class="fa-solid fa-wand-magic-sparkles" style="color: #4f46e5;"></i> Chuyển đổi lỗi biên dịch (Compiler Error Translator)
@@ -1452,7 +1491,7 @@
                 </div>
 
                 <!-- 2. LỊCH SỬ PROMPT & PHẢN HỒI -->
-                <div class="aita-card" style="margin-top: 20px;">
+                <div class="aita-card" data-menu-section="prompt-history" style="margin-top: 20px;">
                     <h3 style="font-size: 1.05rem; font-weight: 700; color: #1e293b; margin-bottom: 14px;">
                         <i class="fa-solid fa-clock-rotate-left" style="color: #4f46e5;"></i> Lịch sử Prompt & Phản hồi gần đây
                     </h3>
@@ -1509,7 +1548,7 @@
                         <h1 class="header-main-title">Bảng điểm & Thống kê tổng hợp</h1>
                         <p class="header-sub-title">Tự động tổng hợp điểm đa nguồn từ Moulinette Test Cases, Chấm chéo Rubric và Git Analytics</p>
                     </div>
-                    <div class="header-right-col">
+                    <div class="header-right-col" data-menu-section="grade-reports">
                         <div style="display: flex; gap: 8px;">
                             <button type="button" class="btn-outline" onclick="exportGradebook('excel')">
                                 <i class="fa-solid fa-file-excel" style="color: #10b981;"></i> Xuất Excel
@@ -1522,7 +1561,7 @@
                 </div>
 
                 <!-- CÔNG THỨC TÍNH ĐIỂM TỔNG KẾT ĐA NGUỒN -->
-                <div class="aita-card banner-assessor-card" style="margin-top: 20px;">
+                <div class="aita-card banner-assessor-card" data-menu-section="grade-summary" style="margin-top: 20px;">
                     <span class="banner-kicker">CHUẨN HÓA CÔNG THỨC TÍNH ĐIỂM HỌC PHẦN</span>
                     <div class="banner-title-row">
                         <i class="fa-solid fa-calculator"></i>
@@ -1536,7 +1575,7 @@
                 </div>
 
                 <!-- BẢNG TỔNG HỢP ĐIỂM 25 SINH VIÊN -->
-                <div class="aita-card" style="margin-top: 20px;">
+                <div class="aita-card" data-menu-section="grade-summary" style="margin-top: 20px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
                         <h3 style="font-size: 1.05rem; font-weight: 700; color: #1e293b;">
                             Bảng điểm tổng hợp lớp BIT_SE_K20C (PRJ301)
@@ -1642,6 +1681,12 @@
                         </table>
                     </div>
                 </div>
+                <div class="aita-card" data-menu-section="grade-reports" style="margin-top: 20px;">
+                    <h3 style="font-size: 1.05rem; font-weight: 700; color: #1e293b;">Báo cáo điểm</h3>
+                    <p style="font-size: 0.85rem; color: #64748b; margin-top: 10px;">
+                        Xuất bảng điểm tổng hợp theo các tiêu chí Moulinette, chấm chéo và Git Analytics bằng các nút Excel/PDF phía trên.
+                    </p>
+                </div>
             </div>
 
             <!-- ========================================================
@@ -1662,7 +1707,7 @@
                 </div>
 
                 <!-- 1. CẤU HÌNH API KEY (OPENAI / GEMINI) -->
-                <div class="aita-card" style="margin-top: 20px;">
+                <div class="aita-card" data-menu-section="ai-key-settings" style="margin-top: 20px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                         <h3 style="font-size: 1.05rem; font-weight: 700; color: #1e293b;">
                             <i class="fa-solid fa-key" style="color: #4f46e5;"></i> Cấu hình API Key (OpenAI / Google Gemini)
@@ -1697,7 +1742,7 @@
                 </div>
 
                 <!-- 2. CẤU HÌNH SANDBOX RULES -->
-                <div class="aita-card" style="margin-top: 20px;">
+                <div class="aita-card" data-menu-section="sandbox-settings" style="margin-top: 20px;">
                     <h3 style="font-size: 1.05rem; font-weight: 700; color: #1e293b; margin-bottom: 12px;">
                         <i class="fa-brands fa-docker" style="color: #4f46e5;"></i> Cấu hình Sandbox Rules (Docker Container limits)
                     </h3>
@@ -1729,7 +1774,7 @@
                 </div>
 
                 <!-- 3. GITHUB TOKEN CONFIGURATION -->
-                <div class="aita-card" style="margin-top: 20px;">
+                <div class="aita-card" data-menu-section="github-settings" style="margin-top: 20px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                         <h3 style="font-size: 1.05rem; font-weight: 700; color: #1e293b;">
                             <i class="fa-brands fa-github" style="color: #4f46e5;"></i> GitHub Personal Access Token (PAT Configuration)
@@ -2464,7 +2509,9 @@
         }
 
         function switchView(viewId, link) {
-            showPageView(viewId);
+            const sectionId = link ? link.getAttribute('data-section-target') : null;
+            const sectionTitle = link ? link.textContent.replace(/\s+/g, ' ').trim() : null;
+            showPageView(viewId, sectionId, sectionTitle);
             document.querySelectorAll('.nav-sub-item.active').forEach(el => el.classList.remove('active'));
             if (link) {
                 link.classList.add('active');
@@ -2482,11 +2529,19 @@
             }
         }
 
-        function showPageView(viewId) {
+        function showPageView(viewId, sectionId, sectionTitle) {
             document.querySelectorAll('.page-view').forEach(v => v.classList.add('hidden'));
             const target = document.getElementById(viewId);
             if (target) {
                 target.classList.remove('hidden');
+                const heading = target.querySelector('.header-main-title');
+                if (heading) {
+                    if (!heading.dataset.defaultTitle) heading.dataset.defaultTitle = heading.textContent;
+                    heading.textContent = sectionId && sectionTitle ? sectionTitle : heading.dataset.defaultTitle;
+                }
+                target.querySelectorAll('[data-menu-section]').forEach(section => {
+                    section.classList.toggle('hidden', Boolean(sectionId) && section.getAttribute('data-menu-section') !== sectionId);
+                });
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             }
 

@@ -97,6 +97,7 @@ async function loadAssignments() {
 
     if (msgEl) msgEl.textContent = `${cachedAssignments.length} bài tập được giao`;
     renderAssignmentsTable(cachedAssignments, isLecturer || isAdministrator);
+    renderSubmissionPortal(cachedAssignments);
 }
 
 // 2. RENDER ASSIGNMENTS TABLE
@@ -196,6 +197,35 @@ function renderAssignmentsTable(assignments, canManage) {
             </tr>
         `;
     }).join('');
+}
+
+function renderSubmissionPortal(assignments) {
+    const container = document.getElementById('submissionAssignmentsList');
+    if (!container) return;
+
+    if (!assignments || assignments.length === 0) {
+        container.innerHTML = '<p style="color:#64748b;">Hiện chưa có bài tập để nộp.</p>';
+        return;
+    }
+
+    container.innerHTML = assignments.map(assignment => `
+        <div class="course-card">
+            <div class="course-card-top">
+                <span class="course-code-tag">${assignmentEscapeHtml(assignment.courseCode || 'Môn học')}</span>
+            </div>
+            <h3 class="course-name-text">${assignmentEscapeHtml(assignment.title || 'Bài tập')}</h3>
+            <p style="font-size:0.82rem; color:#64748b;">Hạn nộp: ${assignmentFormatDate(assignment.dueAt)}</p>
+            <button type="button" class="btn-primary" data-assignment-id="${assignmentEscapeHtml(assignment.assignmentId)}" data-assignment-title="${assignmentEscapeHtml(assignment.title || 'Bài tập')}">
+                <i class="fa-solid fa-cloud-arrow-up"></i> Nộp bài
+            </button>
+        </div>
+    `).join('');
+
+    container.querySelectorAll('[data-assignment-id]').forEach(button => {
+        button.addEventListener('click', () => {
+            openSubmitModal(button.dataset.assignmentId, button.dataset.assignmentTitle);
+        });
+    });
 }
 
 // 3. STUDENT SUBMIT ASSIGNMENT MODAL
