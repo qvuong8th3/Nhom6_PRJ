@@ -19,8 +19,8 @@ public class GitScoreCalculatorServiceTest {
 
         Map<String, Double> scores = calculator.calculateGroupContributions(group);
 
-        assertEquals(67.5, scores.get("member-a"), 0.001);
-        assertEquals(32.5, scores.get("member-b"), 0.001);
+        assertEquals(70.83, scores.get("member-a"), 0.001);
+        assertEquals(29.17, scores.get("member-b"), 0.001);
         assertEquals(100.0, scores.values().stream().mapToDouble(Double::doubleValue).sum(), 0.001);
     }
 

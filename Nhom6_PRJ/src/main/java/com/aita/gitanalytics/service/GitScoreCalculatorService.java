@@ -191,8 +191,8 @@ public class GitScoreCalculatorService {
                             + (weights.wReview * reviewRatio)
                             - (weights.wPenalty * penaltyRatio);
 
-            // Không để điểm âm
-            rawScore = Math.max(0.01, rawScore);
+            // Không để điểm âm hoặc tạo điểm giả cho thành viên không có đóng góp.
+            rawScore = Math.max(0.0, rawScore);
 
             eval.rawScore = rawScore;
             eval.volumeScore = Math.round(volumeRatio * 1000.0) / 10.0;
@@ -206,12 +206,12 @@ public class GitScoreCalculatorService {
 
         // 3. Chuẩn hóa về thang 100% cho cả nhóm
         double totalRawScore = preliminaryScores.values().stream().mapToDouble(Double::doubleValue).sum();
-        double averagePercentage = groupData.size() > 0 ? 100.0 / groupData.size() : 0.0;
+        double averagePercentage = 100.0 / groupData.size();
 
         for (Map.Entry<String, EvaluatedContribution> entry : results.entrySet()) {
             EvaluatedContribution eval = entry.getValue();
             double normalized = (totalRawScore <= 0) 
-                    ? averagePercentage 
+                    ? 0.0
                     : (eval.rawScore / totalRawScore) * 100.0;
 
             eval.normalizedPercentage = Math.round(normalized * 100.0) / 100.0;
