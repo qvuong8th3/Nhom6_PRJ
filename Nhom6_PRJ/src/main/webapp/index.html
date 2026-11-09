@@ -2540,7 +2540,9 @@
                     heading.textContent = sectionId && sectionTitle ? sectionTitle : heading.dataset.defaultTitle;
                 }
                 target.querySelectorAll('[data-menu-section]').forEach(section => {
-                    section.classList.toggle('hidden', Boolean(sectionId) && section.getAttribute('data-menu-section') !== sectionId);
+                    const isVisible = !sectionId || section.getAttribute('data-menu-section') === sectionId;
+                    section.classList.toggle('hidden', !isVisible);
+                    section.style.display = isVisible ? '' : 'none';
                 });
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             }
