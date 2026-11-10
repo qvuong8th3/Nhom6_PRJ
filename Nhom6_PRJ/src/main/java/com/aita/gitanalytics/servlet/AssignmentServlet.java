@@ -220,6 +220,47 @@ public class AssignmentServlet extends HttpServlet {
         }
     }
 
+    @Override
+    protected void doDelete(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
+        UserAccount user = requireUser(request, response);
+        if (user == null) {
+            return;
+        }
+
+        String[] path = pathParts(request);
+        try {
+            // Chỉ Giảng viên mới có quyền xóa bài tập
+            if (!requireRole(user, "LECTURER", response)) {
+                return;
+            }
+
+            // Xử lý URL có dạng: /api/v1/assignments/{assignmentId}
+            if (path.length == 1) {
+                int assignmentId = parseId(path[0]);
+                
+                // Gọi DAO để thực hiện lệnh xóa (cần đảm bảo AssignmentDAO đã có hàm deleteAssignment)
+                boolean deleted = assignmentDAO.deleteAssignment(assignmentId, user.getUserId());
+                
+                if (!deleted) {
+                    writeError(response, HttpServletResponse.SC_NOT_FOUND, 
+                            "Không tìm thấy bài tập hoặc bạn không có quyền xóa.");
+                    return;
+                }
+                
+                writeJson(response, HttpServletResponse.SC_OK, Map.of("status", "success"));
+                return;
+            }
+
+            writeError(response, HttpServletResponse.SC_NOT_FOUND, "Không tìm thấy đường dẫn.");
+            
+        } catch (IllegalArgumentException e) {
+            writeError(response, HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
+        } catch (DataAccessException e) {
+            writeDataAccessError(response, e);
+        }
+    }
+
     private UserAccount requireUser(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
         Object value = request.getSession(false) == null ? null

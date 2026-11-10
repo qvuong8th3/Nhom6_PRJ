@@ -178,6 +178,27 @@ public class AssignmentDAO {
         }
     }
 
+    public boolean deleteAssignment(int assignmentId, int lecturerId) {
+        // Câu lệnh SQL: Chỉ xóa bài tập nếu người xóa chính là người đã tạo ra nó (lecturerId)
+        String sql = "DELETE FROM Essay_Assignments WHERE assignment_id = ? AND created_by = ?";
+        
+        try (Connection connection = requireConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+             
+            statement.setInt(1, assignmentId);
+            statement.setInt(2, lecturerId);
+            
+            // executeUpdate trả về số dòng bị ảnh hưởng. Nếu > 0 nghĩa là xóa thành công.
+            return statement.executeUpdate() > 0;
+            
+        } catch (SQLException e) {
+            // Lưu ý: Nếu có lỗi khóa ngoại (Foreign Key) do sinh viên đã nộp bài (bảng Essay_Submissions)
+            // thì SQL Server sẽ quăng lỗi ở đây. Bạn nên có chiến lược xóa CASCADE trong database,
+            // hoặc xóa dữ liệu ở bảng con (Essay_Submissions) trước khi xóa ở bảng cha.
+            throw new DataAccessException("Could not delete assignment.", e);
+        }
+    }
+
     public StoredFile getPromptFile(int assignmentId, int userId, boolean lecturer) {
         String sql = "SELECT a.prompt_file_name, a.prompt_file_data FROM Essay_Assignments a "
                 + "WHERE a.assignment_id = ? AND a.prompt_file_data IS NOT NULL AND "
