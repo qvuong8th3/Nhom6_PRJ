@@ -418,7 +418,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 const formData = new FormData();
                 formData.append('courseId', document.getElementById('assignmentCourseSelect').value);
                 formData.append('title', document.getElementById('assignmentTitleInput').value.trim());
-                formData.append('dueAt', document.getElementById('assignmentDueInput').value);
+                const rawDue = document.getElementById('assignmentDueInput').value;
+                let formattedDue = '';
+                if (rawDue) {
+                    const parsedDate = new Date(rawDue);
+                    if (!isNaN(parsedDate.getTime())) {
+                        formattedDue = parsedDate.toISOString();
+                    } else {
+                        formattedDue = rawDue;
+                    }
+                }
+                formData.append('dueAt', formattedDue);
                 formData.append('description', document.getElementById('assignmentDescInput').value.trim());
 
                 const promptFile = document.getElementById('assignmentPromptFileInput').files[0];
