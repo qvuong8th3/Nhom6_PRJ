@@ -246,11 +246,13 @@ public class AssignmentServlet extends HttpServlet {
                         MoulinetteSandboxService sandbox = new MoulinetteSandboxService();
                         autoGradeResult = sandbox.runStudentCode(tempDir.toString());
                         
-                        // 4. Lưu điểm tự động vào Database (dùng hàm gradeSubmission có sẵn)
-                        // studentId cũng đóng vai trò người chấm (auto-grade) hoặc truyền ID của Hệ thống
-                        assignmentDAO.gradeSubmission(assignmentId, studentId, studentId, 
+                        // 4. Lưu điểm tự động vào Database
+                        boolean autoGradeSaved = assignmentDAO.saveAutoGradeResult(assignmentId, studentId, 
                                 BigDecimal.valueOf(autoGradeResult.getScore()), 
                                 autoGradeResult.getLogOutput());
+                        if (!autoGradeSaved) {
+                            System.err.println("[AutoGrade] Không thể lưu điểm tự động cho assignmentId: " + assignmentId + ", studentId: " + studentId);
+                        }
 
                     } catch (Exception e) {
                         e.printStackTrace();

@@ -14,6 +14,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
+import com.aita.gitanalytics.util.Sha256ChecksumUtil;
 
 public class AssignmentDAO {
 
@@ -142,28 +143,54 @@ public class AssignmentDAO {
         return submissions;
     }
 
-    public boolean gradeSubmission(int assignmentId, int studentId, int lecturerId, BigDecimal score, String feedback) {
-        String sql = "UPDATE s SET score = ?, feedback = ?, graded_at = SYSUTCDATETIME(), graded_by = ? "
+    public boolean gradeSubmission(int assignmentId, int studentId, int graderId, BigDecimal score, String feedback) {
+        String sql = "UPDATE s SET score = ?, grade = ?, feedback = ?, graded_at = SYSUTCDATETIME(), graded_by = ? "
                 + "FROM Essay_Submissions s "
                 + "JOIN Essay_Assignments a ON a.assignment_id = s.assignment_id "
-                + "WHERE s.assignment_id = ? AND s.student_id = ? AND EXISTS ("
+                + "WHERE s.assignment_id = ? AND s.student_id = ? AND (EXISTS ("
                 + "SELECT 1 FROM Lecturer_Courses lc WHERE lc.course_id = a.course_id "
-                + "AND lc.lecturer_id = ?)";
+                + "AND lc.lecturer_id = ?) OR EXISTS ("
+                + "SELECT 1 FROM Users u WHERE u.user_id = ? AND u.role = 'ADMIN'))";
         try (Connection connection = requireConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
             if (score == null) {
                 statement.setNull(1, Types.DECIMAL);
+                statement.setNull(2, Types.DECIMAL);
             } else {
                 statement.setBigDecimal(1, score);
+                statement.setBigDecimal(2, score);
             }
-            statement.setString(2, feedback == null || feedback.trim().isEmpty() ? null : feedback.trim());
-            statement.setInt(3, lecturerId);
-            statement.setInt(4, assignmentId);
-            statement.setInt(5, studentId);
-            statement.setInt(6, lecturerId);
+            statement.setString(3, feedback == null || feedback.trim().isEmpty() ? null : feedback.trim());
+            statement.setInt(4, graderId);
+            statement.setInt(5, assignmentId);
+            statement.setInt(6, studentId);
+            statement.setInt(7, graderId);
+            statement.setInt(8, graderId);
             return statement.executeUpdate() > 0;
         } catch (SQLException e) {
             throw new DataAccessException("Could not grade assignment submission.", e);
+        }
+    }
+
+    public boolean saveAutoGradeResult(int assignmentId, int studentId, BigDecimal score, String feedback) {
+        String sql = "UPDATE Essay_Submissions SET score = ?, grade = ?, feedback = ?, "
+                + "graded_at = SYSUTCDATETIME(), graded_by = NULL "
+                + "WHERE assignment_id = ? AND student_id = ?";
+        try (Connection connection = requireConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            if (score == null) {
+                statement.setNull(1, Types.DECIMAL);
+                statement.setNull(2, Types.DECIMAL);
+            } else {
+                statement.setBigDecimal(1, score);
+                statement.setBigDecimal(2, score);
+            }
+            statement.setString(3, feedback == null || feedback.trim().isEmpty() ? null : feedback.trim());
+            statement.setInt(4, assignmentId);
+            statement.setInt(5, studentId);
+            return statement.executeUpdate() > 0;
+        } catch (SQLException e) {
+            throw new DataAccessException("Could not save auto-grade result.", e);
         }
     }
 
@@ -278,10 +305,11 @@ public class AssignmentDAO {
 
     public boolean saveSubmission(int assignmentId, int studentId, String fileName, byte[] fileData) {
         long fileSize = fileData != null ? fileData.length : 0;
+        String sha256 = fileData != null ? Sha256ChecksumUtil.hash(fileData) : null;
         String updateSql = "UPDATE Essay_Submissions SET file_name = ?, file_data = ?, "
-                + "file_size_bytes = ?, submitted_at = SYSUTCDATETIME() WHERE assignment_id = ? AND student_id = ?";
+                + "file_size_bytes = ?, sha256_hash = ?, submitted_at = SYSUTCDATETIME() WHERE assignment_id = ? AND student_id = ?";
         String insertSql = "INSERT INTO Essay_Submissions "
-                + "(assignment_id, student_id, file_name, file_data, file_size_bytes) VALUES (?, ?, ?, ?, ?)";
+                + "(assignment_id, student_id, file_name, file_data, file_size_bytes, sha256_hash) VALUES (?, ?, ?, ?, ?, ?)";
         String deadlineSql = "SELECT CASE WHEN (a.due_at IS NULL AND a.due_date IS NULL) "
                 + "OR ISNULL(a.due_at, a.due_date) > SYSUTCDATETIME() "
                 + "THEN 1 ELSE 0 END FROM Essay_Assignments a WITH (UPDLOCK, HOLDLOCK) "
@@ -309,8 +337,9 @@ public class AssignmentDAO {
                     update.setString(1, fileName);
                     update.setBytes(2, fileData);
                     update.setLong(3, fileSize);
-                    update.setInt(4, assignmentId);
-                    update.setInt(5, studentId);
+                    update.setString(4, sha256);
+                    update.setInt(5, assignmentId);
+                    update.setInt(6, studentId);
                     updated = update.executeUpdate();
                 }
                 if (updated == 0) {
@@ -320,6 +349,7 @@ public class AssignmentDAO {
                         insert.setString(3, fileName);
                         insert.setBytes(4, fileData);
                         insert.setLong(5, fileSize);
+                        insert.setString(6, sha256);
                         insert.executeUpdate();
                     }
                 }

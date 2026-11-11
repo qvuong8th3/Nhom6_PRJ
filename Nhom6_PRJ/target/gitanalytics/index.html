@@ -1444,14 +1444,47 @@
 
                 <!-- 1. CHUYỂN ĐỔI LỖI BIÊN DỊCH (COMPILER ERROR TRANSLATOR) -->
                 <div class="aita-card" data-menu-section="error-translator" style="margin-top: 20px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
                         <h3 style="font-size: 1.05rem; font-weight: 700; color: #1e293b;">
                             <i class="fa-solid fa-wand-magic-sparkles" style="color: #4f46e5;"></i> Chuyển đổi lỗi biên dịch (Compiler Error Translator)
                         </h3>
-                        <span style="font-size: 0.75rem; background: #eef2ff; color: #4f46e5; padding: 4px 10px; border-radius: 6px; font-weight: 600;">
-                            Mô hình: Gemini 1.5 Pro / GPT-4o Mini
+                        <span id="aiActiveBadge" style="font-size: 0.78rem; background: #eef2ff; color: #4f46e5; padding: 4px 12px; border-radius: 6px; font-weight: 600; border: 1px solid #c7d2fe;">
+                            <i class="fa-solid fa-circle" style="color:#10b981; font-size:0.5rem;"></i> Trực tiếp: Gemini 1.5 Pro / GPT-4o Mini
                         </span>
                     </div>
+
+                    <!-- THANH ĐIỀU KHIỂN MÔ HÌNH VÀ KHÓA API -->
+                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 14px; margin-bottom: 14px;">
+                        <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end;">
+                            <div style="flex: 1; min-width: 220px;">
+                                <label for="aiModelSelect" style="font-size: 0.8rem; font-weight: 600; color: #475569; display: block; margin-bottom: 4px;">
+                                    <i class="fa-solid fa-microchip"></i> Lựa chọn Mô hình AI:
+                                </label>
+                                <select id="aiModelSelect" class="form-control-input" style="font-size: 0.82rem; padding: 6px 10px;">
+                                    <option value="gemini-1.5-pro" selected>🌟 Google Gemini 1.5 Pro (Khuyên dùng - Phân tích sâu)</option>
+                                    <option value="gemini-1.5-flash">⚡ Google Gemini 1.5 Flash (Phản hồi tức thì)</option>
+                                    <option value="gpt-4o-mini">🧠 OpenAI GPT-4o Mini (Thông minh & Chuẩn xác)</option>
+                                    <option value="gpt-4o">🚀 OpenAI GPT-4o (Model cao cấp)</option>
+                                    <option value="semantic-engine">🛡️ Bộ phân tích ngữ nghĩa nội bộ (Không cần API Key)</option>
+                                </select>
+                            </div>
+                            <div style="flex: 2; min-width: 280px;">
+                                <label for="aiApiKeyInput" style="font-size: 0.8rem; font-weight: 600; color: #475569; display: block; margin-bottom: 4px;">
+                                    <i class="fa-solid fa-key"></i> API Key cá nhân (Gemini / OpenAI):
+                                </label>
+                                <div style="display: flex; gap: 6px;">
+                                    <input type="password" id="aiApiKeyInput" class="form-control-input" style="font-size: 0.82rem; font-family: monospace;" placeholder="Dán Gemini Key (AIza...) hoặc OpenAI Key (sk-...)">
+                                    <button type="button" class="btn-outline" onclick="saveAiKeyFromView()" style="white-space: nowrap; font-size: 0.8rem; padding: 6px 12px;" title="Lưu khóa API vào trình duyệt">
+                                        <i class="fa-solid fa-floppy-disk"></i> Lưu Key
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <small style="color: #64748b; font-size: 0.74rem; display: block; margin-top: 6px;">
+                            💡 Bạn có thể lấy Gemini API Key miễn phí tại <a href="https://aistudio.google.com/" target="_blank" style="color:#4f46e5; text-decoration:underline;">Google AI Studio</a>. Nếu để trống, hệ thống sẽ sử dụng <strong>Semantic AST Engine</strong> tự động trích xuất đúng file, hàm và dòng lỗi để phân tích.
+                        </small>
+                    </div>
+
                     <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 14px;">
                         Dán thông báo lỗi compiler, lỗi runtime hoặc stack trace Java Servlet / SQL vào đây để AI phân tích theo phong cách sư phạm:
                     </p>
@@ -1732,10 +1765,10 @@
                         </div>
                     </div>
                     <div style="margin-top: 14px; display: flex; gap: 10px;">
-                        <button type="button" class="btn-primary" onclick="alert('Đã cập nhật và mã hóa an toàn các khóa API!')">
+                        <button type="button" class="btn-primary" onclick="saveAiApiKeysFromSettings()">
                             <i class="fa-solid fa-floppy-disk"></i> Lưu khóa API
                         </button>
-                        <button type="button" class="btn-outline" onclick="alert('Kiểm tra kết nối: OpenAI API [200 OK] &bull; Gemini API [200 OK]')">
+                        <button type="button" class="btn-outline" onclick="testAiConnections()">
                             <i class="fa-solid fa-circle-check"></i> Kiểm tra kết nối AI
                         </button>
                     </div>

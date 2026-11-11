@@ -89,7 +89,7 @@ async function loadAssignments() {
 
     try {
         const assignments = await requestJson('api/v1/assignments');
-        cachedAssignments = Array.isArray(assignments) && assignments.length ? assignments : seedAssignments;
+        cachedAssignments = Array.isArray(assignments) ? assignments : seedAssignments;
     } catch (e) {
         console.warn('API error, using seed assignments:', e.message);
         cachedAssignments = seedAssignments;
@@ -491,7 +491,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
                 const result = await response.json();
                 if (response.ok) {
-                    alert('Nộp bài thành công! File đã được mã hóa tính toàn vẹn SHA-256.');
+                    if (result.autoGradeScore != null) {
+                        alert(`Nộp bài thành công!\n- Kiểm định toàn vẹn SHA-256: Hợp lệ\n- Tự chấm Moulinette Sandbox: ${result.autoGradeScore}/10 (${result.autoGradeStatus || 'Đạt'})\nĐiểm và nhật ký biên dịch đã được lưu tự động vào cơ sở dữ liệu.`);
+                    } else {
+                        alert('Nộp bài thành công! File đã được mã hóa tính toàn vẹn SHA-256 và lưu vào hệ thống.');
+                    }
                     closeModal('submitAssignmentModal');
                     loadAssignments();
                 } else {
