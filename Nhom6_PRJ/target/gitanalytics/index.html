@@ -2635,6 +2635,8 @@
                 window.renderCoursesView();
             } else if (viewId === 'gradebookView' && typeof window.renderGradebookTable === 'function') {
                 window.renderGradebookTable();
+            } else if (viewId === 'sandboxView' && typeof window.loadSandboxJobs === 'function') {
+                window.loadSandboxJobs();
             }
         }
 

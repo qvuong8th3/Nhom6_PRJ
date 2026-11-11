@@ -61,6 +61,11 @@ public class AssignmentServlet extends HttpServlet {
                 return;
             }
 
+            if (path.length == 1 && "sandbox-jobs".equalsIgnoreCase(path[0])) {
+                writeJson(response, HttpServletResponse.SC_OK, assignmentDAO.listSandboxJobs());
+                return;
+            }
+
             int assignmentId = parseId(path[0]);
             if (path.length == 2 && "submissions".equals(path[1])) {
                 if (!requireRole(user, "LECTURER", response)) {

@@ -194,6 +194,42 @@ public class AssignmentDAO {
         }
     }
 
+    public List<Map<String, Object>> listSandboxJobs() {
+        String sql = "SELECT s.submission_id, s.assignment_id, s.student_id, u.full_name, u.username, "
+                + "s.file_name, s.file_size_bytes, s.submitted_at, s.score, s.grade, s.feedback, s.sha256_hash, "
+                + "a.title AS assignment_title "
+                + "FROM Essay_Submissions s "
+                + "JOIN Users u ON u.user_id = s.student_id "
+                + "JOIN Essay_Assignments a ON a.assignment_id = s.assignment_id "
+                + "ORDER BY s.submitted_at DESC, s.submission_id DESC";
+        List<Map<String, Object>> jobs = new ArrayList<>();
+        try (Connection connection = requireConnection();
+             PreparedStatement statement = connection.prepareStatement(sql);
+             ResultSet rs = statement.executeQuery()) {
+            while (rs.next()) {
+                Map<String, Object> job = new LinkedHashMap<>();
+                job.put("jobId", "JOB-" + (8800 + rs.getInt("submission_id")));
+                job.put("submissionId", rs.getInt("submission_id"));
+                job.put("studentId", rs.getInt("student_id"));
+                job.put("studentName", rs.getString("full_name"));
+                job.put("studentCode", rs.getString("username"));
+                job.put("assignmentTitle", rs.getString("assignment_title"));
+                job.put("fileName", rs.getString("file_name"));
+                job.put("fileSizeBytes", rs.getLong("file_size_bytes"));
+                BigDecimal s = rs.getBigDecimal("score");
+                if (s == null) s = rs.getBigDecimal("grade");
+                job.put("score", s != null ? s.doubleValue() : 0.0);
+                job.put("feedback", rs.getString("feedback"));
+                job.put("sha256", rs.getString("sha256_hash"));
+                job.put("submittedAt", rs.getTimestamp("submitted_at") != null ? rs.getTimestamp("submitted_at").toString() : null);
+                jobs.add(job);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return jobs;
+    }
+
     public boolean updateDeadline(int assignmentId, int lecturerId, Timestamp dueAt) {
         String sql = "UPDATE a SET due_at = ? FROM Essay_Assignments a "
                 + "WHERE a.assignment_id = ? AND EXISTS ("
