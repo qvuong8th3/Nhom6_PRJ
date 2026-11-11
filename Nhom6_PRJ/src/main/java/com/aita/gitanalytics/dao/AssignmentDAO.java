@@ -19,22 +19,31 @@ public class AssignmentDAO {
 
     public int createAssignment(int lecturerId, int courseId, String title, String description,
                                 String fileName, byte[] fileData, Timestamp dueAt) {
+        return createAssignment(lecturerId, "LECTURER", courseId, title, description, fileName, fileData, dueAt);
+    }
+
+    public int createAssignment(int userId, String role, int courseId, String title, String description,
+                                String fileName, byte[] fileData, Timestamp dueAt) {
         String sql = "INSERT INTO Essay_Assignments "
-                + "(title, description, created_by, course_id, prompt_file_name, prompt_file_data, due_at) "
-                + "OUTPUT INSERTED.assignment_id VALUES (?, ?, ?, ?, ?, ?, ?)";
+                + "(title, description, created_by, course_id, prompt_file_name, prompt_file_data, due_at, due_date) "
+                + "OUTPUT INSERTED.assignment_id VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection connection = requireConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
-            validateLecturerCourse(connection, lecturerId, courseId);
+            if (!"ADMIN".equalsIgnoreCase(role)) {
+                validateLecturerCourse(connection, userId, courseId);
+            }
             statement.setString(1, title);
             statement.setString(2, description);
-            statement.setInt(3, lecturerId);
+            statement.setInt(3, userId);
             statement.setInt(4, courseId);
             statement.setString(5, fileName);
             statement.setBytes(6, fileData);
             if (dueAt == null) {
                 statement.setNull(7, Types.TIMESTAMP);
+                statement.setNull(8, Types.TIMESTAMP);
             } else {
                 statement.setTimestamp(7, dueAt, utcCalendar());
+                statement.setTimestamp(8, dueAt, utcCalendar());
             }
             try (ResultSet result = statement.executeQuery()) {
                 if (!result.next()) {

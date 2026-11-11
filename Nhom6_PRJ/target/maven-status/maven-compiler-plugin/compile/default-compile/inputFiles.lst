@@ -10,6 +10,7 @@ C:\GitHub\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\dao\PasswordHa
 C:\GitHub\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\dao\UserDAO.java
 C:\GitHub\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\demo\InsertUserDemo.java
 C:\GitHub\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\model\Lecturer.java
+C:\GitHub\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\model\SandboxResult.java
 C:\GitHub\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\model\Student.java
 C:\GitHub\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\model\UserAccount.java
 C:\GitHub\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\service\ContributionCalculator.java
@@ -17,6 +18,7 @@ C:\GitHub\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\service\ExamSe
 C:\GitHub\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\service\GitHubSyncService.java
 C:\GitHub\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\service\GitScoreCalculatorService.java
 C:\GitHub\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\service\MarketplaceService.java
+C:\GitHub\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\service\MoulinetteSandboxService.java
 C:\GitHub\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\service\PedagogicalGuidanceService.java
 C:\GitHub\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\service\StudentService.java
 C:\GitHub\Nhom6_PRJ\Nhom6_PRJ\src\main\java\com\aita\gitanalytics\servlet\AdministratorBootstrapListener.java

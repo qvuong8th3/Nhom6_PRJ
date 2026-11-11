@@ -12,6 +12,9 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeParseException;
 import java.util.LinkedHashMap;
 import java.util.Locale;
@@ -23,13 +26,22 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
+import com.aita.gitanalytics.service.MoulinetteSandboxService;
+import com.aita.gitanalytics.model.SandboxResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.FileOutputStream;
+import java.io.File;
 
 @WebServlet("/api/v1/assignments/*")
 @MultipartConfig(maxFileSize = 15 * 1024 * 1024, maxRequestSize = 16 * 1024 * 1024)
 public class AssignmentServlet extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
-    private static final String ALLOWED_EXTENSIONS = ".pdf,.doc,.docx,.odt,.rtf,.txt,.zip";
+    private static final String ALLOWED_EXTENSIONS = ".pdf,.doc,.docx,.odt,.rtf,.txt,.zip,.csv,.xlsx,.xls,.rar,.7z";
     private final Gson gson = new Gson();
     private final AssignmentDAO assignmentDAO = new AssignmentDAO();
 
@@ -103,7 +115,8 @@ public class AssignmentServlet extends HttpServlet {
         try {
             request.setCharacterEncoding("UTF-8");
             if (path.length == 0) {
-                if (!requireRole(user, "LECTURER", response)) {
+                if (!"LECTURER".equalsIgnoreCase(user.getRole()) && !"ADMIN".equalsIgnoreCase(user.getRole())) {
+                    writeError(response, HttpServletResponse.SC_FORBIDDEN, "Chỉ Giảng viên hoặc Quản trị viên mới có quyền giao bài tập.");
                     return;
                 }
                 String title = request.getParameter("title");
@@ -119,7 +132,15 @@ public class AssignmentServlet extends HttpServlet {
                 if (description != null && description.length() > 2000) {
                     throw new IllegalArgumentException("Mô tả tối đa 2000 ký tự.");
                 }
-                Part prompt = request.getPart("file");
+                Part prompt = null;
+                try {
+                    prompt = request.getPart("file");
+                } catch (Exception ignored) {}
+                if (prompt == null || prompt.getSize() == 0) {
+                    try {
+                        prompt = request.getPart("promptFile");
+                    } catch (Exception ignored) {}
+                }
                 String fileName = null;
                 byte[] fileData = null;
                 if (prompt != null && prompt.getSize() > 0) {
@@ -127,7 +148,7 @@ public class AssignmentServlet extends HttpServlet {
                     fileData = readPart(prompt);
                 }
 
-                int assignmentId = assignmentDAO.createAssignment(user.getUserId(), courseId, title.trim(),
+                int assignmentId = assignmentDAO.createAssignment(user.getUserId(), user.getRole(), courseId, title.trim(),
                         isBlank(description) ? null : description.trim(), fileName, fileData,
                         parseDueAt(request.getParameter("dueAt")));
                 Map<String, Object> result = new LinkedHashMap<>();
@@ -199,16 +220,56 @@ public class AssignmentServlet extends HttpServlet {
                 }
                 String fileName = validateFileName(submission.getSubmittedFileName());
                 byte[] fileData = readPart(submission);
-                boolean saved = assignmentDAO.saveSubmission(parseId(path[0]), user.getUserId(), fileName, fileData);
+                
+                int assignmentId = parseId(path[0]);
+                int studentId = user.getUserId();
+                
+                // Lưu file nộp gốc vào Database
+                boolean saved = assignmentDAO.saveSubmission(assignmentId, studentId, fileName, fileData);
                 if (!saved) {
                     writeError(response, HttpServletResponse.SC_BAD_REQUEST,
                             "Đã hết hạn nộp bài hoặc bạn không thuộc lớp của môn học này.");
                     return;
                 }
-                writeJson(response, HttpServletResponse.SC_OK, Map.of("status", "success"));
+
+                // --- BẮT ĐẦU TÍCH HỢP CHẤM TỰ ĐỘNG (DOCKER SANDBOX) ---
+                SandboxResult autoGradeResult = null;
+                if (fileName.toLowerCase().endsWith(".zip")) {
+                    try {
+                        // 1. Tạo thư mục tạm trên server để giải nén code
+                        Path tempDir = Files.createTempDirectory("aita_sandbox_" + studentId + "_");
+                        
+                        // 2. Giải nén fileData (byte[]) thẳng vào thư mục tạm
+                        unzipFromBytes(fileData, tempDir.toFile());
+                        
+                        // 3. Gọi Docker Sandbox chấm bài
+                        MoulinetteSandboxService sandbox = new MoulinetteSandboxService();
+                        autoGradeResult = sandbox.runStudentCode(tempDir.toString());
+                        
+                        // 4. Lưu điểm tự động vào Database (dùng hàm gradeSubmission có sẵn)
+                        // studentId cũng đóng vai trò người chấm (auto-grade) hoặc truyền ID của Hệ thống
+                        assignmentDAO.gradeSubmission(assignmentId, studentId, studentId, 
+                                BigDecimal.valueOf(autoGradeResult.getScore()), 
+                                autoGradeResult.getLogOutput());
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        // Ghi nhận lỗi hệ thống nhưng không làm crash quy trình nộp bài
+                    }
+                }
+                // --- KẾT THÚC CHẤM TỰ ĐỘNG ---
+
+                // Trả về JSON bao gồm cả kết quả chấm
+                Map<String, Object> responseData = new LinkedHashMap<>();
+                responseData.put("status", "success");
+                if (autoGradeResult != null) {
+                    responseData.put("autoGradeScore", autoGradeResult.getScore());
+                    responseData.put("autoGradeStatus", autoGradeResult.getStatus());
+                }
+                
+                writeJson(response, HttpServletResponse.SC_OK, responseData);
                 return;
             }
-
             writeError(response, HttpServletResponse.SC_NOT_FOUND, "Không tìm thấy đường dẫn.");
         } catch (IllegalArgumentException e) {
             writeError(response, HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
@@ -317,7 +378,7 @@ public class AssignmentServlet extends HttpServlet {
             allowed |= lowerName.endsWith(extension);
         }
         if (!allowed) {
-            throw new IllegalArgumentException("Chỉ nhận file PDF, DOC, DOCX, ODT, RTF hoặc TXT.");
+            throw new IllegalArgumentException("Chỉ nhận file PDF, DOC, DOCX, TXT, ZIP, CSV, XLSX, XLS hoặc nén (RAR, 7Z).");
         }
         return fileName;
     }
@@ -347,15 +408,32 @@ public class AssignmentServlet extends HttpServlet {
         if (isBlank(value)) {
             return null;
         }
+        String trimmed = value.trim();
+        Instant dueAt = null;
         try {
-            Instant dueAt = Instant.parse(value.trim());
-            if (!dueAt.isAfter(Instant.now())) {
-                throw new IllegalArgumentException("Hạn nộp phải ở thời điểm tương lai.");
+            if (trimmed.endsWith("Z") || (trimmed.length() > 19 && (trimmed.charAt(19) == '+' || trimmed.charAt(19) == '-'))) {
+                dueAt = Instant.parse(trimmed);
+            } else if (trimmed.contains("T")) {
+                LocalDateTime ldt = LocalDateTime.parse(trimmed);
+                dueAt = ldt.atZone(ZoneId.systemDefault()).toInstant();
+            } else if (trimmed.contains(" ")) {
+                dueAt = Timestamp.valueOf(trimmed).toInstant();
+            } else {
+                LocalDate ld = LocalDate.parse(trimmed);
+                dueAt = ld.atTime(23, 59, 59).atZone(ZoneId.systemDefault()).toInstant();
             }
-            return Timestamp.from(dueAt);
-        } catch (DateTimeParseException e) {
-            throw new IllegalArgumentException("Thời hạn nộp không hợp lệ.", e);
+        } catch (Exception e) {
+            try {
+                dueAt = Instant.parse(trimmed);
+            } catch (Exception ignored) {
+                throw new IllegalArgumentException("Thời hạn nộp không hợp lệ. Vui lòng chọn ngày giờ hợp lệ.");
+            }
         }
+
+        if (dueAt != null && dueAt.isBefore(Instant.now().minusSeconds(300))) {
+            throw new IllegalArgumentException("Hạn nộp phải ở thời điểm tương lai.");
+        }
+        return dueAt != null ? Timestamp.from(dueAt) : null;
     }
 
     private void writeDataAccessError(HttpServletResponse response, DataAccessException error)
@@ -381,5 +459,45 @@ public class AssignmentServlet extends HttpServlet {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         response.getWriter().print(gson.toJson(value));
+    }
+
+    // Hàm hỗ trợ giải nén mảng byte của file ZIP ra thư mục tạm
+    private void unzipFromBytes(byte[] zipBytes, File destDir) throws IOException {
+        byte[] buffer = new byte[1024];
+        try (ZipInputStream zis = new ZipInputStream(new ByteArrayInputStream(zipBytes))) {
+            ZipEntry zipEntry = zis.getNextEntry();
+            while (zipEntry != null) {
+                File newFile = newFile(destDir, zipEntry);
+                if (zipEntry.isDirectory()) {
+                    if (!newFile.isDirectory() && !newFile.mkdirs()) {
+                        throw new IOException("Failed to create directory " + newFile);
+                    }
+                } else {
+                    File parent = newFile.getParentFile();
+                    if (!parent.isDirectory() && !parent.mkdirs()) {
+                        throw new IOException("Failed to create directory " + parent);
+                    }
+                    try (FileOutputStream fos = new FileOutputStream(newFile)) {
+                        int len;
+                        while ((len = zis.read(buffer)) > 0) {
+                            fos.write(buffer, 0, len);
+                        }
+                    }
+                }
+                zipEntry = zis.getNextEntry();
+            }
+            zis.closeEntry();
+        }
+    }
+
+    // Bảo mật: Ngăn chặn tấn công Zip Slip (giải nén file ra ngoài thư mục chỉ định)
+    private File newFile(File destinationDir, ZipEntry zipEntry) throws IOException {
+        File destFile = new File(destinationDir, zipEntry.getName());
+        String destDirPath = destinationDir.getCanonicalPath();
+        String destFilePath = destFile.getCanonicalPath();
+        if (!destFilePath.startsWith(destDirPath + File.separator)) {
+            throw new IOException("Entry is outside of the target dir: " + zipEntry.getName());
+        }
+        return destFile;
     }
 }

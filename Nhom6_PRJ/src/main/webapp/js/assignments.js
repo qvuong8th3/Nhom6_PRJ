@@ -416,14 +416,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
             try {
                 const formData = new FormData();
+                const rawDue = document.getElementById('assignmentDueInput').value;
+                let parsedDue = rawDue;
+                if (rawDue) {
+                    try {
+                        parsedDue = new Date(rawDue).toISOString();
+                    } catch (ignore) {
+                        parsedDue = rawDue;
+                    }
+                }
                 formData.append('courseId', document.getElementById('assignmentCourseSelect').value);
                 formData.append('title', document.getElementById('assignmentTitleInput').value.trim());
-                formData.append('dueAt', document.getElementById('assignmentDueInput').value);
+                formData.append('dueAt', parsedDue);
                 formData.append('description', document.getElementById('assignmentDescInput').value.trim());
 
                 const promptFile = document.getElementById('assignmentPromptFileInput').files[0];
                 if (promptFile) {
                     formData.append('promptFile', promptFile);
+                    formData.append('file', promptFile);
                 }
 
                 const response = await fetch(apiUrl('api/v1/assignments'), {

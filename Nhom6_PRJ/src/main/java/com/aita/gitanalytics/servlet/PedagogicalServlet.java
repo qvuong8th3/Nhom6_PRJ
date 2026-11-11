@@ -41,13 +41,16 @@ public class PedagogicalServlet extends HttpServlet {
 
         String rawError = request.getParameter("rawError");
         String codeSnippet = request.getParameter("codeSnippet");
+        String apiKey = request.getParameter("apiKey");
+        String provider = request.getParameter("provider");
+        String model = request.getParameter("model");
         String studentName = account.getFullName();
 
         if (rawError == null || rawError.trim().isEmpty()) {
             rawError = "javac error: cannot find symbol\n  symbol:   variable userDAO\n  location: class com.aita.gitanalytics.servlet.AuthServlet";
         }
 
-        PedagogicalFeedback feedback = guidanceService.transformError(rawError, codeSnippet, studentName);
+        PedagogicalFeedback feedback = guidanceService.transformError(rawError, codeSnippet, studentName, apiKey, provider, model);
 
         out.print(gson.toJson(Map.of("status", "success", "data", feedback)));
     }
