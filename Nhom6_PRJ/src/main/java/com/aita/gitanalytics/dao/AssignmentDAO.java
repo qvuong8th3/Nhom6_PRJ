@@ -210,6 +210,7 @@ public class AssignmentDAO {
                 Map<String, Object> job = new LinkedHashMap<>();
                 job.put("jobId", "JOB-" + (8800 + rs.getInt("submission_id")));
                 job.put("submissionId", rs.getInt("submission_id"));
+                job.put("assignmentId", rs.getInt("assignment_id"));
                 job.put("studentId", rs.getInt("student_id"));
                 job.put("studentName", rs.getString("full_name"));
                 job.put("studentCode", rs.getString("username"));

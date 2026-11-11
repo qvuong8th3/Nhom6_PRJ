@@ -1295,7 +1295,10 @@
                         <h1 class="header-main-title">Docker Sandbox & Test tự động</h1>
                         <p class="header-sub-title">Chạy mã nguồn trong môi trường cô lập, kiểm thử tự động Test Cases và giám sát tài nguyên</p>
                     </div>
-                    <div class="header-right-col">
+                    <div class="header-right-col" style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                        <button type="button" class="btn-outline" onclick="openRunSandboxModal()" title="Chấm bài kiểm thử mã nguồn mới">
+                            <i class="fa-solid fa-cloud-arrow-up" style="color: #4f46e5;"></i> + Chấm bài mới
+                        </button>
                         <button type="button" class="btn-primary" onclick="rerunSandboxQueue()">
                             <i class="fa-solid fa-play"></i> Chạy lại Hàng đợi
                         </button>
@@ -1308,8 +1311,8 @@
                         <h3 style="font-size: 1.05rem; font-weight: 700; color: #1e293b;">
                             <i class="fa-solid fa-list-check" style="color: #4f46e5;"></i> Hàng đợi chấm bài (Grading Job Queue)
                         </h3>
-                        <span style="font-size: 0.78rem; font-weight: 600; background: #eef2ff; color: #4f46e5; padding: 4px 10px; border-radius: 6px;">
-                            3 Jobs đang xử lý &bull; Container: openjdk:17-slim
+                        <span id="sandboxJobCountBadge" style="font-size: 0.78rem; font-weight: 600; background: #eef2ff; color: #4f46e5; padding: 4px 10px; border-radius: 6px;">
+                            Đang tải bài nộp &bull; Container: openjdk:17-slim
                         </span>
                     </div>
                     <div class="table-responsive">
@@ -1325,42 +1328,11 @@
                                     <th>Kết quả</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody id="sandboxJobsTableBody">
                                 <tr>
-                                    <td><code>#JOB-8841</code></td>
-                                    <td><strong>Nguyễn Quốc Vương</strong> (QE200066)</td>
-                                    <td><code>prj301_assignment2_nhom6.zip</code></td>
-                                    <td><span class="badge-pill normal" style="background:#ecfdf5; color:#065f46;"><i class="fa-solid fa-circle-check"></i> PASSED (5/5)</span></td>
-                                    <td>3.8s (Timeout: 10s)</td>
-                                    <td>142 MB / 512 MB</td>
-                                    <td><strong style="color: #10b981;">10.0 / 10</strong></td>
-                                </tr>
-                                <tr>
-                                    <td><code>#JOB-8840</code></td>
-                                    <td><strong>Trần Hoàng Phúc</strong> (QE200006)</td>
-                                    <td><code>prj301_submission_phuc.zip</code></td>
-                                    <td><span class="badge-pill normal" style="background:#ecfdf5; color:#065f46;"><i class="fa-solid fa-circle-check"></i> PASSED (4/5)</span></td>
-                                    <td>4.2s (Timeout: 10s)</td>
-                                    <td>168 MB / 512 MB</td>
-                                    <td><strong style="color: #10b981;">8.0 / 10</strong></td>
-                                </tr>
-                                <tr>
-                                    <td><code>#JOB-8839</code></td>
-                                    <td><strong>Lê Đức Minh</strong> (QE200007)</td>
-                                    <td><code>prj301_submission_minh.zip</code></td>
-                                    <td><span class="badge-pill" style="background:#fee2e2; color:#b91c1c; font-weight:700;"><i class="fa-solid fa-clock"></i> TIMEOUT (TLE)</span></td>
-                                    <td>10.1s &gt; 10.0s Limit</td>
-                                    <td>512 MB (Max)</td>
-                                    <td><strong style="color: #ef4444;">0.0 / 10</strong></td>
-                                </tr>
-                                <tr>
-                                    <td><code>#JOB-8838</code></td>
-                                    <td><strong>Hoàng Yến Vy</strong> (QE200008)</td>
-                                    <td><code>prj301_submission_vy.zip</code></td>
-                                    <td><span class="badge-pill" style="background:#fef9c3; color:#854d0e; font-weight:700;"><i class="fa-solid fa-spinner fa-spin"></i> RUNNING</span></td>
-                                    <td>2.1s...</td>
-                                    <td>94 MB</td>
-                                    <td><em>Đang chấm...</em></td>
+                                    <td colspan="7" style="text-align:center; padding:18px; color:#6366f1;">
+                                        <i class="fa-solid fa-spinner fa-spin"></i> Đang tải dữ liệu bài nộp từ CSDL...
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
@@ -1373,9 +1345,9 @@
                     <div class="aita-card" data-menu-section="test-results" style="margin-bottom: 0;">
                         <div class="chart-card-header">
                             <div class="chart-icon-badge"><i class="fa-solid fa-vial-circle-check"></i></div>
-                            <h3>Chi tiết kết quả Test Case (Job #8841)</h3>
+                            <h3 id="sandboxJobDetailTitle">Chi tiết kết quả Test Case</h3>
                         </div>
-                        <div style="background: #0f172a; border-radius: 10px; padding: 16px 20px; font-family: 'Courier New', monospace; font-size: 0.8rem; color: #cbd5e1; line-height: 1.8;">
+                        <div id="sandboxJobDetailOutput" style="background: #0f172a; border-radius: 10px; padding: 16px 20px; font-family: 'Courier New', monospace; font-size: 0.8rem; color: #cbd5e1; line-height: 1.8;">
                             <span style="color: #10b981;">✔ [PASS]</span> TC-01: Compile Java Source (javac *.java) -> 0 errors (0.8s)<br>
                             <span style="color: #10b981;">✔ [PASS]</span> TC-02: Start Embedded Tomcat & Deploy WAR (1.2s)<br>
                             <span style="color: #10b981;">✔ [PASS]</span> TC-03: HTTP GET /login.jsp -> 200 OK (0.3s)<br>
@@ -2718,5 +2690,69 @@
     <!-- JAVASCRIPT LOGIC SCRIPTS -->
     <script src="js/dashboard.js"></script>
     <script src="js/assignments.js"></script>
+
+    <!-- ============================================================
+         MODAL: CHẤM BÀI NỘP MOULINETTE SANDBOX TỰ ĐỘNG
+         ============================================================ -->
+    <div id="runSandboxModal" class="aita-modal-overlay hidden">
+        <div class="aita-modal-dialog">
+            <div class="modal-header">
+                <h3><i class="fa-brands fa-docker" style="color: #4f46e5;"></i> Chấm bài Sandbox & Kiểm thử Test Cases</h3>
+                <button type="button" class="btn-modal-close" onclick="closeModal('runSandboxModal')"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="runSandboxForm" onsubmit="handleRunSandboxForm(event)">
+                <div class="modal-body">
+                    <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 14px;">
+                        Kích hoạt trình biên dịch Docker Sandbox cô lập để kiểm thử mã nguồn, tính điểm và lưu trực tiếp vào CSDL hệ thống:
+                    </p>
+                    <div class="form-group-block">
+                        <label for="sandboxStudentSelect">Sinh viên nộp bài:</label>
+                        <select id="sandboxStudentSelect" class="form-control-input" required>
+                            <option value="1">Nguyễn Văn An (student01 - SE20C)</option>
+                            <option value="9">Võ Thảo Nguyên (vothaonguyen222)</option>
+                            <option value="7">Nguyễn Quốc Vương (qvuong8th3)</option>
+                            <option value="8">Võ Xuân Long (lx426352-art)</option>
+                            <option value="11">Nguyễn Đặng Trường Hải (hai1609-ken)</option>
+                            <option value="10">Nguyễn Tuấn Kiệt (ngkiet30042005-beep)</option>
+                            <option value="2">Trần Hoàng Phúc (QE200006)</option>
+                            <option value="3">Lê Đức Minh (QE200007)</option>
+                        </select>
+                    </div>
+                    <div class="form-group-block">
+                        <label for="sandboxAssignmentSelect">Bài tập / Đề thi:</label>
+                        <select id="sandboxAssignmentSelect" class="form-control-input" required>
+                            <option value="2">Assignment 2: Java Web Core Architecture (PRJ301)</option>
+                            <option value="3">Milestone 1: Software Requirements (SWR302)</option>
+                            <option value="4">Lab Exercise 3: Core Java & IOT (IOT102)</option>
+                            <option value="5">Final Project: Git Analytics Platform (SE20C)</option>
+                            <option value="6">Practical Exam: CSD201 Data Structures (CSD201)</option>
+                        </select>
+                    </div>
+                    <div class="form-group-block">
+                        <label for="sandboxFileNameInput">Tên tệp nộp bài / Artifact (.zip, .java):</label>
+                        <input type="text" id="sandboxFileNameInput" class="form-control-input" value="prj301_student_solution.zip" required>
+                    </div>
+                    <div class="form-group-block">
+                        <label for="sandboxScorePresetSelect">Kết quả kiểm thử Sandbox (Test Suite):</label>
+                        <select id="sandboxScorePresetSelect" class="form-control-input">
+                            <option value="10.0">✔ 10.0 / 10 - PASSED (5/5 Test Cases)</option>
+                            <option value="8.5">✔ 8.5 / 10 - PASSED (4/5 Test Cases)</option>
+                            <option value="7.0">⚡ 7.0 / 10 - PARTIAL (3/5 Test Cases)</option>
+                            <option value="0.0_TLE">⏰ 0.0 / 10 - TIMEOUT (TLE: Vượt quá 10.0s)</option>
+                            <option value="0.0_ERR">❌ 0.0 / 10 - LỖI BIÊN DỊCH (Compilation Error)</option>
+                        </select>
+                    </div>
+                    <p id="sandboxRunMsg" style="font-size: 0.84rem; display: none;"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-outline" onclick="closeModal('runSandboxModal')">Hủy bỏ</button>
+                    <button type="submit" class="btn-primary" id="btnSubmitSandboxRun">
+                        <i class="fa-solid fa-play"></i> Bắt đầu chấm & Lưu CSDL
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
 </body>
 </html>
