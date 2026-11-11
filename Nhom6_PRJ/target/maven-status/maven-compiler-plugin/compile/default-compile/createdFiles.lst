@@ -28,12 +28,14 @@ com\aita\gitanalytics\servlet\AdministratorBootstrapListener.class
 com\aita\gitanalytics\dao\AssignmentDAO$StoredFile.class
 com\aita\gitanalytics\servlet\CourseServlet.class
 com\aita\gitanalytics\service\ExamService.class
+com\aita\gitanalytics\model\SandboxResult.class
 com\aita\gitanalytics\service\ExamService$QuestionDraft.class
 com\aita\gitanalytics\servlet\ExamServlet.class
 com\aita\gitanalytics\service\MarketplaceService.class
 com\aita\gitanalytics\service\GitScoreCalculatorService$StudentGitData.class
 com\aita\gitanalytics\demo\InsertUserDemo.class
 com\aita\gitanalytics\service\PedagogicalGuidanceService.class
+com\aita\gitanalytics\service\MoulinetteSandboxService.class
 com\aita\gitanalytics\service\PedagogicalGuidanceService$PedagogicalFeedback.class
 com\aita\gitanalytics\servlet\AuthServlet.class
 com\aita\gitanalytics\servlet\MarketplaceServlet.class
