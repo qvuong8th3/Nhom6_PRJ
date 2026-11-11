@@ -134,13 +134,16 @@ public class GitAnalyticsServlet extends HttpServlet {
         UserAccount account = getAuthenticatedUser(request, response, out);
         if (account == null) return;
 
-        if (!"LECTURER".equals(account.getRole()) && !"ADMIN".equals(account.getRole())) {
-            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            out.print("{\"error\":\"Chỉ giảng viên hoặc quản trị viên mới có quyền điều chỉnh trọng số.\"}");
-            return;
-        }
-
         String servletPath = request.getServletPath();
+
+        // Chỉ chặn quyền LECTURER hoặc ADMIN cho các chức năng nhạy cảm như chốt điểm hoặc sửa trọng số
+        if (servletPath.endsWith("/adjust-score") || servletPath.endsWith("/settings")) {
+            if (!"LECTURER".equals(account.getRole()) && !"ADMIN".equals(account.getRole())) {
+                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                out.print("{\"error\":\"Chỉ giảng viên hoặc quản trị viên mới có quyền điều chỉnh điểm hoặc trọng số.\"}");
+                return;
+            }
+        }
 
         if (servletPath.endsWith("/sync")) {
             int groupId = resolveGroupId(request, response, out, account);

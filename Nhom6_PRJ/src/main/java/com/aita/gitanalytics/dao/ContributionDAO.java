@@ -351,15 +351,23 @@ public class ContributionDAO {
         try (Connection conn = DBContext.getConnection()) {
             if (conn == null) return false;
 
-            // 1. Dọn dẹp commit_logs và Pull_Requests cũ của repo trước khi đồng bộ repo mới
+            // 1. Dọn dẹp commit_logs, Pull_Requests, bảng điểm và thành viên cũ của repo trước khi đồng bộ repo mới
             try (PreparedStatement psClearCommits = conn.prepareStatement(
                     "DELETE c FROM commit_logs c JOIN git_repositories r ON c.repo_id = r.repo_id JOIN projects p ON r.project_id = p.project_id WHERE p.group_id = ?");
                  PreparedStatement psClearPRs = conn.prepareStatement(
-                    "DELETE FROM Pull_Requests WHERE group_id = ?")) {
+                    "DELETE FROM Pull_Requests WHERE group_id = ?");
+                 PreparedStatement psClearScores = conn.prepareStatement(
+                    "DELETE FROM Contribution_Scores WHERE group_id = ?");
+                 PreparedStatement psClearMembers = conn.prepareStatement(
+                    "DELETE FROM Group_Members WHERE group_id = ?")) {
                 psClearCommits.setInt(1, groupId);
                 psClearCommits.executeUpdate();
                 psClearPRs.setInt(1, groupId);
                 psClearPRs.executeUpdate();
+                psClearScores.setInt(1, groupId);
+                psClearScores.executeUpdate();
+                psClearMembers.setInt(1, groupId);
+                psClearMembers.executeUpdate();
             }
 
             // 2. Cập nhật repo_url

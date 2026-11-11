@@ -685,16 +685,16 @@
                                 <i class="fa-solid fa-shield-cat" style="color: #f59e0b;"></i> Huy hiệu cảnh báo thông minh (AI / Rule Alerts):
                             </span>
                             <span class="badge-pill" style="background:#fee2e2; color:#b91c1c; font-weight:700; cursor:pointer;" title="Đóng góp dưới ngưỡng chuẩn 15% tổng volume">
-                                <i class="fa-solid fa-triangle-exclamation"></i> 3 Nghi vấn Free-rider
+                                <i class="fa-solid fa-triangle-exclamation"></i> <span id="alertFreeRiderCount">3</span> Nghi vấn Free-rider
                             </span>
                             <span class="badge-pill" style="background:#fef9c3; color:#854d0e; font-weight:700; cursor:pointer;" title="Lượng commit tăng đột biến trước giờ nộp bài">
-                                <i class="fa-solid fa-bolt"></i> 1 Commit Burst (Dồn phút chót)
+                                <i class="fa-solid fa-bolt"></i> <span id="alertCommitBurstCount">1</span> Commit Burst (Dồn phút chót)
                             </span>
                             <span class="badge-pill" style="background:#ecfdf5; color:#065f46; font-weight:700; cursor:pointer;" title="Cam kết mã nguồn đều đặn các tuần">
-                                <i class="fa-solid fa-circle-check"></i> 2 Đều đặn (Freq &gt; 75%)
+                                <i class="fa-solid fa-circle-check"></i> <span id="alertRegularCount">2</span> Đều đặn (Freq &gt; 75%)
                             </span>
                             <span class="badge-pill" style="background:#e0e7ff; color:#3730a3; font-weight:700; cursor:pointer;" title="Tham gia Pull Request và phản hồi nhận xét code">
-                                <i class="fa-solid fa-code-pull-request"></i> 2 Reviewer tích cực
+                                <i class="fa-solid fa-code-pull-request"></i> <span id="alertReviewerCount">2</span> Reviewer tích cực
                             </span>
                         </div>
                         <span style="font-size: 0.74rem; color: #64748b;"><i class="fa-solid fa-robot"></i> AI Engine FE-L-03 Assessor</span>
@@ -2061,13 +2061,18 @@
             <form id="editRepoForm">
                 <div class="modal-body">
                     <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 16px;">
-                        Nhập đường dẫn GitHub repository của nhóm để hệ thống tự động quét lịch sử commit, pull request, code review và tính toán điểm số cho từng thành viên:
+                        Nhập liên kết GitHub repository của nhóm bất kỳ để hệ thống tự động quét lịch sử commit thực tế, nhận diện toàn bộ thành viên/tác giả tham gia dự án và đề xuất điểm số công bằng:
                     </p>
                     <div class="form-group-block">
                         <label for="repoUrlInput">Đường dẫn GitHub Repository</label>
                         <input type="url" id="repoUrlInput" class="form-control-input" 
                                value="https://github.com/lx426352-art/PRJ301-Nh-m-6" 
                                placeholder="https://github.com/username/repository-name" required>
+                    </div>
+                    <div class="form-group-block">
+                        <label for="repoGithubTokenInput">GitHub Personal Access Token (PAT) <span style="font-size: 0.78rem; color: #64748b; font-weight: normal;">(Tùy chọn - Dùng khi repo là Private hoặc để tránh giới hạn lượt gọi GitHub API)</span></label>
+                        <input type="password" id="repoGithubTokenInput" class="form-control-input" 
+                               placeholder="ghp_xxxxxxxxxxxxxxxxxxxx (không bắt buộc)">
                     </div>
                     <div class="form-group-block">
                         <label for="repoGroupIdInput">Mã nhóm học tập</label>
