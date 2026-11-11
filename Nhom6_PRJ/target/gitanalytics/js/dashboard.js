@@ -688,8 +688,116 @@ async function deleteStudent(id) {
 }
 
 // 4. COURSES VIEW & ROSTER MODAL
-function renderCoursesView() {
-    // Courses cards already in HTML
+async function renderCoursesView() {
+    const container = document.getElementById('coursesGridContainer');
+    if (!container) return;
+
+    try {
+        const response = await fetch(apiUrl('api/v1/courses'), { credentials: 'same-origin' });
+        if (!response.ok) return;
+        const courses = await response.json();
+        if (Array.isArray(courses) && courses.length > 0) {
+            container.innerHTML = courses.map(c => `
+                <div class="course-card">
+                    <div>
+                        <div class="course-card-top">
+                            <span class="course-code-tag">${escapeHtml(c.courseCode)}</span>
+                            <span class="badge-pill normal">${escapeHtml(c.semester || 'Đang diễn ra')}</span>
+                        </div>
+                        <h3 class="course-name-text">${escapeHtml(c.courseName)}</h3>
+                        <p style="font-size: 0.82rem; color: #64748b; margin-bottom: 12px;">Chương trình đào tạo chuyên ngành - Kỹ thuật phần mềm</p>
+                        <div class="course-lecturer-info">
+                            <i class="fa-solid fa-chalkboard-user" style="color: #4f46e5;"></i>
+                            <span>Giảng viên: <strong>${escapeHtml(c.lecturerName || 'Đang phân công')}</strong></span>
+                        </div>
+                    </div>
+                    <div class="course-card-footer" data-menu-section="class-list">
+                        <span><i class="fa-solid fa-users"></i> ${c.classCount || 1} Lớp học</span>
+                        <button type="button" class="btn-outline" onclick="openClassRosterModal('${escapeHtml(c.courseCode)}', '${escapeHtml(c.courseName)}')">
+                            <i class="fa-solid fa-list-ul"></i> Xem lớp
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+    } catch (_) {
+        // Giữ fallback UI
+    }
+}
+
+async function loadLecturersForCourseModal() {
+    const select = document.getElementById('courseLecturersSelect');
+    if (!select) return;
+    try {
+        const response = await fetch(apiUrl('api/v1/courses/lecturers'), { credentials: 'same-origin' });
+        if (response.ok) {
+            const lecturers = await response.json();
+            if (Array.isArray(lecturers) && lecturers.length > 0) {
+                select.innerHTML = lecturers.map((lec, idx) => `
+                    <option value="${lec.userId}" ${idx === 0 ? 'selected' : ''}>
+                        ${escapeHtml(lec.fullName || lec.username)} (${escapeHtml(lec.email || lec.username)})
+                    </option>
+                `).join('');
+            }
+        }
+    } catch (_) {}
+}
+
+async function handleSaveCourse(event) {
+    if (event) event.preventDefault();
+    const courseCode = document.getElementById('courseCodeInput').value.trim();
+    const courseName = document.getElementById('courseNameInput').value.trim();
+    const semester = document.getElementById('courseSemesterInput').value.trim();
+    const lecturerSelect = document.getElementById('courseLecturersSelect');
+    const selectedLecturers = Array.from(lecturerSelect.selectedOptions).map(opt => opt.value);
+
+    if (!courseCode || !courseName) {
+        alert('Vui lòng nhập đầy đủ mã môn học và tên môn học.');
+        return;
+    }
+    if (selectedLecturers.length === 0) {
+        alert('Vui lòng chọn ít nhất một giảng viên phụ trách môn.');
+        return;
+    }
+
+    const submitBtn = document.getElementById('btnSubmitCourse');
+    const origText = submitBtn ? submitBtn.innerHTML : '';
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang lưu...';
+    }
+
+    try {
+        const params = new URLSearchParams();
+        params.append('courseCode', courseCode);
+        params.append('courseName', courseName);
+        params.append('semester', semester);
+        selectedLecturers.forEach(id => params.append('lecturerIds', id));
+
+        const res = await fetch(apiUrl('api/v1/courses'), {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: params
+        });
+        const data = await res.json();
+        if (!res.ok) {
+            throw new Error(data.error || 'Không thể tạo môn học.');
+        }
+
+        alert('Thêm môn học thành công!');
+        closeModal('courseModal');
+        const form = document.getElementById('courseForm');
+        if (form) form.reset();
+        await renderCoursesView();
+    } catch (err) {
+        alert('Lỗi thêm môn học: ' + err.message);
+    } finally {
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = origText;
+        }
+    }
 }
 
 function openClassRosterModal(courseCode, courseName) {
@@ -893,6 +1001,15 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('studentPasswordBlock').style.display = 'block';
             document.getElementById('studentFormError').style.display = 'none';
             openModal('studentModal');
+        });
+    }
+
+    // 5b. Open Add Course Modal (Admin)
+    const btnAdminAddCourse = document.getElementById('btnAdminAddCourse');
+    if (btnAdminAddCourse) {
+        btnAdminAddCourse.addEventListener('click', async () => {
+            await loadLecturersForCourseModal();
+            openModal('courseModal');
         });
     }
 

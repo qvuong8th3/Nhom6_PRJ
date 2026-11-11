@@ -2478,6 +2478,50 @@
         </div>
     </div>
 
+    <!-- ============================================================
+         MODAL 12: THÊM MÔN HỌC (ADMIN COURSE MODAL)
+         ============================================================ -->
+    <div id="courseModal" class="aita-modal-overlay hidden">
+        <div class="aita-modal-dialog">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-graduation-cap"></i> Thêm môn học mới</h3>
+                <button type="button" class="btn-modal-close" onclick="closeModal('courseModal')"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="courseForm" onsubmit="handleSaveCourse(event)">
+                <div class="modal-body">
+                    <div class="form-group-block">
+                        <label for="courseCodeInput">Mã môn học <span style="color:#ef4444;">*</span>:</label>
+                        <input type="text" id="courseCodeInput" name="courseCode" class="form-control-input" placeholder="ví dụ: SWP391, PRJ301..." required>
+                    </div>
+                    <div class="form-group-block">
+                        <label for="courseNameInput">Tên môn học <span style="color:#ef4444;">*</span>:</label>
+                        <input type="text" id="courseNameInput" name="courseName" class="form-control-input" placeholder="ví dụ: Kỹ thuật phát triển phần mềm..." required>
+                    </div>
+                    <div class="form-group-block">
+                        <label for="courseSemesterInput">Học kỳ:</label>
+                        <input type="text" id="courseSemesterInput" name="semester" class="form-control-input" placeholder="ví dụ: Fall 2026, Spring 2027..." value="Fall 2026">
+                    </div>
+                    <div class="form-group-block">
+                        <label for="courseLecturersSelect">Giảng viên phụ trách <span style="color:#ef4444;">*</span>:</label>
+                        <select id="courseLecturersSelect" name="lecturerIds" class="form-control-input" multiple size="4" required style="height: auto; min-height: 95px;">
+                            <option value="2" selected>TS. Nguyễn Anh Khoa (KhoanaGV00001)</option>
+                            <option value="3">ThS. Nguyễn Văn Vịnh (VinhnvGV00002)</option>
+                            <option value="4">ThS. Nguyễn Lê Tín (TinnlGV00003)</option>
+                            <option value="5">ThS. Nguyễn Văn Hưng (HungnvGV00004)</option>
+                        </select>
+                        <small style="color: #64748b; font-size: 0.75rem; display: block; margin-top: 4px;">Giữ phím Ctrl để chọn một hoặc nhiều giảng viên phụ trách môn.</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-outline" onclick="closeModal('courseModal')">Hủy</button>
+                    <button type="submit" class="btn-primary" id="btnSubmitCourse">
+                        <i class="fa-solid fa-floppy-disk"></i> Lưu môn học
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- SCRIPT ĐIỀU HƯỚNG CÂY MENU & LOGIC CÁC VIEW MỚI -->
     <script>
         function toggleNavGroup(btn) {

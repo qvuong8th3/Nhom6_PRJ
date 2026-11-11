@@ -230,8 +230,11 @@ public class AssignmentServlet extends HttpServlet {
 
         String[] path = pathParts(request);
         try {
-            // Chỉ Giảng viên mới có quyền xóa bài tập
-            if (!requireRole(user, "LECTURER", response)) {
+            boolean isLecturer = "LECTURER".equals(user.getRole());
+            boolean isAdmin = "ADMIN".equals(user.getRole());
+            if (!isLecturer && !isAdmin) {
+                writeError(response, HttpServletResponse.SC_FORBIDDEN,
+                        "Chỉ Giảng viên hoặc Quản trị viên mới có quyền xóa bài tập.");
                 return;
             }
 
@@ -239,8 +242,8 @@ public class AssignmentServlet extends HttpServlet {
             if (path.length == 1) {
                 int assignmentId = parseId(path[0]);
                 
-                // Gọi DAO để thực hiện lệnh xóa (cần đảm bảo AssignmentDAO đã có hàm deleteAssignment)
-                boolean deleted = assignmentDAO.deleteAssignment(assignmentId, user.getUserId());
+                // Gọi DAO để thực hiện lệnh xóa (Admin xóa được tất cả, GV xóa bài tập môn phụ trách/tạo ra)
+                boolean deleted = assignmentDAO.deleteAssignment(assignmentId, user.getUserId(), isAdmin);
                 
                 if (!deleted) {
                     writeError(response, HttpServletResponse.SC_NOT_FOUND, 

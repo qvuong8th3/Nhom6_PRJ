@@ -178,23 +178,42 @@ public class AssignmentDAO {
         }
     }
 
-    public boolean deleteAssignment(int assignmentId, int lecturerId) {
-        // Câu lệnh SQL: Chỉ xóa bài tập nếu người xóa chính là người đã tạo ra nó (lecturerId)
-        String sql = "DELETE FROM Essay_Assignments WHERE assignment_id = ? AND created_by = ?";
+    public boolean deleteAssignment(int assignmentId, int userId, boolean isAdmin) {
+        String deleteSubmissionsSql = "DELETE FROM Essay_Submissions WHERE assignment_id = ?";
+        String deleteAssignmentSql;
+        if (isAdmin) {
+            deleteAssignmentSql = "DELETE FROM Essay_Assignments WHERE assignment_id = ?";
+        } else {
+            deleteAssignmentSql = "DELETE FROM Essay_Assignments WHERE assignment_id = ? AND "
+                    + "(created_by = ? OR EXISTS (SELECT 1 FROM Lecturer_Courses lc WHERE lc.course_id = Essay_Assignments.course_id AND lc.lecturer_id = ?))";
+        }
         
-        try (Connection connection = requireConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
-             
-            statement.setInt(1, assignmentId);
-            statement.setInt(2, lecturerId);
-            
-            // executeUpdate trả về số dòng bị ảnh hưởng. Nếu > 0 nghĩa là xóa thành công.
-            return statement.executeUpdate() > 0;
-            
+        try (Connection connection = requireConnection()) {
+            connection.setAutoCommit(false);
+            try {
+                try (PreparedStatement stmtSub = connection.prepareStatement(deleteSubmissionsSql)) {
+                    stmtSub.setInt(1, assignmentId);
+                    stmtSub.executeUpdate();
+                }
+                
+                boolean deleted;
+                try (PreparedStatement stmt = connection.prepareStatement(deleteAssignmentSql)) {
+                    stmt.setInt(1, assignmentId);
+                    if (!isAdmin) {
+                        stmt.setInt(2, userId);
+                        stmt.setInt(3, userId);
+                    }
+                    deleted = stmt.executeUpdate() > 0;
+                }
+                connection.commit();
+                return deleted;
+            } catch (SQLException e) {
+                connection.rollback();
+                throw e;
+            } finally {
+                connection.setAutoCommit(true);
+            }
         } catch (SQLException e) {
-            // Lưu ý: Nếu có lỗi khóa ngoại (Foreign Key) do sinh viên đã nộp bài (bảng Essay_Submissions)
-            // thì SQL Server sẽ quăng lỗi ở đây. Bạn nên có chiến lược xóa CASCADE trong database,
-            // hoặc xóa dữ liệu ở bảng con (Essay_Submissions) trước khi xóa ở bảng cha.
             throw new DataAccessException("Could not delete assignment.", e);
         }
     }
@@ -249,11 +268,13 @@ public class AssignmentDAO {
     }
 
     public boolean saveSubmission(int assignmentId, int studentId, String fileName, byte[] fileData) {
+        long fileSize = fileData != null ? fileData.length : 0;
         String updateSql = "UPDATE Essay_Submissions SET file_name = ?, file_data = ?, "
-                + "submitted_at = SYSUTCDATETIME() WHERE assignment_id = ? AND student_id = ?";
+                + "file_size_bytes = ?, submitted_at = SYSUTCDATETIME() WHERE assignment_id = ? AND student_id = ?";
         String insertSql = "INSERT INTO Essay_Submissions "
-                + "(assignment_id, student_id, file_name, file_data) VALUES (?, ?, ?, ?)";
-        String deadlineSql = "SELECT CASE WHEN a.due_at IS NULL OR a.due_at > SYSUTCDATETIME() "
+                + "(assignment_id, student_id, file_name, file_data, file_size_bytes) VALUES (?, ?, ?, ?, ?)";
+        String deadlineSql = "SELECT CASE WHEN (a.due_at IS NULL AND a.due_date IS NULL) "
+                + "OR ISNULL(a.due_at, a.due_date) > SYSUTCDATETIME() "
                 + "THEN 1 ELSE 0 END FROM Essay_Assignments a WITH (UPDLOCK, HOLDLOCK) "
                 + "WHERE a.assignment_id = ? AND a.course_id IS NOT NULL AND EXISTS ("
                 + "SELECT 1 FROM Course_Classes cl JOIN Class_Students cs "
@@ -278,8 +299,9 @@ public class AssignmentDAO {
                 try (PreparedStatement update = connection.prepareStatement(updateSql)) {
                     update.setString(1, fileName);
                     update.setBytes(2, fileData);
-                    update.setInt(3, assignmentId);
-                    update.setInt(4, studentId);
+                    update.setLong(3, fileSize);
+                    update.setInt(4, assignmentId);
+                    update.setInt(5, studentId);
                     updated = update.executeUpdate();
                 }
                 if (updated == 0) {
@@ -288,6 +310,7 @@ public class AssignmentDAO {
                         insert.setInt(2, studentId);
                         insert.setString(3, fileName);
                         insert.setBytes(4, fileData);
+                        insert.setLong(5, fileSize);
                         insert.executeUpdate();
                     }
                 }
